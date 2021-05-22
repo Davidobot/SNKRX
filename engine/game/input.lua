@@ -2,6 +2,7 @@ Input = Object:extend()
 function Input:init(joystick_index)
   self.mouse_buttons = {"m1", "m2", "m3", "m4", "m5", "wheel_up", "wheel_down"}
   self.gamepad_buttons = {"fdown", "fup", "fleft", "fright", "dpdown", "dpup", "dpleft", "dpright", "start", "back", "guide", "leftstick", "rightstick", "rb", "lb"}
+  self.touch_buttons = {"touch_left", "touch_right"}
   self.index_to_gamepad_button = {["a"] = "fdown", ["b"] = "fright", ["x"] = "fleft", ["y"] = "fup", ["back"] = "back", ["start"] = "start", ["guide"] = "guide", ["leftstick"] = "leftstick",
     ["rightstick"] = "rightstick", ["leftshoulder"] = "lb", ["rightshoulder"] = "rb", ["dpdown"] = "dpdown", ["dpup"] = "dpup", ["dpleft"] = "dpleft", ["dpright"] = "dpright",
   }
@@ -15,6 +16,8 @@ function Input:init(joystick_index)
   self.previous_mouse_state = {}
   self.gamepad_state = {}
   self.previous_gamepad_state = {}
+  self.touch_state = {}
+  self.previous_touch_state = {}
   self.actions = {}
   self.textinput_buffer = ''
 end
@@ -37,6 +40,19 @@ function Input:update(dt)
         self[action].pressed = self[action].pressed or (self.gamepad_state[key] and not self.previous_gamepad_state[key])
         self[action].down = self[action].down or self.gamepad_state[key]
         self[action].released = self[action].released or (not self.gamepad_state[key] and  self.previous_gamepad_state[key])
+      elseif table.contains(self.touch_buttons, key) then
+        local any_down = false
+        for _, value in pairs(self.touch_state) do
+          if value == key then any_down = true end
+        end
+        local prev_any_down = false
+        for _, value in pairs(self.previous_touch_state) do
+          if value == key then prev_any_down = true end
+        end
+
+        self[action].pressed = self[action].pressed or (any_down and not prev_any_down)
+        self[action].down = self[action].down or any_down
+        self[action].released = self[action].released or (any_down and  prev_any_down)
       else
         self[action].pressed = self[action].pressed or (self.keyboard_state[key] and not self.previous_keyboard_state[key])
         self[action].down = self[action].down or self.keyboard_state[key]
@@ -48,6 +64,7 @@ function Input:update(dt)
   self.previous_mouse_state = table.copy(self.mouse_state)
   self.previous_gamepad_state = table.copy(self.gamepad_state)
   self.previous_keyboard_state = table.copy(self.keyboard_state)
+  self.previous_touch_state = table.copy(self.touch_state)
   self.mouse_state.wheel_up = false
   self.mouse_state.wheel_down = false
 end

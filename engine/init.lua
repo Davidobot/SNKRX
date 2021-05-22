@@ -46,7 +46,8 @@ end
 function engine_run(config)
   if not web then
     love.filesystem.setIdentity(config.game_name)
-    system.load_state()
+    --system.load_state()
+    state = {}
 
     local _, _, flags = love.window.getMode()
     local window_width, window_height = love.window.getDesktopDimensions(flags.display)
@@ -65,10 +66,10 @@ function engine_run(config)
 
     if state.sx and state.sy then
       sx, sy = state.sx, state.sy
-      love.window.setMode(state.sx*gw, state.sy*gh, {fullscreen = state.fullscreen, vsync = config.vsync, msaa = msaa or 0, display = config.display})
+      love.window.setMode(state.sx*gw, state.sy*gh, {fullscreen = state.fullscreen, vsync = config.vsync, msaa = msaa or 0, usedpiscale = false})
     else
       state.sx, state.sy = sx, sy
-      love.window.setMode(window_width, window_height, {fullscreen = config.fullscreen, vsync = config.vsync, msaa = msaa or 0, display = config.display})
+      love.window.setMode(window_width, window_height, {fullscreen = config.fullscreen, vsync = config.vsync, msaa = msaa or 0, usedpiscale = false})
     end
     love.window.setTitle(config.game_name)
 
@@ -131,6 +132,8 @@ function engine_run(config)
         elseif name == "gamepadpressed" then input.gamepad_state[input.index_to_gamepad_button[b]] = true; input.last_key_pressed = input.index_to_gamepad_button[b]
         elseif name == "gamepadreleased" then input.gamepad_state[input.index_to_gamepad_button[b]] = false
         elseif name == "gamepadaxis" then input.gamepad_axis[input.index_to_gamepad_axis[b]] = c
+        elseif name == "touchpressed" then input.touch_state[a] = b < ww / 2 and "touch_left" or "touch_right"
+        elseif name == "touchreleased" then input.touch_state[a] = nil
         elseif name == "textinput" then input:textinput(a) end
       end
     end

@@ -259,7 +259,7 @@ function Node:update(dt)
     end
   end
 
-  if self.hot and self.can_be_visited and not self.visited and input.m1.pressed then
+  if self.hot and self.can_be_visited and not self.visited and input.m1.released then
     self.t:cancel'visit_pulse'
     self.t:cancel'visit_pulse_1'
     self.t:cancel'visit_pulse_2'

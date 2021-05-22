@@ -35,6 +35,12 @@ function Arena:on_enter(from, level, units, passives)
   self.main:enable_trigger_between('enemy_projectile', 'player')
   self.main:enable_trigger_between('player', 'enemy_projectile')
 
+  self.pause_button = Button{group = self.ui, x = gw - 20, y = gh - 20, force_update = true, button_text = 'pause', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+    if not self.paused and not self.transitioning and not self.in_credits then
+      self:pause()
+    end
+  end}
+
   self.damage_dealt = 0
   self.damage_taken = 0
   self.main_slow_amount = 1
@@ -269,6 +275,113 @@ function Arena:on_exit()
   self.hfx = nil
 end
 
+function Arena:pause()
+  if not self.paused then
+    trigger:tween(0.25, _G, {slow_amount = 0}, math.linear, function()
+      slow_amount = 0
+      self.paused = true
+      self.paused_t1 = Text2{group = self.ui, x = gw/2, y = gh/2 - 68, sx = 0.6, sy = 0.6, lines = {{text = '[bg10]<-, a or m1       ->, d or m2', font = fat_font, alignment = 'center'}}}
+      self.paused_t2 = Text2{group = self.ui, x = gw/2, y = gh/2 - 52, lines = {{text = '[bg10]turn left                                            turn right', font = pixul_font, alignment = 'center'}}}
+
+      self.pause_button.dead = true
+      self.pause_button = nil
+
+      self.resume_button = Button{group = self.ui, x = gw/2, y = gh - 160, force_update = true, button_text = 'resume game', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+        trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
+          slow_amount = 1
+          self.paused = false
+          self.paused_t1.dead = true
+          self.paused_t2.dead = true
+          self.paused_t1 = nil
+          self.paused_t2 = nil
+          if self.resume_button then self.resume_button.dead = true; self.resume_button = nil end
+          if self.restart_button then self.restart_button.dead = true; self.restart_button = nil end
+          if self.sfx_button then self.sfx_button.dead = true; self.sfx_button = nil end
+          if self.music_button then self.music_button.dead = true; self.music_button = nil end
+          if self.quit_button then self.quit_button.dead = true; self.quit_button = nil end
+
+          self.pause_button = Button{group = self.ui, x = gw - 20, y = gh - 20, force_update = true, button_text = 'pause', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+            if not self.paused and not self.transitioning and not self.in_credits then
+              self:pause()
+            end
+          end}
+        end, 'pause')
+      end}
+
+      self.restart_button = Button{group = self.ui, x = gw/2, y = gh - 135, force_update = true, button_text = 'restart run', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+        self.transitioning = true
+        ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = fg[0], transition_action = function()
+          slow_amount = 1
+          gold = 2
+          passives = {}
+          main_song_instance:stop()
+          run_passive_pool_by_tiers = {
+            [1] = { 'wall_echo', 'wall_rider', 'centipede', 'temporal_chains', 'amplify', 'amplify_x', 'ballista', 'ballista_x', 'blunt_arrow', 'berserking', 'unwavering_stance', 'assassination', 'unleash', 'blessing',
+              'hex_master', 'force_push', 'spawning_pool'}, 
+            [2] = {'ouroboros_technique_r', 'ouroboros_technique_l', 'intimidation', 'vulnerability', 'resonance', 'point_blank', 'longshot', 'explosive_arrow', 'chronomancy', 'awakening', 'ultimatum', 'echo_barrage', 
+              'reinforce', 'payback', 'whispers_of_doom', 'heavy_impact', 'immolation', 'call_of_the_void'},
+            [3] = {'divine_machine_arrow', 'divine_punishment', 'flying_daggers', 'crucio', 'hive', 'void_rift'},
+          }
+          max_units = 7 + new_game_plus
+          main:add(BuyScreen'buy_screen')
+          main:go_to('buy_screen', 0, {}, passives)
+        end, text = Text({{text = '[wavy, bg]restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
+      end}
+
+      self.sfx_button = Button{group = self.ui, x = gw/2, y = gh - 110, force_update = true, button_text = 'toggle sfx', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        b.spring:pull(0.2, 200, 10)
+        b.selected = true
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        if sfx.volume == 0.5 then
+          sfx.volume = 0
+        elseif sfx.volume == 0 then
+          sfx.volume = 0.5
+        end
+      end}
+
+      self.music_button = Button{group = self.ui, x = gw/2, y = gh - 85, force_update = true, button_text = 'toggle music', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        b.spring:pull(0.2, 200, 10)
+        b.selected = true
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        if music.volume == 0.5 then
+          music.volume = 0
+        elseif music.volume == 0 then
+          music.volume = 0.5
+        end
+      end}
+
+      self.quit_button = Button{group = self.ui, x = gw/2, y = gh - 35, force_update = true, button_text = 'quit', fg_color = 'bg10', bg_color = 'bg', action = function()
+        system.save_state()
+        love.event.quit()
+      end}
+    end, 'pause')
+  else
+    trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
+      slow_amount = 1
+      self.paused = false
+      self.paused_t1.dead = true
+      self.paused_t2.dead = true
+      self.paused_t1 = nil
+      self.paused_t2 = nil
+      if self.resume_button then self.resume_button.dead = true; self.resume_button = nil end
+      if self.restart_button then self.restart_button.dead = true; self.restart_button = nil end
+      if self.sfx_button then self.sfx_button.dead = true; self.sfx_button = nil end
+      if self.music_button then self.music_button.dead = true; self.music_button = nil end
+      if self.quit_button then self.quit_button.dead = true; self.quit_button = nil end
+
+      self.pause_button = Button{group = self.ui, x = gw - 20, y = gh - 20, force_update = true, button_text = 'pause', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+        if not self.paused and not self.transitioning and not self.in_credits then
+          self:pause()
+        end
+      end}
+    end, 'pause')
+  end
+end
 
 function Arena:update(dt)
   if main_song_instance:isStopped() then
@@ -276,125 +389,7 @@ function Arena:update(dt)
   end
 
   if input.escape.pressed and not self.transitioning and not self.in_credits then
-    if not self.paused then
-      trigger:tween(0.25, _G, {slow_amount = 0}, math.linear, function()
-        slow_amount = 0
-        self.paused = true
-        self.paused_t1 = Text2{group = self.ui, x = gw/2, y = gh/2 - 68, sx = 0.6, sy = 0.6, lines = {{text = '[bg10]<-, a or m1       ->, d or m2', font = fat_font, alignment = 'center'}}}
-        self.paused_t2 = Text2{group = self.ui, x = gw/2, y = gh/2 - 52, lines = {{text = '[bg10]turn left                                            turn right', font = pixul_font, alignment = 'center'}}}
-
-        self.resume_button = Button{group = self.ui, x = gw/2, y = gh - 160, force_update = true, button_text = 'resume game (esc)', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-          trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
-            slow_amount = 1
-            self.paused = false
-            self.paused_t1.dead = true
-            self.paused_t2.dead = true
-            self.paused_t1 = nil
-            self.paused_t2 = nil
-            if self.resume_button then self.resume_button.dead = true; self.resume_button = nil end
-            if self.restart_button then self.restart_button.dead = true; self.restart_button = nil end
-            if self.sfx_button then self.sfx_button.dead = true; self.sfx_button = nil end
-            if self.music_button then self.music_button.dead = true; self.music_button = nil end
-            if self.video_button_1 then self.video_button_1.dead = true; self.video_button_1 = nil end
-            if self.video_button_2 then self.video_button_2.dead = true; self.video_button_2 = nil end
-            if self.video_button_3 then self.video_button_3.dead = true; self.video_button_3 = nil end
-            if self.quit_button then self.quit_button.dead = true; self.quit_button = nil end
-          end, 'pause')
-        end}
-
-        self.restart_button = Button{group = self.ui, x = gw/2, y = gh - 135, force_update = true, button_text = 'restart run (r)', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-          self.transitioning = true
-          ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-          ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-          ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-          TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = fg[0], transition_action = function()
-            slow_amount = 1
-            gold = 2
-            passives = {}
-            main_song_instance:stop()
-            run_passive_pool_by_tiers = {
-              [1] = { 'wall_echo', 'wall_rider', 'centipede', 'temporal_chains', 'amplify', 'amplify_x', 'ballista', 'ballista_x', 'blunt_arrow', 'berserking', 'unwavering_stance', 'assassination', 'unleash', 'blessing',
-                'hex_master', 'force_push', 'spawning_pool'}, 
-              [2] = {'ouroboros_technique_r', 'ouroboros_technique_l', 'intimidation', 'vulnerability', 'resonance', 'point_blank', 'longshot', 'explosive_arrow', 'chronomancy', 'awakening', 'ultimatum', 'echo_barrage', 
-                'reinforce', 'payback', 'whispers_of_doom', 'heavy_impact', 'immolation', 'call_of_the_void'},
-              [3] = {'divine_machine_arrow', 'divine_punishment', 'flying_daggers', 'crucio', 'hive', 'void_rift'},
-            }
-            max_units = 7 + new_game_plus
-            main:add(BuyScreen'buy_screen')
-            main:go_to('buy_screen', 0, {}, passives)
-          end, text = Text({{text = '[wavy, bg]restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
-        end}
-
-        self.sfx_button = Button{group = self.ui, x = gw/2, y = gh - 110, force_update = true, button_text = 'toggle sfx (n)', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-          ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-          b.spring:pull(0.2, 200, 10)
-          b.selected = true
-          ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-          if sfx.volume == 0.5 then
-            sfx.volume = 0
-          elseif sfx.volume == 0 then
-            sfx.volume = 0.5
-          end
-        end}
-
-        self.music_button = Button{group = self.ui, x = gw/2, y = gh - 85, force_update = true, button_text = 'toggle music (m)', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-          ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-          b.spring:pull(0.2, 200, 10)
-          b.selected = true
-          ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-          if music.volume == 0.5 then
-            music.volume = 0
-          elseif music.volume == 0 then
-            music.volume = 0.5
-          end
-        end}
-
-        self.video_button_1 = Button{group = self.ui, x = gw/2 - 86, y = gh - 60, force_update = true, button_text = 'window size-', fg_color = 'bg10', bg_color = 'bg', action = function()
-          sx, sy = sx - 1, sy - 1
-          love.window.setMode(480*sx, 270*sy)
-          state.sx, state.sy = sx, sy
-          state.fullscreen = false
-        end}
-
-        self.video_button_2 = Button{group = self.ui, x = gw/2, y = gh - 60, force_update = true, button_text = 'window size+', fg_color = 'bg10', bg_color = 'bg', action = function()
-          sx, sy = sx + 1, sy + 1
-          love.window.setMode(480*sx, 270*sy)
-          state.sx, state.sy = sx, sy
-          state.fullscreen = false
-        end}
-
-        self.video_button_3 = Button{group = self.ui, x = gw/2 + 79, y = gh - 60, force_update = true, button_text = 'fullscreen', fg_color = 'bg10', bg_color = 'bg', action = function()
-          local _, _, flags = love.window.getMode()
-          local window_width, window_height = love.window.getDesktopDimensions(flags.display)
-          sx, sy = window_width/480, window_height/270
-          ww, wh = window_width, window_height
-          love.window.setMode(window_width, window_height, {fullscreen = true})
-          state.fullscreen = true
-        end}
-
-        self.quit_button = Button{group = self.ui, x = gw/2, y = gh - 35, force_update = true, button_text = 'quit', fg_color = 'bg10', bg_color = 'bg', action = function()
-          system.save_state()
-          love.event.quit()
-        end}
-      end, 'pause')
-    else
-      trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
-        slow_amount = 1
-        self.paused = false
-        self.paused_t1.dead = true
-        self.paused_t2.dead = true
-        self.paused_t1 = nil
-        self.paused_t2 = nil
-        if self.resume_button then self.resume_button.dead = true; self.resume_button = nil end
-        if self.restart_button then self.restart_button.dead = true; self.restart_button = nil end
-        if self.sfx_button then self.sfx_button.dead = true; self.sfx_button = nil end
-        if self.music_button then self.music_button.dead = true; self.music_button = nil end
-        if self.video_button_1 then self.video_button_1.dead = true; self.video_button_1 = nil end
-        if self.video_button_2 then self.video_button_2.dead = true; self.video_button_2 = nil end
-        if self.video_button_3 then self.video_button_3.dead = true; self.video_button_3 = nil end
-        if self.quit_button then self.quit_button.dead = true; self.quit_button = nil end
-      end, 'pause')
-    end
+    self:pause()
   end
 
   if self.paused or self.died or self.won and not self.transitioning then

@@ -102,12 +102,14 @@ function BuyScreen:on_enter(from, level, units, passives)
 
   trigger:tween(1, main_song_instance, {volume = 0.2}, math.linear)
 
+  --[[
   if self.level == 1 then
     self.screen_text = Text2{group = self.ui, x = gw/2, y = gh/2, lines = {{text = '[bg3]press K if screen is too large', font = pixul_font, alignment = 'center'}}}
     self.t:after(8, function()
       self.t:tween(0.2, self.screen_text, {sy = 0}, math.linear, function() self.screen_text.sy = 0 end)
     end)
   end
+  ]]--
 end
 
 
@@ -312,7 +314,7 @@ function SteamFollowButton:update(dt)
   self:update_game_object(dt)
   if main.current.in_credits then return end
 
-  if self.selected and input.m1.pressed then
+  if self.selected and input.m1.released then
     ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
     self.spring:pull(0.2, 200, 10)
     self.selected = true
@@ -369,7 +371,7 @@ end
 function WishlistButton:update(dt)
   self:update_game_object(dt)
 
-  if self.selected and input.m1.pressed then
+  if self.selected and input.m1.released then
     ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
     self.spring:pull(0.2, 200, 10)
     self.selected = true
@@ -426,7 +428,7 @@ function RestartButton:update(dt)
   if main.current.in_credits then return end
   self:update_game_object(dt)
 
-  if self.selected and input.m1.pressed then
+  if self.selected and input.m1.released then
     main.current.transitioning = true
     ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
     ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
@@ -495,7 +497,7 @@ function Button:update(dt)
   self:update_game_object(dt)
   if main.current.in_credits and not self.credits_button then return end
 
-  if self.selected and input.m1.pressed then
+  if self.selected and input.m1.released then
     self:action()
   end
 end
@@ -541,7 +543,7 @@ end
 function GoButton:update(dt)
   self:update_game_object(dt)
 
-  if self.selected and input.m1.pressed and not self.transitioning then
+  if self.selected and input.m1.released and not self.transitioning then
     if #self.parent.units == 0 then
       if not self.info_text then
         error1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
@@ -606,7 +608,7 @@ end
 function RerollButton:update(dt)
   self:update_game_object(dt)
 
-  if self.selected and input.m1.pressed then
+  if self.selected and input.m1.released then
     if gold < 2 then
       self.spring:pull(0.2, 200, 10)
       self.selected = true
@@ -870,7 +872,7 @@ function PassiveCard:update(dt)
   self:update_game_object(dt)
   self.passive_name:update(dt)
 
-  if self.selected and input.m1.pressed and self.arena.choosing_passives then
+  if self.selected and input.m1.released and self.arena.choosing_passives then
     self.arena.choosing_passives = false
     table.insert(passives, self.passive)
     self.arena:restore_passives_to_pool(self.card_i)
@@ -1002,7 +1004,7 @@ end
 function ShopCard:update(dt)
   self:update_game_object(dt)
 
-  if self.selected and input.m1.pressed then
+  if self.selected and input.m1.released then
     if self.parent:buy(self.unit, self.i) then
       ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
       _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}

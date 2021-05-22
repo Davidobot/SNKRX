@@ -11,8 +11,8 @@ require 'media'
 function init()
   shared_init()
 
-  input:bind('move_left', {'a', 'left', 'dpleft', 'm1'})
-  input:bind('move_right', {'d', 'right', 'dpright', 'm2'})
+  input:bind('move_left', {'a', 'left', 'dpleft', 'touch_left'})
+  input:bind('move_right', {'d', 'right', 'dpright', 'touch_right'})
   input:bind('move_up', {'w', 'up', 'dpup'})
   input:bind('move_down', {'s', 'down', 'dpdown'})
   input:bind('enter', {'space', 'return', 'fleft', 'fdown', 'fright'})
@@ -1271,7 +1271,8 @@ end
 function love.run()
   return engine_run({
     game_name = 'SNKRX',
-    window_width = 480*4,
-    window_height = 270*4,
+    window_width = 'max',
+    window_height = 'max',
+    fullscreen = true,
   })
 end
