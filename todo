@@ -2,3 +2,5 @@
 * Add advanced touchscreen controls (snake turns towards finger)
 * fix saving on android
 * maybe use love.window.getSafeArea() (requires offsetting coordinates)
+* add second pause button to LHS of screen
+* make sure pause buttons aren't sticky
