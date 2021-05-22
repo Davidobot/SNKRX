@@ -3,4 +3,4 @@
 * fix saving on android
 * maybe use love.window.getSafeArea() (requires offsetting coordinates)
 * add second pause button to LHS of screen
-* make sure pause buttons aren't sticky
+* make sure buttons aren't sticky (when release touch, buttons remain highlighted: quick fix would be to set cursor position to 0,0 on touch release) 
