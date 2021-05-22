@@ -1166,7 +1166,6 @@ function init()
   }
   gold = 2
   passives = {}
-  steam.userStats.requestCurrentStats()
   new_game_plus = state.new_game_plus or 0
   if not state.new_game_plus then state.new_game_plus = new_game_plus end
   max_units = 7 + new_game_plus
@@ -1259,13 +1258,6 @@ function update(dt)
   if input.p.pressed then
     system.save_state()
   end
-
-  --[[
-  if input.f12.pressed then
-    steam.userStats.resetAllStats(true)
-    steam.userStats.storeStats()
-  end
-  ]]--
 end
 
 
