@@ -36,7 +36,12 @@ function Arena:on_enter(from, level, units, passives)
   self.main:enable_trigger_between('player', 'enemy_projectile')
 
   self.pause_button = Button{group = self.ui, x = gw - 20, y = gh - 20, force_update = true, button_text = 'pause', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-    if not self.paused and not self.transitioning and not self.in_credits then
+    if not self.paused then
+      self:pause()
+    end
+  end}
+  self.pause_button2 = Button{group = self.ui, x = 20, y = gh - 20, force_update = true, button_text = 'pause', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+    if not self.paused then
       self:pause()
     end
   end}
@@ -275,18 +280,29 @@ function Arena:on_exit()
   self.hfx = nil
 end
 
-function Arena:pause()
+function Arena:pause(only_pause)
+  if self.transitioning or self.in_credits then
+    return
+  end
+
+  if self.paused and only_pause then
+    return
+  end
+
   if not self.paused then
     trigger:tween(0.25, _G, {slow_amount = 0}, math.linear, function()
       slow_amount = 0
+
+      main_song_instance:pause()
       self.paused = true
       self.paused_t1 = Text2{group = self.ui, x = gw/2, y = gh/2 - 68, sx = 0.6, sy = 0.6, lines = {{text = '[bg10]<-, a or m1       ->, d or m2', font = fat_font, alignment = 'center'}}}
       self.paused_t2 = Text2{group = self.ui, x = gw/2, y = gh/2 - 52, lines = {{text = '[bg10]turn left                                            turn right', font = pixul_font, alignment = 'center'}}}
 
-      self.pause_button.dead = true
-      self.pause_button = nil
+      self.pause_button.dead = true; self.pause_button = nil
+      self.pause_button2.dead = true; self.pause_button2 = nil
 
       self.resume_button = Button{group = self.ui, x = gw/2, y = gh - 160, force_update = true, button_text = 'resume game', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+        main_song_instance:resume()
         trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
           slow_amount = 1
           self.paused = false
@@ -301,6 +317,11 @@ function Arena:pause()
           if self.quit_button then self.quit_button.dead = true; self.quit_button = nil end
 
           self.pause_button = Button{group = self.ui, x = gw - 20, y = gh - 20, force_update = true, button_text = 'pause', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+            if not self.paused and not self.transitioning and not self.in_credits then
+              self:pause()
+            end
+          end}
+          self.pause_button2 = Button{group = self.ui, x = 20, y = gh - 20, force_update = true, button_text = 'pause', fg_color = 'bg10', bg_color = 'bg', action = function(b)
             if not self.paused and not self.transitioning and not self.in_credits then
               self:pause()
             end
@@ -338,8 +359,10 @@ function Arena:pause()
         ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
         if sfx.volume == 0.5 then
           sfx.volume = 0
+          state.volume_muted = true
         elseif sfx.volume == 0 then
           sfx.volume = 0.5
+          state.volume_muted = false
         end
       end}
 
@@ -350,8 +373,10 @@ function Arena:pause()
         ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
         if music.volume == 0.5 then
           music.volume = 0
+          state.music_muted = true
         elseif music.volume == 0 then
           music.volume = 0.5
+          state.music_muted = false
         end
       end}
 
@@ -361,6 +386,7 @@ function Arena:pause()
       end}
     end, 'pause')
   else
+    main_song_instance:resume()
     trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
       slow_amount = 1
       self.paused = false
@@ -375,7 +401,12 @@ function Arena:pause()
       if self.quit_button then self.quit_button.dead = true; self.quit_button = nil end
 
       self.pause_button = Button{group = self.ui, x = gw - 20, y = gh - 20, force_update = true, button_text = 'pause', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-        if not self.paused and not self.transitioning and not self.in_credits then
+        if not self.paused then
+          self:pause()
+        end
+      end}
+      self.pause_button2 = Button{group = self.ui, x = 20, y = gh - 20, force_update = true, button_text = 'pause', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+        if not self.paused then
           self:pause()
         end
       end}
@@ -388,7 +419,7 @@ function Arena:update(dt)
     main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 0.5}
   end
 
-  if input.escape.pressed and not self.transitioning and not self.in_credits then
+  if input.escape.pressed then
     self:pause()
   end
 

@@ -82,6 +82,22 @@ function Main:draw()
   self.transitions:draw()
 end
 
+function Main:pause()
+  for _, state in pairs(self.states) do
+    if state.active and state.pause then
+      state:pause(true)
+    end
+  end
+end
+
+function Main:unpause()
+  for _, state in pairs(self.states) do
+    if state.active and state.unpause then
+      state:unpause(true)
+    end
+  end
+end
+
 
 function Main:add(state)
   self.states[state.name] = state

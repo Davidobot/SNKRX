@@ -1206,7 +1206,9 @@ end
 
 
 function update(dt)
-  main:update(dt)
+  if love.window.hasFocus() then
+    main:update(dt)
+  end
 
   --[[
   if input.b.pressed then
@@ -1217,7 +1219,6 @@ function update(dt)
     print("-- " .. math.round(tonumber(collectgarbage("count"))/1024, 3) .. "MB --")
     print()
   end
-  ]]--
 
   if input.n.pressed then
     if sfx.volume == 0.5 then
@@ -1258,6 +1259,7 @@ function update(dt)
   if input.p.pressed then
     system.save_state()
   end
+  ]]--
 end
 
 
@@ -1267,6 +1269,19 @@ function draw()
   end)
 end
 
+function love.focus(focus)
+  if not focus then
+    music.volume = 0
+    sfx.volume = 0
+
+    main:pause()
+  else
+    if not state.volume_muted then sfx.volume = 0.5 end
+    if not state.music_muted then music.volume = 0.5 end
+
+    main:unpause()
+  end
+end
 
 function love.run()
   return engine_run({

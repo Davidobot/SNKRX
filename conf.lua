@@ -4,6 +4,9 @@ function love.conf(t)
   t.window.height = 540
   t.window.vsync = 1
   t.window.msaa = 0
+
+  -- Mobile
   t.window.usedpiscale = false
   t.externalstorage = true
+  t.audio.mixwithsystem = true
 end

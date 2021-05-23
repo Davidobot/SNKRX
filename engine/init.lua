@@ -46,8 +46,7 @@ end
 function engine_run(config)
   if not web then
     love.filesystem.setIdentity(config.game_name)
-    --system.load_state()
-    state = {}
+    system.load_state()
 
     local _, _, flags = love.window.getMode()
     local window_width, window_height = love.window.getDesktopDimensions(flags.display)
@@ -71,6 +70,7 @@ function engine_run(config)
       state.sx, state.sy = sx, sy
       love.window.setMode(window_width, window_height, {fullscreen = config.fullscreen, vsync = config.vsync, msaa = msaa or 0, usedpiscale = false})
     end
+    state.fullscreen = config.fullscreen
     love.window.setTitle(config.game_name)
 
   else
@@ -134,7 +134,8 @@ function engine_run(config)
         elseif name == "gamepadaxis" then input.gamepad_axis[input.index_to_gamepad_axis[b]] = c
         elseif name == "touchpressed" then input.touch_state[a] = b < ww / 2 and "touch_left" or "touch_right"
         elseif name == "touchreleased" then input.touch_state[a] = nil
-        elseif name == "textinput" then input:textinput(a) end
+        elseif name == "textinput" then input:textinput(a)
+        elseif name == "focus" then love.handlers[name](a,b,c,d,e,f) end
       end
     end
 

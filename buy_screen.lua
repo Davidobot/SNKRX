@@ -102,6 +102,8 @@ function BuyScreen:on_enter(from, level, units, passives)
 
   trigger:tween(1, main_song_instance, {volume = 0.2}, math.linear)
 
+  self.paused = false
+
   --[[
   if self.level == 1 then
     self.screen_text = Text2{group = self.ui, x = gw/2, y = gh/2, lines = {{text = '[bg3]press K if screen is too large', font = pixul_font, alignment = 'center'}}}
@@ -110,6 +112,15 @@ function BuyScreen:on_enter(from, level, units, passives)
     end)
   end
   ]]--
+end
+
+
+function BuyScreen:pause()
+  main_song_instance:pause()
+end
+
+function BuyScreen:unpause()
+  main_song_instance:resume()
 end
 
 

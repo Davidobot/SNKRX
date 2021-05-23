@@ -1,9 +1,5 @@
 * Change control strings
 * Add advanced touchscreen controls (snake turns towards finger)
-* fix saving on android
 * allow saving mid-run
 * maybe use love.window.getSafeArea() (requires offsetting coordinates)
-* add second pause button to LHS of screen
 * make sure buttons aren't sticky (when release touch, buttons remain highlighted: quick fix would be to set cursor position to 0,0 on touch release) 
-* stop muusic playing in background
-* allow system music to play during game
