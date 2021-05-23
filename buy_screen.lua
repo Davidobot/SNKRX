@@ -68,7 +68,7 @@ function BuyScreen:on_enter(from, level, units, passives)
     self.title_text = Text2{group = self.tutorial, x = gw/2, y = 35, lines = {{text = '[fg]WELCOME TO SNKRX!', font = fat_font, alignment = 'center'}}}
     self.tutorial_text = Text2{group = self.tutorial, x = 228, y = 160, lines = {
       {text = '[fg]You control a snake of multiple heroes that auto-attack nearby enemies.', font = pixul_font, height_multiplier = 1.2},
-      {text = '[fg]You can steer the snake left or right by pressing [yellow]A/D[fg] or [yellow]left/right arrows[fg].', font = pixul_font, height_multiplier = 2.2},
+      {text = '[fg]You can steer the snake left or right by pressing [yellow]left/right[fg] side of the screen.', font = pixul_font, height_multiplier = 2.2},
       {text = '[fg]Combine the same heroes to level them up:', font = pixul_font, height_multiplier = 1.2},
       {text = '[fg]At [yellow]Lv.3[fg] heroes unlock special effects.', font = pixul_font, height_multiplier = 2.2},
       {text = '[fg]Hire heroes of the same classes to unlock class passives:', font = pixul_font, height_multiplier = 1.2},
@@ -461,6 +461,7 @@ function RestartButton:update(dt)
       max_units = 7 + new_game_plus
       system.save_state()
       main:add(BuyScreen'buy_screen')
+      system.save_run(0, gold, {}, passives)
       main:go_to('buy_screen', 0, {}, passives)
     end, text = Text({{text = '[wavy, bg]restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
   end
@@ -510,6 +511,7 @@ function Button:update(dt)
 
   if self.selected and input.m1.released then
     self:action()
+    love.mouse.setPosition(0, 0)
   end
 end
 
@@ -640,6 +642,7 @@ function RerollButton:update(dt)
       gold = gold - 2
       self.parent.shop_text:set_text{{text = '[wavy_mid, fg]shop [fg]- [fg, nudge_down]gold: [yellow, nudge_down]' .. gold, font = pixul_font, alignment = 'center'}}
     end
+    love.mouse.setPosition(0, 0)
   end
 end
 

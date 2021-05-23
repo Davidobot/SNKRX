@@ -1164,18 +1164,22 @@ function init()
       'reinforce', 'payback', 'whispers_of_doom', 'heavy_impact', 'immolation', 'call_of_the_void'},
     [3] = {'divine_machine_arrow', 'divine_punishment', 'flying_daggers', 'crucio', 'hive', 'void_rift'},
   }
-  gold = 2
-  passives = {}
+
+  local run = system.load_run()
+  gold = run.gold
+  passives = run.passives
   new_game_plus = state.new_game_plus or 0
   if not state.new_game_plus then state.new_game_plus = new_game_plus end
   max_units = 7 + new_game_plus
 
   main = Main()
 
-  -- main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 0.5}
+  if run.level ~= 0 then
+    main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 0.5}
+  end
 
   main:add(BuyScreen'buy_screen')
-  main:go_to('buy_screen', 0, {}, passives)
+  main:go_to('buy_screen', run.level, run.units, passives)
   
   --[[
   main:add(Arena'arena')

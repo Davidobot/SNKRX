@@ -218,16 +218,10 @@ function Arena:on_enter(from, level, units, passives)
   end
 
   if self.level == 1 then
-    local t1 = Text2{group = self.floor, x = gw/2, y = gh/2 + 2, sx = 0.6, sy = 0.6, lines = {{text = '[light_bg]<- or a         -> or d', font = fat_font, alignment = 'center'}}}
+    local t1 = Text2{group = self.floor, x = gw/2, y = gh/2 + 2, sx = 0.6, sy = 0.6, lines = {{text = '[light_bg]<-              ->', font = fat_font, alignment = 'center'}}}
     local t2 = Text2{group = self.floor, x = gw/2, y = gh/2 + 18, lines = {{text = '[light_bg]turn left                                      turn right', font = pixul_font, alignment = 'center'}}}
-    local t3 = Text2{group = self.floor, x = gw/2, y = gh/2 + 46, sx = 0.6, sy = 0.6, lines = {{text = '[light_bg]esc - options', font = fat_font, alignment = 'center'}}}
-    local t4 = Text2{group = self.floor, x = gw/2, y = gh/2 + 68, sx = 0.6, sy = 0.6, lines = {{text = '[light_bg]n - mute sfx', font = fat_font, alignment = 'center'}}}
-    local t5 = Text2{group = self.floor, x = gw/2, y = gh/2 + 90, sx = 0.6, sy = 0.6, lines = {{text = '[light_bg]m - mute music', font = fat_font, alignment = 'center'}}}
     t1.t:after(8, function() t1.t:tween(0.2, t1, {sy = 0}, math.linear, function() t1.sy = 0 end) end)
     t2.t:after(8, function() t2.t:tween(0.2, t2, {sy = 0}, math.linear, function() t2.sy = 0 end) end)
-    t3.t:after(8, function() t3.t:tween(0.2, t3, {sy = 0}, math.linear, function() t3.sy = 0 end) end)
-    t4.t:after(8, function() t4.t:tween(0.2, t4, {sy = 0}, math.linear, function() t4.sy = 0 end) end)
-    t5.t:after(8, function() t4.t:tween(0.2, t5, {sy = 0}, math.linear, function() t5.sy = 0 end) end)
   end
 
   -- Calculate class levels
@@ -295,7 +289,7 @@ function Arena:pause(only_pause)
 
       main_song_instance:pause()
       self.paused = true
-      self.paused_t1 = Text2{group = self.ui, x = gw/2, y = gh/2 - 68, sx = 0.6, sy = 0.6, lines = {{text = '[bg10]<-, a or m1       ->, d or m2', font = fat_font, alignment = 'center'}}}
+      self.paused_t1 = Text2{group = self.ui, x = gw/2, y = gh/2 - 68, sx = 0.6, sy = 0.6, lines = {{text = '[bg10]<-                ->', font = fat_font, alignment = 'center'}}}
       self.paused_t2 = Text2{group = self.ui, x = gw/2, y = gh/2 - 52, lines = {{text = '[bg10]turn left                                            turn right', font = pixul_font, alignment = 'center'}}}
 
       self.pause_button.dead = true; self.pause_button = nil
@@ -348,6 +342,7 @@ function Arena:pause(only_pause)
           }
           max_units = 7 + new_game_plus
           main:add(BuyScreen'buy_screen')
+          system.save_run(0, gold, {}, passives)
           main:go_to('buy_screen', 0, {}, passives)
         end, text = Text({{text = '[wavy, bg]restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
       end}
@@ -443,6 +438,7 @@ function Arena:update(dt)
         }
         max_units = 7 + new_game_plus
         main:add(BuyScreen'buy_screen')
+        system.save_run(0, gold, {}, passives)
         main:go_to('buy_screen', 0, {}, passives)
       end, text = Text({{text = '[wavy, bg]restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
     end
@@ -538,6 +534,7 @@ function Arena:quit()
               }
               max_units = 7 + new_game_plus
               main:add(BuyScreen'buy_screen')
+              system.save_run(0, gold, {}, passives)
               main:go_to('buy_screen', 0, {}, passives)
             end, text = Text({{text = '[wavy, bg]restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
           end}
@@ -780,6 +777,7 @@ function Arena:die()
           }
           max_units = 7 + new_game_plus
           main:add(BuyScreen'buy_screen')
+          system.save_run(0, gold, {}, passives)
           main:go_to('buy_screen', 0, {}, passives)
         end, text = Text({{text = '[wavy, bg]restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
       end}
@@ -855,6 +853,7 @@ function Arena:transition()
   TransitionEffect{group = main.transitions, x = self.player.x, y = self.player.y, color = self.color, transition_action = function(t)
     slow_amount = 1
     main:add(BuyScreen'buy_screen')
+    system.save_run(self.level, gold, self.units, passives)
     main:go_to('buy_screen', self.level, self.units, passives)
     t.t:after(0.1, function()
       t.text:set_text({
