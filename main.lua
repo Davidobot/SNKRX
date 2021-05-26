@@ -1157,7 +1157,8 @@ function init()
     [25] = {'speed_booster', 'exploder', 'headbutter', 'tank', 'shooter', 'spawner'},
   }
 
-  run_passive_pool_by_tiers = {
+  local run = system.load_run()
+  run_passive_pool_by_tiers = run.run_passive_pool_by_tiers or {
     [1] = { 'wall_echo', 'wall_rider', 'centipede', 'temporal_chains', 'amplify', 'amplify_x', 'ballista', 'ballista_x', 'blunt_arrow', 'berserking', 'unwavering_stance', 'assassination', 'unleash', 'blessing',
       'hex_master', 'force_push', 'spawning_pool'}, 
     [2] = {'ouroboros_technique_r', 'ouroboros_technique_l', 'intimidation', 'vulnerability', 'resonance', 'point_blank', 'longshot', 'explosive_arrow', 'chronomancy', 'awakening', 'ultimatum', 'echo_barrage', 
@@ -1165,9 +1166,8 @@ function init()
     [3] = {'divine_machine_arrow', 'divine_punishment', 'flying_daggers', 'crucio', 'hive', 'void_rift'},
   }
 
-  local run = system.load_run()
-  gold = run.gold
-  passives = run.passives
+  gold = run.gold or 2
+  passives = run.passives or {}
   new_game_plus = state.new_game_plus or 0
   if not state.new_game_plus then state.new_game_plus = new_game_plus end
   max_units = 7 + new_game_plus
@@ -1179,7 +1179,7 @@ function init()
   end
 
   main:add(BuyScreen'buy_screen')
-  main:go_to('buy_screen', run.level, run.units, passives)
+  main:go_to('buy_screen', run.level or 0, run.units or {}, passives)
   
   --[[
   main:add(Arena'arena')

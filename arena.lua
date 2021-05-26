@@ -342,7 +342,7 @@ function Arena:pause(only_pause)
           }
           max_units = 7 + new_game_plus
           main:add(BuyScreen'buy_screen')
-          system.save_run(0, gold, {}, passives)
+          system.save_run(0, gold, {}, passives, run_passive_pool_by_tiers)
           main:go_to('buy_screen', 0, {}, passives)
         end, text = Text({{text = '[wavy, bg]restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
       end}
@@ -438,7 +438,7 @@ function Arena:update(dt)
         }
         max_units = 7 + new_game_plus
         main:add(BuyScreen'buy_screen')
-        system.save_run(0, gold, {}, passives)
+        system.save_run(0, gold, {}, passives, run_passive_pool_by_tiers)
         main:go_to('buy_screen', 0, {}, passives)
       end, text = Text({{text = '[wavy, bg]restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
     end
@@ -534,7 +534,7 @@ function Arena:quit()
               }
               max_units = 7 + new_game_plus
               main:add(BuyScreen'buy_screen')
-              system.save_run(0, gold, {}, passives)
+              system.save_run(0, gold, {}, passives, run_passive_pool_by_tiers)
               main:go_to('buy_screen', 0, {}, passives)
             end, text = Text({{text = '[wavy, bg]restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
           end}
@@ -777,7 +777,7 @@ function Arena:die()
           }
           max_units = 7 + new_game_plus
           main:add(BuyScreen'buy_screen')
-          system.save_run(0, gold, {}, passives)
+          system.save_run(0, gold, {}, passives, run_passive_pool_by_tiers)
           main:go_to('buy_screen', 0, {}, passives)
         end, text = Text({{text = '[wavy, bg]restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
       end}
@@ -853,7 +853,7 @@ function Arena:transition()
   TransitionEffect{group = main.transitions, x = self.player.x, y = self.player.y, color = self.color, transition_action = function(t)
     slow_amount = 1
     main:add(BuyScreen'buy_screen')
-    system.save_run(self.level, gold, self.units, passives)
+    system.save_run(self.level, gold, self.units, passives, run_passive_pool_by_tiers)
     main:go_to('buy_screen', self.level, self.units, passives)
     t.t:after(0.1, function()
       t.text:set_text({

@@ -136,22 +136,16 @@ function system.load_state()
   else state = {} end
 end
 
-function system.save_run(level, gold, units, passives)
-  local run = { level = level, gold = gold, units = units, passives = passives }
+function system.save_run(level, gold, units, passives, run_passive_pool_by_tiers)
+  local run = { level = level, gold = gold, units = units, passives = passives, run_passive_pool_by_tiers = run_passive_pool_by_tiers }
   local str = "return " .. table.tostring(run)
   love.filesystem.write("run.txt", str)
 end
 
 function system.load_run()
-  if love.filesystem.getInfo("run") then
-    local run = binser.r(love.filesystem.getSaveDirectory() .. '/run')[1]
-    love.filesystem.createDirectory("old_run_backup")
-    os.rename(love.filesystem.getSaveDirectory() .. '/run', love.filesystem.getSaveDirectory() .. '/old_run_backup/run')
-    system.save_run(run.level, run.gold, run.units, run.passives)
-  end
   local chunk = love.filesystem.load("run.txt")
   if chunk then return chunk()
-  else return { level = 0, gold = 2, units = {}, passives = {} } end
+  else return {} end
 end
 
 
