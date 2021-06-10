@@ -14,10 +14,6 @@ function Arena:on_enter(from, level, units, passives)
   self.units = units
   self.passives = passives
 
-  if not state.mouse_control then
-    input:set_mouse_visible(false)
-  end
-
   trigger:tween(2, main_song_instance, {volume = 0.5, pitch = 1}, math.linear)
 
 
@@ -333,12 +329,12 @@ function Arena:pause(only_pause)
       self.paused = true
       self.paused_t1 = Text2{group = self.ui, x = gw/2, y = gh/2 - 68, sx = 0.6, sy = 0.6, lines = {{text = '[bg10]<-                ->', font = fat_font, alignment = 'center'}}}
       self.paused_t2 = Text2{group = self.ui, x = gw/2, y = gh/2 - 52, lines = {{text = '[bg10]turn left                                            turn right', font = pixul_font, alignment = 'center'}}}
-      self.ng_t = Text2{group = self.ui, x = gw/2 + 63, y = gh - 50, lines = {{text = '[bg10]current: ' .. current_new_game_plus, font = pixul_font, alignment = 'center'}}}
+      self.ng_t = Text2{group = self.ui, x = gw/2 + 63, y = gh - 75, lines = {{text = '[bg10]current: ' .. current_new_game_plus, font = pixul_font, alignment = 'center'}}}
 
       self.pause_button.dead = true; self.pause_button = nil
       self.pause_button2.dead = true; self.pause_button2 = nil
 
-      self.resume_button = Button{group = self.ui, x = gw/2, y = gh - 225, force_update = true, button_text = 'resume game (esc)', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+      self.resume_button = Button{group = self.ui, x = gw/2, y = gh - 200, force_update = true, button_text = 'resume game', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
           slow_amount = 1
           self.paused = false
@@ -375,7 +371,7 @@ function Arena:pause(only_pause)
         end, 'pause')
       end}
 
-      self.restart_button = Button{group = self.ui, x = gw/2, y = gh - 200, force_update = true, button_text = 'restart run (r)', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+      self.restart_button = Button{group = self.ui, x = gw/2, y = gh - 175, force_update = true, button_text = 'restart run', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         self.transitioning = true
         ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
         ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
@@ -400,7 +396,7 @@ function Arena:pause(only_pause)
         end, text = Text({{text = '[wavy, bg]restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
       end}
 
-      self.sfx_button = Button{group = self.ui, x = gw/2 - 46, y = gh - 175, force_update = true, button_text = 'sounds (n): ' .. tostring(state.volume_muted and 'no' or 'yes'), fg_color = 'bg10', bg_color = 'bg',
+      self.sfx_button = Button{group = self.ui, x = gw/2 - 46, y = gh - 150, force_update = true, button_text = 'sounds: ' .. tostring(state.volume_muted and 'no' or 'yes'), fg_color = 'bg10', bg_color = 'bg',
       action = function(b)
         ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
         b.spring:pull(0.2, 200, 10)
@@ -413,10 +409,10 @@ function Arena:pause(only_pause)
           sfx.volume = 0.5
           state.volume_muted = false
         end
-        b:set_text('sounds (n): ' .. tostring(state.volume_muted and 'no' or 'yes'))
+        b:set_text('sounds: ' .. tostring(state.volume_muted and 'no' or 'yes'))
       end}
 
-      self.music_button = Button{group = self.ui, x = gw/2 + 46, y = gh - 175, force_update = true, button_text = 'music (m): ' .. tostring(state.music_muted and 'no' or 'yes'), fg_color = 'bg10', bg_color = 'bg',
+      self.music_button = Button{group = self.ui, x = gw/2 + 46, y = gh - 150, force_update = true, button_text = 'music: ' .. tostring(state.music_muted and 'no' or 'yes'), fg_color = 'bg10', bg_color = 'bg',
       action = function(b)
         ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
         b.spring:pull(0.2, 200, 10)
@@ -429,31 +425,31 @@ function Arena:pause(only_pause)
           music.volume = 0.5
           state.music_muted = false
         end
-        b:set_text('music (m): ' .. tostring(state.music_muted and 'no' or 'yes'))
+        b:set_text('music: ' .. tostring(state.music_muted and 'no' or 'yes'))
       end}
 
-      self.screen_shake_button = Button{group = self.ui, x = gw/2 - 57, y = gh - 100, w = 110, force_update = true, button_text = '[bg10]screen shake: ' .. tostring(state.no_screen_shake and 'no' or 'yes'), 
+      self.screen_shake_button = Button{group = self.ui, x = gw/2 - 57, y = gh - 125, w = 110, force_update = true, button_text = '[bg10]screen shake: ' .. tostring(state.no_screen_shake and 'no' or 'yes'), 
       fg_color = 'bg10', bg_color = 'bg', action = function(b)
         ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
         state.no_screen_shake = not state.no_screen_shake
         b:set_text('screen shake: ' .. tostring(state.no_screen_shake and 'no' or 'yes'))
       end}
 
-      self.cooldown_snake_button = Button{group = self.ui, x = gw/2 + 75, y = gh - 100, w = 145, force_update = true, button_text = '[bg10]cooldowns on snake: ' .. tostring(state.cooldown_snake and 'yes' or 'no'), 
+      self.cooldown_snake_button = Button{group = self.ui, x = gw/2 + 75, y = gh - 125, w = 145, force_update = true, button_text = '[bg10]cooldowns on snake: ' .. tostring(state.cooldown_snake and 'yes' or 'no'), 
       fg_color = 'bg10', bg_color = 'bg', action = function(b)
         ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
         state.cooldown_snake = not state.cooldown_snake
         b:set_text('cooldowns on snake: ' .. tostring(state.cooldown_snake and 'yes' or 'no'))
       end}
 
-      self.arrow_snake_button = Button{group = self.ui, x = gw/2 + 65, y = gh - 75, w = 125, force_update = true, button_text = '[bg10]arrow on snake: ' .. tostring(state.arrow_snake and 'yes' or 'no'),
+      self.arrow_snake_button = Button{group = self.ui, x = gw/2 + 65, y = gh - 100, w = 125, force_update = true, button_text = '[bg10]arrow on snake: ' .. tostring(state.arrow_snake and 'yes' or 'no'),
       fg_color = 'bg10', bg_color = 'bg', action = function(b)
         ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
         state.arrow_snake = not state.arrow_snake
         b:set_text('arrow on snake: ' .. tostring(state.arrow_snake and 'yes' or 'no'))
       end}
 
-      self.screen_movement_button = Button{group = self.ui, x = gw/2 - 69, y = gh - 75, w = 135, force_update = true, button_text = '[bg10]screen movement: ' .. tostring(state.no_screen_movement and 'no' or 'yes'), 
+      self.screen_movement_button = Button{group = self.ui, x = gw/2 - 69, y = gh - 100, w = 135, force_update = true, button_text = '[bg10]screen movement: ' .. tostring(state.no_screen_movement and 'no' or 'yes'), 
       fg_color = 'bg10', bg_color = 'bg', action = function(b)
         ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
         state.no_screen_movement = not state.no_screen_movement
@@ -464,7 +460,7 @@ function Arena:pause(only_pause)
         b:set_text('screen movement: ' .. tostring(state.no_screen_movement and 'no' or 'yes'))
       end}
 
-      self.ng_plus_minus_button = Button{group = self.ui, x = gw/2 - 58, y = gh - 50, force_update = true, button_text = 'NG+ down', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+      self.ng_plus_minus_button = Button{group = self.ui, x = gw/2 - 58, y = gh - 75, force_update = true, button_text = 'NG+ down', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
         b.spring:pull(0.2, 200, 10)
         b.selected = true
@@ -473,7 +469,7 @@ function Arena:pause(only_pause)
         self.ng_t.text:set_text({{text = '[bg10]current: ' .. current_new_game_plus, font = pixul_font, alignment = 'center'}})
       end}
 
-      self.ng_plus_plus_button = Button{group = self.ui, x = gw/2 + 5, y = gh - 50, force_update = true, button_text = 'NG+ up', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+      self.ng_plus_plus_button = Button{group = self.ui, x = gw/2 + 5, y = gh - 75, force_update = true, button_text = 'NG+ up', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
         b.spring:pull(0.2, 200, 10)
         b.selected = true
@@ -484,7 +480,6 @@ function Arena:pause(only_pause)
 
       self.quit_button = Button{group = self.ui, x = gw/2, y = gh - 25, force_update = true, button_text = 'quit', fg_color = 'bg10', bg_color = 'bg', action = function()
         system.save_state()
-        steam.shutdown()
         love.event.quit()
       end}
     end, 'pause')
@@ -752,8 +747,6 @@ function Arena:quit()
       if self.sorcerer_level >= 3 then
         state.achievement_sorcerers_win = true
         system.save_state()
-        steam.userStats.setAchievement('SORCERERS_WIN')
-        steam.userStats.storeStats()
       end
 
       local units = self.player:get_all_units()
@@ -921,7 +914,7 @@ function Arena:die()
       self.death_info_text = Text2{group = self.ui, x = gw/2, y = gh/2, sx = 0.7, sy = 0.7, lines = {
         {text = '[wavy_mid, fg]level reached: [wavy_mid, yellow]' .. self.level, font = fat_font, alignment = 'center'},
       }}
-      self.restart_button = Button{group = self.ui, x = gw/2, y = gh/2 + 24, force_update = true, button_text = 'restart run (r)', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+      self.restart_button = Button{group = self.ui, x = gw/2, y = gh/2 + 24, force_update = true, button_text = 'restart run', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         self.transitioning = true
         ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
         ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
