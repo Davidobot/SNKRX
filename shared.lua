@@ -12,6 +12,7 @@ function shared_init()
     green = ColorRamp(Color'#8bbf40', 0.025),
     red = ColorRamp(Color'#e91d39', 0.025),
     purple = ColorRamp(Color'#8e559e', 0.025),
+    blue2 = ColorRamp(Color'#4778ba', 0.025),
   }
   for name, color in pairs(colors) do
     _G[name] = color
@@ -496,6 +497,7 @@ global_text_tags = {
   green = TextTag{draw = function(c, i, text) graphics.set_color(green[0]) end},
   purple = TextTag{draw = function(c, i, text) graphics.set_color(purple[0]) end},
   blue = TextTag{draw = function(c, i, text) graphics.set_color(blue[0]) end},
+  blue2 = TextTag{draw = function(c, i, text) graphics.set_color(blue2[0]) end},
   bg = TextTag{draw = function(c, i, text) graphics.set_color(bg[0]) end},
   bg3 = TextTag{draw = function(c, i, text) graphics.set_color(bg[3]) end},
   bg10 = TextTag{draw = function(c, i, text) graphics.set_color(bg[10]) end},
@@ -507,6 +509,8 @@ global_text_tags = {
   green5 = TextTag{draw = function(c, i, text) graphics.set_color(green[5]) end},
   blue5 = TextTag{draw = function(c, i, text) graphics.set_color(blue[5]) end},
   bluem5 = TextTag{draw = function(c, i, text) graphics.set_color(blue[-5]) end},
+  blue25 = TextTag{draw = function(c, i, text) graphics.set_color(blue2[5]) end},
+  blue2m5 = TextTag{draw = function(c, i, text) graphics.set_color(blue2[-5]) end},
   redm5 = TextTag{draw = function(c, i, text) graphics.set_color(red[-5]) end},
   orangem5 = TextTag{draw = function(c, i, text) graphics.set_color(orange[-5]) end},
   purplem5 = TextTag{draw = function(c, i, text) graphics.set_color(purple[-5]) end},
@@ -765,7 +769,11 @@ end
 
 function HitParticle:draw()
   graphics.push(self.x, self.y, self.r)
-  graphics.rectangle(self.x, self.y, self.w, self.h, 2, 2, self.color)
+  if self.parent and not self.parent.dead then
+    graphics.rectangle(self.x, self.y, self.w, self.h, 2, 2, self.parent.hfx.hit.f and fg[0] or self.color)
+  else
+    graphics.rectangle(self.x, self.y, self.w, self.h, 2, 2, self.color)
+  end
   graphics.pop()
 end
 

@@ -149,6 +149,20 @@ function system.load_run()
 end
 
 
+function system.save_run(level, gold, units, passives, run_passive_pool_by_tiers, locked_state)
+  local run = {level = level, gold = gold, units = units, passives = passives, run_passive_pool_by_tiers = run_passive_pool_by_tiers, locked_state = locked_state}
+  local str = "return " .. table.tostring(run)
+  love.filesystem.write("run.txt", str)
+end
+
+
+function system.load_run()
+  local chunk = love.filesystem.load("run.txt")
+  if chunk then return chunk()
+  else return {} end
+end
+
+
 function system.get_main_directory()
   return love.filesystem.getSource()
 end

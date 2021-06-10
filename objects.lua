@@ -229,29 +229,57 @@ function Unit:calculate_stats(first_run)
     self.base_dmg = 10*math.pow(2, self.level-1)
     self.base_mvspd = 75
   elseif self:is(Seeker) then
-    if self.boss then
-      local x = self.level
-      local y = {0, 0, 3, 0, 0, 6, 0, 0, 9, 0, 0, 12, 0, 0, 15, 0, 0, 18, 0, 0, 21, 0, 0, 24, 25}
-      self.base_hp = 100 + (new_game_plus*5) + (90 + new_game_plus*10)*y[x]
-      self.base_dmg = (12 + new_game_plus*2) + (2 + new_game_plus)*y[x]
-      self.base_mvspd = 35 + 1.5*y[x]
+    if current_new_game_plus == 0 then
+      if self.boss then
+        local x = self.level
+        local y = {0, 0, 3, 0, 0, 6, 0, 0, 9, 0, 0, 12, 0, 0, 18, 0, 0, 40, 0, 0, 32, 0, 0, 64, 96}
+        self.base_hp = 100 + (current_new_game_plus*5) + (90 + current_new_game_plus*10)*y[x]
+        self.base_dmg = (12 + current_new_game_plus*2) + (2 + current_new_game_plus)*y[x]
+        self.base_mvspd = 35 + 1.5*y[x]
+        if x == 25 then
+          self.base_dmg = (12 + current_new_game_plus*2) + (1.25 + current_new_game_plus)*y[x]
+          self.base_mvspd = 35 + 1.2*y[x]
+        end
+      else
+        local x = self.level
+        local y = {0, 1, 3, 3, 4, 6, 5, 6, 9, 7, 8, 12, 10, 11, 15, 12, 13, 18, 16, 17, 21, 17, 20, 24, 25}
+        self.base_hp = 25 + 16.5*y[x]
+        self.base_dmg = 4.5 + 2.5*y[x]
+        self.base_mvspd = 70 + 3*y[x]
+      end
     else
-      local x = self.level
-      local y = {0, 1, 3, 3, 4, 6, 5, 6, 9, 7, 8, 12, 10, 11, 15, 12, 13, 18, 16, 17, 21, 17, 20, 24, 25}
-      self.base_hp = 22 + (new_game_plus*3) + (15 + new_game_plus*2.4)*y[x]
-      self.base_dmg = (4 + new_game_plus*1) + (2 + new_game_plus)*y[x]
-      self.base_mvspd = 70 + 3*y[x]
+      if self.boss then
+        local x = self.level
+        local y = {0, 0, 3, 0, 0, 6, 0, 0, 9, 0, 0, 12, 0, 0, 18, 0, 0, 40, 0, 0, 32, 0, 0, 64, 96}
+        self.base_hp = 100 + (current_new_game_plus*5) + (90 + current_new_game_plus*10)*y[x]
+        self.base_dmg = (12 + current_new_game_plus*2) + (2 + current_new_game_plus)*y[x]
+        self.base_mvspd = 35 + 1.5*y[x]
+        if x == 25 then
+          self.base_dmg = (12 + current_new_game_plus*2) + (2 + 0.5*current_new_game_plus)*y[x]
+          self.base_mvspd = 35 + 1.2*y[x]
+        end
+      else
+        local x = self.level
+        local y = {0, 1, 3, 3, 4, 6, 5, 6, 9, 7, 8, 12, 10, 11, 15, 12, 13, 18, 16, 17, 21, 17, 20, 24, 25}
+        self.base_hp = 22 + (current_new_game_plus*3) + (15 + current_new_game_plus*2.7)*y[x]
+        self.base_dmg = (4 + current_new_game_plus*1.15) + (2 + current_new_game_plus*1)*y[x]
+        self.base_mvspd = 70 + 3*y[x]
+      end
     end
   elseif self:is(Saboteur) then
     self.base_hp = 100*math.pow(2, self.level-1)
     self.base_dmg = 10*math.pow(2, self.level-1)
     self.base_mvspd = 75
+  elseif self:is(Illusion) then
+    self.base_hp = 100*math.pow(2, self.level-1)
+    self.base_dmg = 10*math.pow(2, self.level-1)
+    self.base_mvspd = 15
   elseif self:is(EnemyCritter) or self:is(Critter) then
     local x = self.level
-      local y = {0, 1, 3, 3, 4, 6, 5, 6, 9, 7, 8, 12, 10, 11, 15, 12, 13, 18, 16, 17, 21, 17, 20, 24, 25}
-    self.base_hp = 25 + 30*y[x]
-    self.base_dmg = 10 + 3*y[x]
-    self.base_mvspd = 60 + 3*y[x]
+    local y = {0, 1, 3, 3, 4, 6, 5, 6, 9, 7, 8, 12, 10, 11, 15, 12, 13, 18, 16, 17, 21, 17, 20, 24, 25}
+    self.base_hp = 25 + 30*(y[x] or 1)
+    self.base_dmg = 10 + 3*(y[x] or 1)
+    self.base_mvspd = 60 + 3*(y[x] or 1)
   elseif self:is(Overlord) then
     self.base_hp = 50*math.pow(2, self.level-1)
     self.base_dmg = 10*math.pow(2, self.level-1)
