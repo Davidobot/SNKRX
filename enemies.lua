@@ -66,7 +66,9 @@ function Seeker:init(args)
         end, function()
           wizard1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
           local enemies = self:get_objects_in_shape(self.pull_sensor, main.current.enemies)
+          HitCircle{group = main.current.effects, x = self.x, y = self.y, rs = 6, color = yellow[0], duration = 0.1}
           for _, enemy in ipairs(enemies) do
+            LightningLine{group = main.current.effects, src = self, dst = enemy, color = yellow[0]}
             enemy:push(random:float(40, 80), enemy:angle_to_object(main.current.player), true)
           end
           self.px, self.py = nil, nil
@@ -213,6 +215,8 @@ function Seeker:init(args)
       local enemy = self:get_closest_object_in_shape(Circle(self.x, self.y, 128), main.current.enemies)
       if enemy then
         wizard1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        HitCircle{group = main.current.effects, x = self.x, y = self.y, rs = 6, color = yellow[0], duration = 0.1}
+        LightningLine{group = main.current.effects, src = self, dst = enemy, color = yellow[0]}
         enemy:push(random:float(40, 80), enemy:angle_to_object(main.current.player), true)
       end
     end)
@@ -253,6 +257,8 @@ function Seeker:init(args)
   if player and player.temporal_chains then
     self.temporal_chains_mvspd_m = 0.8
   end
+
+  self.usurer_count = 0
 end
 
 
@@ -394,7 +400,7 @@ function Seeker:on_collision_enter(other, contact)
       HitCircle{group = main.current.effects, x = x, y = y, rs = 6, color = fg[0], duration = 0.1}
       for i = 1, 2 do HitParticle{group = main.current.effects, x = x, y = y, color = self.color} end
       hit2:play{pitch = random:float(0.95, 1.05), volume = 0.35}
-      if other:is(Seeker) then self.headbutting = false end
+      if other:is(Seeker) or other:is(Player) then self.headbutting = false end
     end
   
   elseif other:is(Turret) then
@@ -434,6 +440,14 @@ function Seeker:hit(damage, projectile)
     for i = 1, random:int(4, 6) do HitParticle{group = main.current.effects, x = self.x, y = self.y, color = self.color} end
     HitCircle{group = main.current.effects, x = self.x, y = self.y, rs = 12}:scale_down(0.3):change_color(0.5, self.color)
     _G[random:table{'enemy_die1', 'enemy_die2'}]:play{pitch = random:float(0.9, 1.1), volume = 0.5}
+
+    if main.current.mercenary_level > 0 then
+      if random:bool((main.current.mercenary_level == 2 and 20) or (main.current.mercenary_level == 1 and 10) or 0) then
+        trigger:after(0.01, function()
+          Gold{group = main.current.main, x = self.x, y = self.y}
+        end)
+      end
+    end
 
     if self.boss then
       slow(0.25, 1)
@@ -506,11 +520,11 @@ function Seeker:hit(damage, projectile)
         _G[random:table{'scout1', 'scout2'}]:play{pitch = random:float(0.95, 1.05), volume = 0.35}
         HitCircle{group = main.current.effects, x = self.x, y = self.y, rs = 6}
         local r = random:float(0, 2*math.pi)
-        for i = 1, 3 do
+        for i = 1, 4 do
           local t = {group = main.current.main, x = self.x + 8*math.cos(r), y = self.y + 8*math.sin(r), v = 250, r = r, color = red[0], dmg = self.jester_ref.dmg,
             pierce = self.jester_lvl3 and 2 or 0, homing = self.jester_lvl3, character = self.jester_ref.character, parent = self.jester_ref}
           Projectile(table.merge(t, mods or {}))
-          r = r + math.pi/1.5
+          r = r + math.pi/2
         end
       end)
     end
@@ -594,6 +608,17 @@ function Seeker:curse(curse, duration, arg1, arg2, arg3)
   elseif curse == 'silencer' then
     self.silenced = true
     self.t:after(duration*curse_m, function() self.silenced = false end, 'silencer_curse')
+  elseif curse == 'usurer' then
+    if arg1 then
+      self.usurer_count = self.usurer_count + 1
+      if self.usurer_count == 3 then
+        usurer1:play{pitch = random:float(0.95, 1.05), volume = 1}
+        rogue_crit1:play{pitch = random:float(0.95, 1.05), volume = 1}
+        camera:shake(4, 0.4)
+        self.usurer_count = 0
+        self:hit(50*arg2.dmg)
+      end
+    end
   end
 end
 
@@ -628,6 +653,7 @@ function EnemyCritter:init(args)
   self:push(args.v, args.r)
   self.invulnerable_to = args.projectile
   self.t:after(0.5, function() self.invulnerable_to = false end)
+  self.usurer_count = 0
 end
 
 
@@ -778,6 +804,14 @@ function EnemyCritter:curse(curse, duration, arg1, arg2, arg3)
   elseif curse == 'silencer' then
     self.silenced = true
     self.t:after(duration*curse_m, function() self.silenced = false end, 'silencer_curse')
+  elseif curse == 'usurer' then
+    if arg1 then
+      self.usurer_count = self.usurer_count + 1
+      if self.usurer_count == 3 then
+        self.usurer_count = 0
+        self:hit(10*arg2.dmg)
+      end
+    end
   end
 end
 
