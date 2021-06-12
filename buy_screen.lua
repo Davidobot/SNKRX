@@ -874,7 +874,7 @@ function LevelButton:create_info_text()
       {text = '[blue]tier 3: ' .. t31 .. '%' .. tostring(t31 < 10 and '  ' or '') .. '                                 [fgm4]tier 3: ' .. t32 .. '%', font = pixul_font, alignment = 'left', height_multiplier = 1.25},
       {text = '[purple]tier 4: ' .. t41 .. '%' .. tostring(t41 < 10 and '  ' or '') .. '                                 [fgm2]tier 4: ' .. t42 .. '%', font = pixul_font, alignment = 'left', height_multiplier = 1.25},
     }, nil, nil, nil, nil, 16, 4, nil, 2)
-    self.info_text.x, self.info_text.y = gw/2, gh/2 - 45
+    self.info_text.x, self.info_text.y = gw/2, gh/2
   elseif self.parent.shop_level == 5 then
     local t11 = get_shop_odds(self.parent.shop_level, 1)
     local t21 = get_shop_odds(self.parent.shop_level, 2)
@@ -890,7 +890,7 @@ function LevelButton:create_info_text()
       {text = '[blue]tier 3: ' .. t31 .. '%', font = pixul_font, alignment = 'left', height_multiplier = 1.25},
       {text = '[purple]tier 4: ' .. t41 .. '%', font = pixul_font, alignment = 'left', height_multiplier = 1.25},
     }, nil, nil, nil, nil, 16, 4, nil, 2)
-    self.info_text.x, self.info_text.y = gw/2, gh/2 - 45
+    self.info_text.x, self.info_text.y = gw/2, gh/2
   end
 end
 

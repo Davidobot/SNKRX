@@ -1,6 +1,6 @@
 $YourDirToCompress="."
 $ZipFileResult=".\SNKRX.zip"
-$LoveFileResult=".\SNKRX.love"
+$LoveFileResult=".\game.love"
 $DirToExclude=@(".git")
 
 Remove-Item $LoveFileResult -ErrorAction Ignore
