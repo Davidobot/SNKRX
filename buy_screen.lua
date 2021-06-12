@@ -745,7 +745,7 @@ end
 function LockButton:update(dt)
   self:update_game_object(dt)
 
-  if self.selected and input.m1.pressed then
+  if self.selected and input.m1.released then
     self.parent.locked = not self.parent.locked
     if not self.parent.locked then locked_state = nil end
     if self.parent.locked then
@@ -758,6 +758,7 @@ function LockButton:update(dt)
     self.text:set_text{{text = '[fgm5]' .. tostring(self.parent.locked and 'unlock' or 'lock'), font = pixul_font, alignment = 'center'}}
     if self.parent.locked then self.shape.w = 44
     else self.shape.w = 32 end
+    love.mouse.setPosition(0, 0)
   end
 end
 
@@ -802,7 +803,7 @@ end
 function LevelButton:update(dt)
   self:update_game_object(dt)
 
-  if self.selected and input.m1.pressed then
+  if self.selected and input.m1.released then
     if self.parent.shop_level >= 5 then return end
     if gold < 5 then
       self.spring:pull(0.2, 200, 10)
@@ -833,6 +834,7 @@ function LevelButton:update(dt)
       self.text = Text({{text = '[bg10]' .. tostring(self.parent.shop_level), font = pixul_font, alignment = 'center'}}, global_text_tags)
       system.save_run(self.parent.level, gold, self.parent.units, passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool_by_tiers, locked_state)
     end
+    love.mouse.setPosition(0, 0)
   end
 end
 

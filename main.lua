@@ -11,6 +11,10 @@ require 'media'
 function init()
   shared_init()
 
+  if love.mobsvc then
+    love.mobsvc.signIn()
+  end
+
   input:bind('move_left', {'a', 'left', 'dpleft', 'touch_left'})
   input:bind('move_right', {'d', 'right', 'dpright', 'touch_right'})
   input:bind('move_up', {'w', 'up', 'dpup'})
