@@ -31,12 +31,12 @@ function shared_init()
   slow_amount = 1
 
   sfx = SoundTag()
-  sfx.volume = 0.5
+  sfx.volume = 2*0.5
   music = SoundTag()
-  music.volume = 0.5
+  music.volume = 2*0.5
 
-  if state.volume_muted then sfx.volume = 0 end
-  if state.music_muted then music.volume = 0 end
+  if state.volume_muted then sfx.volume = 2*0 end
+  if state.music_muted then music.volume = 2*0 end
 
   fat_font = Font('FatPixelFont', 8)
   pixul_font = Font('PixulBrush', 8)
@@ -549,7 +549,7 @@ global_text_tags = {
     text.t:after((i-1)*0.15, function()
       c.color = red[0]
       camera:shake(3, 0.075)
-      pop1:play{pitch = random:float(0.95, 1.05), volume = 0.35}
+      pop1:play{pitch = random:float(0.95, 1.05), volume = 2*0.35}
     end)
   end, draw = function(c, i, text)
     graphics.set_color(c.color)
@@ -560,7 +560,7 @@ global_text_tags = {
     text.t:after((i-1)*0.15, function()
       c.color = yellow[0]
       camera:shake(3, 0.075)
-      pop1:play{pitch = random:float(0.95, 1.05), volume = 0.35}
+      pop1:play{pitch = random:float(0.95, 1.05), volume = 2*0.35}
     end)
   end, draw = function(c, i, text)
     graphics.set_color(c.color)

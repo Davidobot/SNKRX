@@ -6,6 +6,21 @@ function Arena:init(name)
   self:init_game_object()
 end
 
+local function showAchievements()
+  if love.mobsvc then
+    if love.mobsvc.isSignedIn() then
+      love.mobsvc.showAchievements()
+    end
+  end
+end
+
+local function unlockAchievement(androidID, iosID)
+  if love.mobsvc then
+    if love.mobsvc.isSignedIn() then
+      love.mobsvc.incrementAchievementProgress("CgkIuormx-"..androidID, iosID, 1, 1)
+    end
+  end
+end
 
 function Arena:on_enter(from, level, units, passives, shop_level, shop_xp)
   self.hfx:add('condition1', 1)
@@ -16,7 +31,7 @@ function Arena:on_enter(from, level, units, passives, shop_level, shop_xp)
   self.shop_level = shop_level or 1
   self.shop_xp = shop_xp or 0
 
-  trigger:tween(2, main_song_instance, {volume = 0.5, pitch = 1}, math.linear)
+  trigger:tween(2, main_song_instance, {volume = 2*0.5, pitch = 1}, math.linear)
 
 
   self.floor = Group()
@@ -112,15 +127,15 @@ function Arena:on_enter(from, level, units, passives, shop_level, shop_xp)
     self.start_time = 3
     self.t:after(1, function()
       self.t:every(1, function()
-        if self.start_time > 1 then alert1:play{volume = 0.5} end
+        if self.start_time > 1 then alert1:play{volume = 2*0.5} end
         self.start_time = self.start_time - 1
         self.hfx:use('condition1', 0.25, 200, 10)
       end, 3, function()
-        alert1:play{pitch = 1.2, volume = 0.5}
+        alert1:play{pitch = 1.2, volume = 2*0.5}
         camera:shake(4, 0.25)
         SpawnEffect{group = self.effects, x = gw/2, y = gh/2 - 48}
         SpawnEffect{group = self.effects, x = gw/2, y = gh/2, action = function(x, y)
-          spawn1:play{pitch = random:float(0.8, 1.2), volume = 0.15}
+          spawn1:play{pitch = random:float(0.8, 1.2), volume = 2*0.15}
           SpawnMarker{group = self.effects, x = x, y = y}
           self.t:after(0.75, function()
             self.boss = Seeker{group = self.main, x = x, y = y, character = 'seeker', level = self.level, boss = level_to_boss[self.level]}
@@ -149,18 +164,23 @@ function Arena:on_enter(from, level, units, passives, shop_level, shop_xp)
       self.t:every(function() return self.start_time <= 0 and (self.boss and self.boss.dead) and #self.main:get_objects_by_classes(self.enemies) <= 0 and not self.spawning_enemies and not self.quitting end, function()
         self:quit()
         if self.level == 6 then
+          unlockAchievement("IMEAIQAg", "")
           state.achievement_speed_booster = true
           system.save_state()
         elseif self.level == 12 then
+          unlockAchievement("IMEAIQAw", "")
           state.achievement_exploder = true
           system.save_state()
         elseif self.level == 18 then
+          unlockAchievement("IMEAIQBA", "")
           state.achievement_swarmer = true
           system.save_state()
         elseif self.level == 24 then
+          unlockAchievement("IMEAIQBQ", "")
           state.achievement_forcer = true
           system.save_state()
         elseif self.level == 25 then
+          unlockAchievement("IMEAIQBg", "")
           state.achievement_cluster = true
           system.save_state()
         end
@@ -188,11 +208,11 @@ function Arena:on_enter(from, level, units, passives, shop_level, shop_xp)
     self.start_time = 3
     self.t:after(1, function()
       self.t:every(1, function()
-        if self.start_time > 1 then alert1:play{volume = 0.5} end
+        if self.start_time > 1 then alert1:play{volume = 2*0.5} end
         self.start_time = self.start_time - 1
         self.hfx:use('condition1', 0.25, 200, 10)
       end, 3, function()
-        alert1:play{pitch = 1.2, volume = 0.5}
+        alert1:play{pitch = 1.2, volume = 2*0.5}
         camera:shake(4, 0.25)
         SpawnEffect{group = self.effects, x = gw/2, y = gh/2 - 48}
         self.t:every(function() return #self.main:get_objects_by_classes(self.enemies) <= 0 and not self.spawning_enemies end, function()
@@ -346,6 +366,8 @@ function Arena:pause(only_pause)
       self.pause_button.dead = true; self.pause_button = nil
       self.pause_button2.dead = true; self.pause_button2 = nil
 
+      self.achievement_button = Button{group = self.ui, x = gw/2, y = gh - 250, force_update = true, button_text = 'achievements', fg_color = 'bg10', bg_color = 'bg', action = showAchievements }
+
       self.resume_button = Button{group = self.ui, x = gw/2, y = gh - 200, force_update = true, button_text = 'resume game', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
           slow_amount = 1
@@ -356,6 +378,8 @@ function Arena:pause(only_pause)
           self.paused_t2 = nil
           self.ng_t.dead = true
           self.ng_t = nil
+
+          if self.achievement_button then self.achievement_button.dead = true; self.achievement_button = nil end
           if self.resume_button then self.resume_button.dead = true; self.resume_button = nil end
           if self.restart_button then self.restart_button.dead = true; self.restart_button = nil end
           if self.sfx_button then self.sfx_button.dead = true; self.sfx_button = nil end
@@ -385,9 +409,9 @@ function Arena:pause(only_pause)
 
       self.restart_button = Button{group = self.ui, x = gw/2, y = gh - 175, force_update = true, button_text = 'restart run', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         self.transitioning = true
-        ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = fg[0], transition_action = function()
           slow_amount = 1
           gold = 3
@@ -410,15 +434,15 @@ function Arena:pause(only_pause)
 
       self.sfx_button = Button{group = self.ui, x = gw/2 - 46, y = gh - 150, force_update = true, button_text = 'sounds: ' .. tostring(state.volume_muted and 'no' or 'yes'), fg_color = 'bg10', bg_color = 'bg',
       action = function(b)
-        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         b.spring:pull(0.2, 200, 10)
         b.selected = true
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         if sfx.volume == 0.5 then
-          sfx.volume = 0
+          sfx.volume = 2*0
           state.volume_muted = true
         elseif sfx.volume == 0 then
-          sfx.volume = 0.5
+          sfx.volume = 2*0.5
           state.volume_muted = false
         end
         b:set_text('sounds: ' .. tostring(state.volume_muted and 'no' or 'yes'))
@@ -426,15 +450,15 @@ function Arena:pause(only_pause)
 
       self.music_button = Button{group = self.ui, x = gw/2 + 46, y = gh - 150, force_update = true, button_text = 'music: ' .. tostring(state.music_muted and 'no' or 'yes'), fg_color = 'bg10', bg_color = 'bg',
       action = function(b)
-        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         b.spring:pull(0.2, 200, 10)
         b.selected = true
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         if music.volume == 0.5 then
-          music.volume = 0
+          music.volume = 2*0
           state.music_muted = true
         elseif music.volume == 0 then
-          music.volume = 0.5
+          music.volume = 2*0.5
           state.music_muted = false
         end
         b:set_text('music: ' .. tostring(state.music_muted and 'no' or 'yes'))
@@ -442,28 +466,28 @@ function Arena:pause(only_pause)
 
       self.screen_shake_button = Button{group = self.ui, x = gw/2 - 57, y = gh - 125, w = 110, force_update = true, button_text = '[bg10]screen shake: ' .. tostring(state.no_screen_shake and 'no' or 'yes'), 
       fg_color = 'bg10', bg_color = 'bg', action = function(b)
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         state.no_screen_shake = not state.no_screen_shake
         b:set_text('screen shake: ' .. tostring(state.no_screen_shake and 'no' or 'yes'))
       end}
 
       self.cooldown_snake_button = Button{group = self.ui, x = gw/2 + 75, y = gh - 125, w = 145, force_update = true, button_text = '[bg10]cooldowns on snake: ' .. tostring(state.cooldown_snake and 'yes' or 'no'), 
       fg_color = 'bg10', bg_color = 'bg', action = function(b)
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         state.cooldown_snake = not state.cooldown_snake
         b:set_text('cooldowns on snake: ' .. tostring(state.cooldown_snake and 'yes' or 'no'))
       end}
 
       self.arrow_snake_button = Button{group = self.ui, x = gw/2 + 65, y = gh - 100, w = 125, force_update = true, button_text = '[bg10]arrow on snake: ' .. tostring(state.arrow_snake and 'yes' or 'no'),
       fg_color = 'bg10', bg_color = 'bg', action = function(b)
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         state.arrow_snake = not state.arrow_snake
         b:set_text('arrow on snake: ' .. tostring(state.arrow_snake and 'yes' or 'no'))
       end}
 
       self.screen_movement_button = Button{group = self.ui, x = gw/2 - 69, y = gh - 100, w = 135, force_update = true, button_text = '[bg10]screen movement: ' .. tostring(state.no_screen_movement and 'no' or 'yes'), 
       fg_color = 'bg10', bg_color = 'bg', action = function(b)
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         state.no_screen_movement = not state.no_screen_movement
         if state.no_screen_movement then
           camera.x, camera.y = gw/2, gh/2
@@ -473,7 +497,7 @@ function Arena:pause(only_pause)
       end}
 
       self.ng_plus_minus_button = Button{group = self.ui, x = gw/2 - 58, y = gh - 75, force_update = true, button_text = 'NG+ down', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         b.spring:pull(0.2, 200, 10)
         b.selected = true
         current_new_game_plus = math.clamp(current_new_game_plus - 1, 0, 5)
@@ -482,7 +506,7 @@ function Arena:pause(only_pause)
       end}
 
       self.ng_plus_plus_button = Button{group = self.ui, x = gw/2 + 5, y = gh - 75, force_update = true, button_text = 'NG+ up', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         b.spring:pull(0.2, 200, 10)
         b.selected = true
         current_new_game_plus = math.clamp(current_new_game_plus + 1, 0, new_game_plus)
@@ -505,11 +529,12 @@ function Arena:pause(only_pause)
       self.paused_t2 = nil
       self.ng_t.dead = true
       self.ng_t = nil
+
+      if self.achievement_button then self.achievement_button.dead = true; self.achievement_button = nil end
       if self.resume_button then self.resume_button.dead = true; self.resume_button = nil end
       if self.restart_button then self.restart_button.dead = true; self.restart_button = nil end
       if self.sfx_button then self.sfx_button.dead = true; self.sfx_button = nil end
       if self.music_button then self.music_button.dead = true; self.music_button = nil end
-
       if self.screen_shake_button then self.screen_shake_button.dead = true; self.screen_shake_button = nil end
       if self.screen_movement_button then self.screen_movement_button.dead = true; self.screen_movement_button = nil end
       if self.cooldown_snake_button then self.cooldown_snake_button.dead = true; self.cooldown_snake_button = nil end
@@ -536,7 +561,7 @@ end
 
 function Arena:update(dt)
   if main_song_instance:isStopped() then
-    main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 0.5}
+    main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 2*0.5}
   end
 
   if self.shop_text then self.shop_text:update(dt) end
@@ -549,9 +574,9 @@ function Arena:update(dt)
   if self.paused or self.died or self.won and not self.transitioning then
     if input.r.pressed then
       self.transitioning = true
-      ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = fg[0], transition_action = function()
         slow_amount = 1
         gold = 3
@@ -627,10 +652,10 @@ function Arena:quit()
           Button{group = self.ui, x = gw - 40, y = gh - 44, force_update = true, button_text = 'credits', fg_color = 'bg10', bg_color = 'bg', action = function() self:create_credits() end}
           Button{group = self.ui, x = gw - 32, y = gh - 20, force_update = true, button_text = 'quit', fg_color = 'bg10', bg_color = 'bg', action = function() love.event.quit() end}
           local open_url = function(b, url)
-            ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+            ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
             b.spring:pull(0.2, 200, 10)
             b.selected = true
-            ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+            ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
             system.open_url(url)
           end
           Button{group = self.ui, x = gw/2 - 50, y = gh/2 + 12, force_update = true, button_text = 'nimble quest', fg_color = 'bluem5', bg_color = 'blue', action = function(b) open_url(b, 'https://store.steampowered.com/app/259780/Nimble_Quest/') end}
@@ -658,90 +683,105 @@ function Arena:quit()
       end)
 
       if current_new_game_plus == 1 then
+        unlockAchievement("IMEAIQBw", "")
         state.achievement_new_game_1 = true
         system.save_state()
       end
 
       if current_new_game_plus == 5 then
+        unlockAchievement("IMEAIQFQ", "")
         state.achievement_new_game_5 = true
         system.save_state()
       end
 
       if self.ranger_level >= 2 then
+        unlockAchievement("IMEAIQCA", "")
         state.achievement_rangers_win = true
         system.save_state()
       end
 
       if self.warrior_level >= 2 then
+        unlockAchievement("IMEAIQCg", "")
         state.achievement_warriors_win = true
         system.save_state()
       end
 
       if self.mage_level >= 2 then
+        unlockAchievement("IMEAIQDA", "")
         state.achievement_mages_win = true
         system.save_state()
       end
 
       if self.rogue_level >= 2 then
+        unlockAchievement("IMEAIQCw", "")
         state.achievement_rogues_win = true
         system.save_state()
       end
 
       if self.healer_level >= 2 then
+        unlockAchievement("IMEAIQEg", "")
         state.achievement_healers_win = true
         system.save_state()
       end
 
       if self.enchanter_level >= 2 then
+        unlockAchievement("IMEAIQDw", "")
         state.achievement_enchanters_win = true
         system.save_state()
       end
 
       if self.nuker_level >= 2 then
+        unlockAchievement("IMEAIQDg", "")
         state.achievement_nukers_win = true
         system.save_state()
       end
 
       if self.conjurer_level >= 2 then
+        unlockAchievement("IMEAIQFA", "")
         state.achievement_conjurers_win = true
         system.save_state()
       end
 
       if self.psyker_level >= 2 then
+        unlockAchievement("IMEAIQDQ", "")
         state.achievement_psykers_win = true
         system.save_state()
       end
 
       if self.curser_level >= 2 then
+        unlockAchievement("IMEAIQGQ", "")
         state.achievement_cursers_win = true
         system.save_state()
       end
 
       if self.forcer_level >= 2 then
+        unlockAchievement("IMEAIQBQ", "")
         state.achievement_forcers_win = true
         system.save_state()
       end
 
       if self.swarmer_level >= 2 then
+        unlockAchievement("IMEAIQEQ", "")
         state.achievement_swarmers_win = true
         system.save_state()
       end
 
       if self.voider_level >= 2 then
+        unlockAchievement("IMEAIQFg", "")
         state.achievement_voiders_win = true
         system.save_state()
       end
 
       if self.sorcerer_level >= 3 then
+        unlockAchievement("IMEAIQEA", "")
         state.achievement_sorcerers_win = true
         system.save_state()
       end
 
       if self.mercenary_level >= 2 then
+        unlockAchievement("IMEAIQEw", "")
         state.achievement_mercenaries_win = true
         system.save_state()
-        steam.userStats.setAchievement('MERCENARIES_WIN')
-        steam.userStats.storeStats()
       end
 
       local units = self.player:get_all_units()
@@ -753,6 +793,7 @@ function Arena:quit()
         end
       end
       if all_units_level_2 then
+        unlockAchievement("IMEAIQGA", "")
         state.achievement_level_2_win = true
         system.save_state()
       end
@@ -766,6 +807,7 @@ function Arena:quit()
         end
       end
       if all_units_level_3 then
+        unlockAchievement("IMEAIQCQ", "")
         state.achievement_level_3_win = true
         system.save_state()
       end
@@ -912,9 +954,9 @@ function Arena:die()
       }}
       self.restart_button = Button{group = self.ui, x = gw/2, y = gh/2 + 24, force_update = true, button_text = 'restart run', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         self.transitioning = true
-        ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = fg[0], transition_action = function()
           slow_amount = 1
           gold = 3
@@ -941,10 +983,10 @@ end
 
 function Arena:create_credits()
   local open_url = function(b, url)
-    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     b.spring:pull(0.2, 200, 10)
     b.selected = true
-    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     system.open_url(url)
   end
 
@@ -1008,7 +1050,7 @@ end
 
 function Arena:transition()
   self.transitioning = true
-  ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
   TransitionEffect{group = main.transitions, x = self.player.x, y = self.player.y, color = self.color, transition_action = function(t)
     if self.level % 2 == 0 and self.shop_level < 5 then
       self.shop_xp = self.shop_xp + 1
@@ -1033,21 +1075,21 @@ function Arena:transition()
         {text = '[wavy_lower, bg]interest: 0', font = pixul_font, alignment = 'center', height_multiplier = 1.5},
         {text = '[wavy_lower, bg]total: 0', font = pixul_font, alignment = 'center'}
       })
-      _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       t.t:after(0.2, function()
         t.text:set_text({
           {text = '[wavy_lower, bg]gold gained: ' .. tostring(self.gold_gained or 0) .. ' + ' .. tostring(self.gold_picked_up or 0), font = pixul_font, alignment = 'center', height_multiplier = 1.5},
           {text = '[nudge_down, bg]interest: ' .. tostring(self.interest or 0), font = pixul_font, alignment = 'center', height_multiplier = 1.5},
           {text = '[wavy_lower, bg]total: 0', font = pixul_font, alignment = 'center'}
         })
-        _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         t.t:after(0.2, function()
           t.text:set_text({
             {text = '[wavy_lower, bg]gold gained: ' .. tostring(self.gold_gained or 0) .. ' + ' .. tostring(self.gold_picked_up or 0), font = pixul_font, alignment = 'center', height_multiplier = 1.5},
             {text = '[wavy_lower, bg]interest: ' .. tostring(self.interest or 0), font = pixul_font, alignment = 'center', height_multiplier = 1.5},
             {text = '[nudge_down, bg]total: ' .. tostring((self.gold_gained or 0) + (self.interest or 0) + (self.gold_picked_up or 0)), font = pixul_font, alignment = 'center'}
           })
-          _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+          _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         end)
       end)
     end)
@@ -1163,7 +1205,7 @@ function Arena:spawn_n_enemies(p, j, n, pass)
   self.t:every(0.1, function()
     local o = self.spawn_offsets[(self.t:get_every_iteration('spawn_enemies_' .. j) % 5) + 1]
     SpawnEffect{group = self.effects, x = p.x + o.x, y = p.y + o.y, action = function(x, y)
-      spawn1:play{pitch = random:float(0.8, 1.2), volume = 0.15}
+      spawn1:play{pitch = random:float(0.8, 1.2), volume = 2*0.15}
       if not pass then
         check_circle:move_to(x, y)
         local objects = self.main:get_objects_in_shape(check_circle, {Seeker, EnemyCritter, Critter, Player, Illusion, Volcano, Saboteur, Pet, Turret})

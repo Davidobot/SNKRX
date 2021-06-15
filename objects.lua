@@ -8,7 +8,7 @@ function SpawnMarker:init(args)
   self.t:after(0.75, function() self.dead = true end)
   self.m = 1
   self.n = 0
-  pop3:play{pitch = 1, volume = 0.15}
+  pop3:play{pitch = 1, volume = 2*0.15}
   self.t:every({0.13, 0.16}, function()
     self.hidden = not self.hidden
     self.m = self.m*random:float(0.84, 0.87)

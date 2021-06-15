@@ -7,6 +7,7 @@ require 'player'
 require 'enemies'
 require 'media'
 
+-- require("love.mobsvc")
 
 function init()
   shared_init()
@@ -1459,9 +1460,9 @@ function init()
   main = Main()
 
   if run.level and run.level > 0 then
-    main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 0.5}
+    main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 2*0.5}
   end
-  -- main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 0.5}
+  -- main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 2*0.5}
 
   main:add(BuyScreen'buy_screen')
   main:go_to('buy_screen', run.level or 0, run.units or {}, passives, run.shop_level or 1, run.shop_xp or 0)
@@ -1529,10 +1530,10 @@ function update(dt)
       main.current.sfx_button.selected = false
     else
       if sfx.volume == 0.5 then
-        sfx.volume = 0
+        sfx.volume = 2*0
         state.volume_muted = true
       elseif sfx.volume == 0 then
-        sfx.volume = 0.5
+        sfx.volume = 2*0.5
         state.volume_muted = false
       end
     end
@@ -1545,9 +1546,9 @@ function update(dt)
     else
       if music.volume == 0.5 then
         state.music_muted = true
-        music.volume = 0
+        music.volume = 2*0
       elseif music.volume == 0 then
-        music.volume = 0.5
+        music.volume = 2*0.5
         state.music_muted = false
       end
     end
@@ -1586,13 +1587,13 @@ end
 
 function love.focus(focus)
   if not focus then
-    music.volume = 0
-    sfx.volume = 0
+    music.volume = 2*0
+    sfx.volume = 2*0
 
     main:pause()
   else
-    if not state.volume_muted then sfx.volume = 0.5 end
-    if not state.music_muted then music.volume = 0.5 end
+    if not state.volume_muted then sfx.volume = 2*0.5 end
+    if not state.music_muted then music.volume = 2*0.5 end
 
     main:unpause()
   end

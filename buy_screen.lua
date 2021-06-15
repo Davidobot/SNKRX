@@ -47,7 +47,7 @@ function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
   camera.x, camera.y = gw/2, gh/2
   
   if self.level == 0 then
-    main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 0.5}
+    main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 2*0.5}
     self.level = 1
     self.first_screen = true
   end
@@ -128,9 +128,9 @@ function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
 
   self.restart_button = Button{group = self.ui, x = gw/2 + 156, y = 18, force_update = true, button_text = 'R', fg_color = 'bg10', bg_color = 'bg', action = function(b)
     self.transitioning = true
-    ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = fg[0], transition_action = function()
       slow_amount = 1
       gold = 3
@@ -160,7 +160,7 @@ function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
     b.info_text = nil
   end}
 
-  trigger:tween(1, main_song_instance, {volume = 0.2}, math.linear)
+  trigger:tween(1, main_song_instance, {volume = 2*0.2}, math.linear)
 
   self.paused = false
 
@@ -186,7 +186,7 @@ end
 
 function BuyScreen:update(dt)
   if main_song_instance:isStopped() then
-    main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 0.2}
+    main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 2*0.2}
   end
 
   self:update_game_object(dt*slow_amount)
@@ -410,10 +410,10 @@ function SteamFollowButton:update(dt)
   if main.current.in_credits then return end
 
   if self.selected and input.m1.released then
-    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     self.spring:pull(0.2, 200, 10)
     self.selected = true
-    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     system.open_url'https://store.steampowered.com/dev/a327ex/'
   end
 end
@@ -430,8 +430,8 @@ end
 function SteamFollowButton:on_mouse_enter()
   if main.current.in_credits then return end
   love.mouse.setCursor(love.mouse.getSystemCursor'hand')
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
-  pop2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
+  pop2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
   self.selected = true
   self.text:set_text{{text = '[fgm5]follow me on steam!', font = pixul_font, alignment = 'center'}}
   self.spring:pull(0.05, 200, 10)
@@ -467,10 +467,10 @@ function WishlistButton:update(dt)
   self:update_game_object(dt)
 
   if self.selected and input.m1.released then
-    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     self.spring:pull(0.2, 200, 10)
     self.selected = true
-    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     system.open_url'https://store.steampowered.com/app/915310/SNKRX/'
   end
 end
@@ -485,8 +485,8 @@ end
 
 
 function WishlistButton:on_mouse_enter()
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
-  pop2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
+  pop2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
   self.selected = true
   if self.w_to_wishlist then
     self.text:set_text{{text = '[fgm5]w to wishlist', font = pixul_font, alignment = 'center'}}
@@ -525,9 +525,9 @@ function RestartButton:update(dt)
 
   if self.selected and input.m1.released then
     main.current.transitioning = true
-    ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = fg[0], transition_action = function()
       slow_amount = 1
       gold = 3
@@ -566,8 +566,8 @@ end
 
 function RestartButton:on_mouse_enter()
   if main.current.in_credits then return end
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
-  pop2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
+  pop2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
   self.selected = true
   self.text:set_text{{text = '[fgm5]NG+' .. tostring(current_new_game_plus+1), font = pixul_font, alignment = 'center'}}
   self.spring:pull(0.2, 200, 10)
@@ -638,8 +638,8 @@ end
 
 function Button:on_mouse_enter()
   if main.current.in_credits and not self.credits_button then return end
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
-  pop2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
+  pop2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
   self.selected = true
   self.text:set_text{{text = '[fgm5]' .. self.button_text, font = pixul_font, alignment = 'center'}}
   self.spring:pull(0.2, 200, 10)
@@ -680,7 +680,7 @@ function GoButton:update(dt)
   if self.selected and input.m1.released and not self.transitioning then
     if #self.parent.units == 0 then
       if not self.info_text then
-        error1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         self.info_text = InfoText{group = main.current.ui}
         self.info_text:activate({
           {text = '[fg]cannot start the round with [yellow]0 [fg]units', font = pixul_font, alignment = 'center'},
@@ -691,11 +691,11 @@ function GoButton:update(dt)
 
     else
       if self.parent.locked then locked_state = {locked = true, cards = {self.parent.cards[1] and self.parent.cards[1].unit, self.parent.cards[2] and self.parent.cards[2].unit, self.parent.cards[3] and self.parent.cards[3].unit}} end
-      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       self.spring:pull(0.2, 200, 10)
       self.selected = true
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-      ui_transition1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      ui_transition1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       self.transitioning = true
       TransitionEffect{group = main.transitions, x = self.x, y = self.y, color = character_colors[random:table(self.parent.units).character], transition_action = function()
         main:add(Arena'arena')
@@ -715,8 +715,8 @@ end
 
 
 function GoButton:on_mouse_enter()
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
-  pop2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
+  pop2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
   self.selected = true
   self.text:set_text{{text = '[fgm5]GO!', font = pixul_font, alignment = 'center'}}
   self.spring:pull(0.2, 200, 10)
@@ -752,7 +752,7 @@ function LockButton:update(dt)
       locked_state = {locked = true, cards = {self.parent.cards[1] and self.parent.cards[1].unit, self.parent.cards[2] and self.parent.cards[2].unit, self.parent.cards[3] and self.parent.cards[3].unit}}
       system.save_run(self.parent.level == 1 and 0 or self.parent.level, gold, self.parent.units, passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool_by_tiers, locked_state)
     end
-    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     self.selected = true
     self.spring:pull(0.2, 200, 10)
     self.text:set_text{{text = '[fgm5]' .. tostring(self.parent.locked and 'unlock' or 'lock'), font = pixul_font, alignment = 'center'}}
@@ -772,8 +772,8 @@ end
 
 
 function LockButton:on_mouse_enter()
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
-  pop2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
+  pop2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
   self.selected = true
   self.text:set_text{{text = '[fgm5]' .. tostring(self.parent.locked and 'unlock' or 'lock'), font = pixul_font, alignment = 'center'}}
   self.spring:pull(0.2, 200, 10)
@@ -808,7 +808,7 @@ function LevelButton:update(dt)
     if gold < 5 then
       self.spring:pull(0.2, 200, 10)
       self.selected = true
-      error1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       if not self.info_text_2 then
         self.info_text_2 = InfoText{group = main.current.ui}
         self.info_text_2:activate({
@@ -818,7 +818,7 @@ function LevelButton:update(dt)
       end
       self.t:after(2, function() self.info_text_2:deactivate(); self.info_text_2.dead = true; self.info_text_2 = nil end, 'info_text_2')
     else
-      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       self.shop_xp = self.shop_xp + 1
       if self.shop_xp >= self.max_xp then
         self.shop_xp = 0
@@ -896,8 +896,8 @@ end
 
 
 function LevelButton:on_mouse_enter()
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
-  pop2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
+  pop2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
   self.selected = true
   self.text:set_text{{text = '[fgm5]' .. tostring(self.parent.shop_level), font = pixul_font, alignment = 'center'}}
   self.spring:pull(0.2, 200, 10)
@@ -947,7 +947,7 @@ function RerollButton:update(dt)
       if gold < 2 then
         self.spring:pull(0.2, 200, 10)
         self.selected = true
-        error1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         if not self.info_text then
           self.info_text = InfoText{group = main.current.ui}
           self.info_text:activate({
@@ -957,7 +957,7 @@ function RerollButton:update(dt)
         end
         self.t:after(2, function() self.info_text:deactivate(); self.info_text.dead = true; self.info_text = nil end, 'info_text')
       else
-        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         self.parent:set_cards(self.parent.shop_level, true)
         self.selected = true
         self.spring:pull(0.2, 200, 10)
@@ -969,7 +969,7 @@ function RerollButton:update(dt)
       if gold < 15 and not self.free_reroll then
         self.spring:pull(0.2, 200, 10)
         self.selected = true
-        error1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         if not self.info_text then
           self.info_text = InfoText{group = main.current.ui, force_update = true}
           self.info_text:activate({
@@ -979,7 +979,7 @@ function RerollButton:update(dt)
         end
         self.t:after(2, function() self.info_text:deactivate(); self.info_text.dead = true; self.info_text = nil end, 'info_text')
       else
-        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         self.parent:set_passives(true)
         self.selected = true
         self.spring:pull(0.2, 200, 10)
@@ -1007,8 +1007,8 @@ end
 
 
 function RerollButton:on_mouse_enter()
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
-  pop2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
+  pop2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
   self.selected = true
   if self.parent:is(BuyScreen) then
     self.text:set_text{{text = '[fgm5]reroll: 2', font = pixul_font, alignment = 'center'}}
@@ -1063,7 +1063,7 @@ end
 
 
 function TutorialCharacterPart:on_mouse_enter()
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
   self.selected = true
   self.spring:pull(0.2, 200, 10)
   self.info_text = InfoText{group = main.current.tutorial}
@@ -1161,7 +1161,7 @@ function CharacterPart:update(dt)
   end
 
   if self.selected and input.m2.pressed and not self.just_created then
-    _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     if self.reserve then
       self.parent:gain_gold(self:get_sale_price())
       table.remove(self.parent.units, self.i)
@@ -1202,7 +1202,7 @@ end
 
 
 function CharacterPart:on_mouse_enter()
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
   self.selected = true
   self.spring:pull(0.2, 200, 10)
   self.info_text = InfoText{group = main.current.ui, force_update = self.force_update}
@@ -1319,7 +1319,7 @@ function PassiveCard:update(dt)
       slow_amount = 1
       self.arena:transition()
     end)
-    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     self:die()
   end
 end
@@ -1335,7 +1335,7 @@ end
 
 function PassiveCard:on_mouse_enter()
   self.selected = true
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
   self.spring:pull(0.2, 200, 10)
   self.info_text = InfoText{group = main.current.ui, force_update = true}
   self.info_text:activate({
@@ -1391,7 +1391,7 @@ end
 
 function ItemCard:on_mouse_enter()
   self.selected = true
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
   self.spring:pull(0.2, 200, 10)
   self.info_text = InfoText{group = main.current.ui, force_update = true}
   self.info_text:activate({
@@ -1445,13 +1445,13 @@ function ShopCard:update(dt)
 
   if self.selected and input.m1.released then
     if self.parent:buy(self.unit, self.i) then
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-      _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       self:die()
       self.parent.cards[self.i] = nil
       system.save_run(self.parent.level == 1 and 0 or self.parent.level, gold, self.parent.units, passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool_by_tiers, locked_state)
     else
-      error1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       self.spring:pull(0.2, 200, 10)
       self.character_icon.spring:pull(0.2, 200, 10)
       for _, ci in ipairs(self.class_icons) do ci.spring:pull(0.2, 200, 10) end
@@ -1492,8 +1492,8 @@ end
 
 
 function ShopCard:on_mouse_enter()
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
-  pop2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
+  pop2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
   self.selected = true
   self.spring:pull(0.1)
   self.character_icon.spring:pull(0.1, 200, 10)
@@ -1550,7 +1550,7 @@ end
 
 
 function CharacterIcon:on_mouse_enter()
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
   self.spring:pull(0.2, 200, 10)
   self.info_text = InfoText{group = main.current.ui}
   self.info_text:activate({
@@ -1640,7 +1640,7 @@ end
 
 
 function TutorialClassIcon:on_mouse_enter()
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
   self.spring:pull(0.2, 200, 10)
   local i, j, k, owned = class_set_numbers[self.class](self.units)
   self.info_text = InfoText{group = main.current.tutorial}
@@ -1788,7 +1788,7 @@ end
 
 
 function ClassIcon:on_mouse_enter()
-  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 0.5}
+  ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
   self.spring:pull(0.2, 200, 10)
   local i, j, k, owned = class_set_numbers[self.class](self.units)
   self.info_text = InfoText{group = main.current.ui}

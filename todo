@@ -1,4 +1,1 @@
 * maybe use love.window.getSafeArea() (requires offsetting coordinates)
-
-LÖVE:
- - port achievements for Android and iOS to v11.3 from https://love2d.org/forums/viewtopic.php?f=5&t=85468
