@@ -1,1 +1,2 @@
-* maybe use love.window.getSafeArea() (requires offsetting coordinates)
+Bugs:
+ * when use_safe_area is enabled in config on launch, window does not use full size (resize on love.resize call?)

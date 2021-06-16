@@ -349,7 +349,10 @@ end
 -- Returns the mouse's position in world coordinates
 -- x, y = camera:get_mouse_position()
 function Camera:get_mouse_position()
-  return self:get_world_coords(love.mouse.getPosition())
+  mx, my = love.mouse.getPosition()
+  mx = mx - safe_area_x
+  my = my - safe_area_y
+  return self:get_world_coords(mx, my)
 end
 
 

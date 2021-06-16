@@ -368,6 +368,19 @@ function Arena:pause(only_pause)
 
       self.achievement_button = Button{group = self.ui, x = gw/2, y = gh - 250, force_update = true, button_text = 'achievements', fg_color = 'bg10', bg_color = 'bg', action = showAchievements }
 
+      self.safe_area_button = Button{group = self.ui, x = gw/2 - 150, y = gh - 250, force_update = true, button_text = 'toggle safe area', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+        state.ignore_safe_area = not state.ignore_safe_area
+        if state.ignore_safe_area then
+          safe_area_x, safe_area_y, safe_area_w, safe_area_h = 0, 0, ww, wh
+        else
+          safe_area_x, safe_area_y, safe_area_w, safe_area_h = love.window.getSafeArea( )
+          safe_area_x = ww - safe_area_w
+          safe_area_y = math.floor((wh - safe_area_h) / 2)
+        end
+        sx, sy = safe_area_w/gw, safe_area_h/gh
+        system.save_state()
+      end }
+
       self.resume_button = Button{group = self.ui, x = gw/2, y = gh - 200, force_update = true, button_text = 'resume game', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
           slow_amount = 1
@@ -380,6 +393,7 @@ function Arena:pause(only_pause)
           self.ng_t = nil
 
           if self.achievement_button then self.achievement_button.dead = true; self.achievement_button = nil end
+          if self.safe_area_button then self.safe_area_button.dead = true; self.safe_area_button = nil end
           if self.resume_button then self.resume_button.dead = true; self.resume_button = nil end
           if self.restart_button then self.restart_button.dead = true; self.restart_button = nil end
           if self.sfx_button then self.sfx_button.dead = true; self.sfx_button = nil end
@@ -531,6 +545,7 @@ function Arena:pause(only_pause)
       self.ng_t = nil
 
       if self.achievement_button then self.achievement_button.dead = true; self.achievement_button = nil end
+      if self.safe_area_button then self.safe_area_button.dead = true; self.safe_area_button = nil end
       if self.resume_button then self.resume_button.dead = true; self.resume_button = nil end
       if self.restart_button then self.restart_button.dead = true; self.restart_button = nil end
       if self.sfx_button then self.sfx_button.dead = true; self.sfx_button = nil end

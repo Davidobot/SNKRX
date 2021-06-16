@@ -88,9 +88,16 @@ function shared_draw(draw_action)
     shadow_shader:unset()
   end)
 
-  background_canvas:draw(0, 0, 0, sx, sy)
-  shadow_canvas:draw(1.5*sx, 1.5*sy, 0, sx, sy)
-  main_canvas:draw(0, 0, 0, sx, sy)
+  love.graphics.push()
+  love.graphics.setColor(0, 0, 0, 1)
+  love.graphics.rectangle("fill", 0, 0, ww, wh)
+  graphics.set_color(bg[0])
+  love.graphics.rectangle("fill", safe_area_x, safe_area_y, safe_area_w, safe_area_h)
+  love.graphics.pop()
+  
+  background_canvas:draw(safe_area_x, safe_area_y, 0, sx, sy)
+  shadow_canvas:draw(safe_area_x + 1.5*sx, safe_area_y + 1.5*sy, 0, sx, sy)
+  main_canvas:draw(safe_area_x, safe_area_y, 0, sx, sy)
 end
 
 

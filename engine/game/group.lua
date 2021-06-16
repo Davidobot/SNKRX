@@ -156,6 +156,8 @@ function Group:get_mouse_position()
     return self.camera.mouse.x, self.camera.mouse.y
   else
     local mx, my = love.mouse.getPosition()
+    mx = mx - safe_area_x
+    my = my - safe_area_y
     return mx/sx, my/sy
   end
 end

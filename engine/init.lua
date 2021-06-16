@@ -59,19 +59,30 @@ function engine_run(config)
     if config.msaa ~= 'max' then msaa = config.msaa end
     if config.anisotropy ~= 'max' then anisotropy = config.anisotropy end
 
+    love.window.setMode(window_width, window_height, {fullscreen = config.fullscreen, vsync = config.vsync, msaa = msaa or 0, usedpiscale = false})
+
+    if not state.ignore_safe_area then
+      state.ignore_safe_area = false
+    end
+
+    if state.ignore_safe_area then
+      safe_area_x, safe_area_y, safe_area_w, safe_area_h = 0, 0, window_width, window_height
+    else
+      safe_area_x, safe_area_y, safe_area_w, safe_area_h = love.window.getSafeArea( )
+      print(window_width, window_height)
+      print(safe_area_x, safe_area_y, safe_area_w, safe_area_h)
+      safe_area_x = window_width - safe_area_w
+      safe_area_y = math.floor((window_height - safe_area_h) / 2)
+    end
+
     gw, gh = config.game_width or 480, config.game_height or 270
-    sx, sy = window_width/(config.game_width or 480), window_height/(config.game_height or 270)
+    -- sx, sy = window_width/(config.game_width or 480), window_height/(config.game_height or 270)
+    sx, sy = safe_area_w/gw, safe_area_h/gh
+    real_sx, real_sy = window_width/gw, window_height/gh
     ww, wh = window_width, window_height
 
-    if state.sx and state.sy then
-      sx, sy = state.sx, state.sy
-      love.window.setMode(state.sx*gw, state.sy*gh, {fullscreen = state.fullscreen, vsync = config.vsync, msaa = msaa or 0, usedpiscale = false})
-    else
-      state.sx, state.sy = sx, sy
-      love.window.setMode(window_width, window_height, {fullscreen = config.fullscreen, vsync = config.vsync, msaa = msaa or 0, usedpiscale = false})
-    end
+    state.sx, state.sy = sx, sy
     state.fullscreen = config.fullscreen
-    love.window.setTitle(config.game_name)
 
   else
     gw, gh = config.game_width or 480, config.game_height or 270 
@@ -79,7 +90,7 @@ function engine_run(config)
     ww, wh = 960, 540
   end
 
-  love.window.setIcon(love.image.newImageData('assets/images/icon.png'))
+  --love.window.setIcon(love.image.newImageData('assets/images/icon.png'))
   love.graphics.setBackgroundColor(0, 0, 0, 1)
   love.graphics.setColor(1, 1, 1, 1)
   love.joystick.loadGamepadMappings("engine/gamecontrollerdb.txt")
@@ -132,7 +143,7 @@ function engine_run(config)
         elseif name == "gamepadpressed" then input.gamepad_state[input.index_to_gamepad_button[b]] = true; input.last_key_pressed = input.index_to_gamepad_button[b]
         elseif name == "gamepadreleased" then input.gamepad_state[input.index_to_gamepad_button[b]] = false
         elseif name == "gamepadaxis" then input.gamepad_axis[input.index_to_gamepad_axis[b]] = c
-        elseif name == "touchpressed" then input.touch_state[a] = b < ww / 2 and "touch_left" or "touch_right"
+        elseif name == "touchpressed" then input.touch_state[a] = b - safe_area_x < safe_area_w / 2 and "touch_left" or "touch_right"
         elseif name == "touchreleased" then input.touch_state[a] = nil
         elseif name == "textinput" then input:textinput(a)
         elseif name == "focus" then love.handlers[name](a,b,c,d,e,f) end
@@ -148,6 +159,8 @@ function engine_run(config)
       trigger:update(fixed_dt)
       camera:update(fixed_dt)
       local mx, my = love.mouse.getPosition()
+      mx = mx - safe_area_x
+      my = my - safe_area_y
       mouse:set(mx/sx, my/sy)
       mouse_dt:set(mouse.x - last_mouse.x, mouse.y - last_mouse.y)
       update(fixed_dt)
