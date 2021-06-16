@@ -68,11 +68,9 @@ function engine_run(config)
     if state.ignore_safe_area then
       safe_area_x, safe_area_y, safe_area_w, safe_area_h = 0, 0, window_width, window_height
     else
-      safe_area_x, safe_area_y, safe_area_w, safe_area_h = love.window.getSafeArea( )
-      print(window_width, window_height)
-      print(safe_area_x, safe_area_y, safe_area_w, safe_area_h)
-      safe_area_x = window_width - safe_area_w
-      safe_area_y = math.floor((window_height - safe_area_h) / 2)
+      safe_area_x, safe_area_y, safe_area_w, safe_area_h = love.window.getSafeArea()
+      safe_area_w = window_width - safe_area_x
+      safe_area_h = window_height - safe_area_y
     end
 
     gw, gh = config.game_width or 480, config.game_height or 270

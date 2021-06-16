@@ -373,9 +373,9 @@ function Arena:pause(only_pause)
         if state.ignore_safe_area then
           safe_area_x, safe_area_y, safe_area_w, safe_area_h = 0, 0, ww, wh
         else
-          safe_area_x, safe_area_y, safe_area_w, safe_area_h = love.window.getSafeArea( )
-          safe_area_x = ww - safe_area_w
-          safe_area_y = math.floor((wh - safe_area_h) / 2)
+          safe_area_x, safe_area_y, safe_area_w, safe_area_h = love.window.getSafeArea()
+          safe_area_w = ww - safe_area_x
+          safe_area_h = wh - safe_area_y
         end
         sx, sy = safe_area_w/gw, safe_area_h/gh
         system.save_state()
