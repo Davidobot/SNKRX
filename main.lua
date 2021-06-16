@@ -7,7 +7,7 @@ require 'player'
 require 'enemies'
 require 'media'
 
--- require("love.mobsvc")
+require("love.mobsvc")
 
 function init()
   shared_init()
@@ -1511,7 +1511,13 @@ end
 
 function update(dt)
   if love.window.hasFocus() then
+    if not state.volume_muted then sfx.volume = 2*0.5 end
+    if not state.music_muted then music.volume = 2*0.5 end
+
     main:update(dt)
+  else
+    music.volume = 2*0
+    sfx.volume = 2*0
   end
 
   --[[

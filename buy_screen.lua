@@ -176,10 +176,12 @@ end
 
 
 function BuyScreen:pause()
+  slow_amount = 0
   main_song_instance:pause()
 end
 
 function BuyScreen:unpause()
+  slow_amount = 1
   main_song_instance:resume()
 end
 
