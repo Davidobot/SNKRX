@@ -240,7 +240,7 @@ function BuyScreen:draw()
 
   if self.unit_grabbed then
     local x, y = camera:get_mouse_position()
-    y = math.clamp(y, 40, 40 + (#self.units-1)*19)
+    y = math.clamp(y, 40 - 23, 40 + (#self.units-1)*19)
     graphics.push(self.unit_grabbed.x, y, 0)
       graphics.rectangle(self.unit_grabbed.x, y, 14, 14, 3, 3, bg[5])
       graphics.print_centered(self.unit_grabbed.level, pixul_font, self.unit_grabbed.x + 0.5, y + 2, 0, 1, 1, 0, 0, bg[10])
@@ -248,6 +248,12 @@ function BuyScreen:draw()
         part:draw(y)
       end
     graphics.pop()
+
+    if y < 30 then
+      self.party_text:set_text{{text = '[wavy_mid, redm5]sell', font = pixul_font, alignment = 'center'}}
+    else
+      self.party_text:set_text{{text = '[wavy_mid, fg]sell', font = pixul_font, alignment = 'center'}}
+    end
   end
 
   if self.shop_text then self.shop_text:draw(64, 20) end
@@ -1123,58 +1129,74 @@ function CharacterPart:update(dt)
 
   if self.cant_click then return end
 
-  if not self.parent:is(CharacterPart) then
-    if input.m1.pressed and self.colliding_with_mouse then
-      self.grabbed = true
+  --if not self.parent:is(CharacterPart) then
+  if input.m1.pressed and self.colliding_with_mouse then
+    self.grabbed = true
+    if self.parent:is(CharacterPart) then
+      -- reserve unit
+      self.parent.parent.unit_grabbed = self
+      self.parent.parent.party_text:set_text{{text = '[wavy_mid, fg]sell', font = pixul_font, alignment = 'center'}}
+    else
       self.parent.unit_grabbed = self
-    end
-
-    if self.grabbed and input.m1.released then
-      self.grabbed = false
-      self.parent.unit_grabbed = false
-      self.spring:pull(0.2, 200, 10)
-      --[[
-      for i, unit in ipairs(self.parent.units) do
-        print(unit.character)
-      end
-      for i, character in ipairs(self.parent.characters) do
-        print(character.y, character.character, character.shape.y)
-      end
-      ]]--
-    end
-
-    for _, part in ipairs(self.parts) do
-      part.grabbed = self.grabbed
-    end
-
-    if self.parent.unit_grabbed and self.parent.unit_grabbed == self then
-      local x, y = camera:get_mouse_position()
-      local i
-      if y >= self.y - 19 and y <= self.y + 19 then i = self.i
-      elseif y < self.y - 19 then i = self.i - 1
-      elseif y > self.y + 19 then i = self.i + 1
-      end
-      i = math.clamp(i, 1, #self.parent.units)
-      -- i = math.clamp(math.floor((y - 40)/19) + 1, 1, #self.parent.units)
-      self.parent.units[self.i], self.parent.units[i] = self.parent.units[i], self.parent.units[self.i]
-      self.parent.characters[self.i], self.parent.characters[i] = self.parent.characters[i], self.parent.characters[self.i]
-      self.parent.characters[self.i].i, self.parent.characters[i].i = self.i, i
+      self.parent.party_text:set_text{{text = '[wavy_mid, fg]sell', font = pixul_font, alignment = 'center'}}
     end
   end
 
-  if self.selected and input.m2.pressed and not self.just_created then
-    _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-    if self.reserve then
-      self.parent:gain_gold(self:get_sale_price())
-      table.remove(self.parent.units, self.i)
-      self:die()
-      self.parent:set_party_and_sets()
+  if self:is_grabbed() and input.m1.released then
+    self.grabbed = false
+
+    local _, y = camera:get_mouse_position()
+    local should_sell = y < 30
+
+    if self.parent:is(CharacterPart) then
+      -- reserve unit
+      self.parent.parent.unit_grabbed = false
+      self.parent.parent.party_text:set_text{{text = '[wavy_mid, fg]party', font = pixul_font, alignment = 'center'}}
     else
-      self.parent.parent:gain_gold(self:get_sale_price())
-      self.parent.parent.units[self.i].reserve[self.level] = self.parent.parent.units[self.i].reserve[self.level] - 1
-      self:die()
-      self.parent.parent:set_party_and_sets()
+      self.parent.unit_grabbed = false
+      self.parent.party_text:set_text{{text = '[wavy_mid, fg]party', font = pixul_font, alignment = 'center'}}
     end
+
+    self.spring:pull(0.2, 200, 10)
+
+    if should_sell then
+      self:sell()
+    end
+    --[[
+    for i, unit in ipairs(self.parent.units) do
+      print(unit.character)
+    end
+    for i, character in ipairs(self.parent.characters) do
+      print(character.y, character.character, character.shape.y)
+    end
+    ]]--
+  end
+
+  if not self.parent:is(CharacterPart) then
+    for _, part in ipairs(self.parts) do
+      part.grabbed = self.grabbed
+    end
+  end
+
+  -- only reorder if grabbed main unit (not reserve)
+  if not self.parent:is(CharacterPart) and self.parent.unit_grabbed and self.parent.unit_grabbed == self then
+    local x, y = camera:get_mouse_position()
+    local i
+    if y >= self.y - 19 and y <= self.y + 19 then i = self.i
+    elseif y < self.y - 19 then i = self.i - 1
+    elseif y > self.y + 19 then i = self.i + 1
+    end
+    i = math.clamp(i, 1, #self.parent.units)
+    -- i = math.clamp(math.floor((y - 40)/19) + 1, 1, #self.parent.units)
+    self.parent.units[self.i], self.parent.units[i] = self.parent.units[i], self.parent.units[self.i]
+    self.parent.characters[self.i], self.parent.characters[i] = self.parent.characters[i], self.parent.characters[self.i]
+    self.parent.characters[self.i].i, self.parent.characters[i].i = self.i, i
+  end
+  --end
+
+  -- Sell character part
+  if self.selected and input.m2.pressed and not self.just_created then
+    self:sell()
   end
 
   self.shape:move_to(self.x, self.y)
@@ -1184,9 +1206,40 @@ function CharacterPart:update(dt)
 end
 
 
-function CharacterPart:draw(y)
+function CharacterPart:sell()
+  _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+  if self.reserve then
+    self.parent:gain_gold(self:get_sale_price())
+    table.remove(self.parent.units, self.i)
+    self:die()
+    self.parent:set_party_and_sets()
+  else
+    self.parent.parent:gain_gold(self:get_sale_price())
+    self.parent.parent.units[self.i].reserve[self.level] = self.parent.parent.units[self.i].reserve[self.level] - 1
+    self:die()
+    self.parent.parent:set_party_and_sets()
+  end
+end
+
+
+function CharacterPart:is_grabbed()
+  local is_grabbed = self.grabbed
+  if self.parent:is(CharacterPart) then
+    if self.parent.parent.unit_grabbed == self then
+      is_grabbed = true
+    end
+  else
+    if self.parent.unit_grabbed == self then
+      is_grabbed = true
+    end
+  end
+  return is_grabbed
+end
+
+
+function CharacterPart:draw(y, selling)
   graphics.push(self.x, self.y, 0, self.sx*self.spring.x, self.sy*self.spring.x)
-    if self.grabbed then
+    if self:is_grabbed() then
       --[[
       graphics.rectangle(self.x, self.y, 14, 14, 3, 3, bg[5])
       graphics.print_centered(self.level, pixul_font, self.x + 0.5, self.y + 2, 0, 1, 1, 0, 0, bg[10])
