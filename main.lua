@@ -1511,13 +1511,11 @@ end
 
 function update(dt)
   if love.window.hasFocus() then
-    if not state.volume_muted then sfx.volume = 2*0.5 end
-    if not state.music_muted then music.volume = 2*0.5 end
+    love.audio.setVolume( 1.0 )
 
     main:update(dt)
   else
-    music.volume = 2*0
-    sfx.volume = 2*0
+    love.audio.setVolume( 0.0 )
   end
 
   --[[
@@ -1593,14 +1591,15 @@ end
 
 function love.focus(focus)
   if not focus then
-    music.volume = 2*0
-    sfx.volume = 2*0
+    love.audio.setVolume( 0.0 )
 
+
+    main_song_instance:pause()
     main:pause()
   else
-    if not state.volume_muted then sfx.volume = 2*0.5 end
-    if not state.music_muted then music.volume = 2*0.5 end
+    love.audio.setVolume( 1.0 )
 
+    main_song_instance:resume()
     main:unpause()
   end
 end

@@ -805,8 +805,8 @@ function Player:init(args)
 
   if self.ouroboros_technique_r then
     self.t:after(0.01, function()
-      self.t:every(0.4 - (0.02*#self:get_all_units()), function()
-        if self.move_right_pressed and love.timer.getTime() - self.move_right_pressed > 1 then
+      self.t:every((self.ouroboros_technique_r == 1 and 0.5) or (self.ouroboros_technique_r == 2 and 0.33) or (self.ouroboros_technique_r == 3 and 0.25), function()
+        if self.leader and (state.mouse_control and table.all(self.mouse_control_v_buffer, function(v) return v >= 0.5 end)) or (self.move_right_pressed and love.timer.getTime() - self.move_right_pressed > 1) then
           local target = self:get_closest_object_in_shape(Circle(self.x, self.y, 96), main.current.enemies)
           if target then
             local units = self:get_all_units()
@@ -1090,9 +1090,9 @@ function Player:update(dt)
 
   if self.ouroboros_technique_l and self.leader then
     local units = self:get_all_units()
-    if self.move_left_pressed and love.timer.getTime() - self.move_left_pressed > 1 then
+    if (state.mouse_control and table.all(self.mouse_control_v_buffer, function(v) return v <= -0.5 end)) or (self.move_left_pressed and love.timer.getTime() - self.move_left_pressed > 1) then
       for _, unit in ipairs(units) do
-        unit.ouroboros_def_m = 1.25
+        unit.ouroboros_def_m = (self.ouroboros_technique_l == 1 and 1.15) or (self.ouroboros_technique_l == 2 and 1.25) or (self.ouroboros_technique_l == 3 and 1.35)
       end
     else
       for _, unit in ipairs(units) do
@@ -1108,7 +1108,7 @@ function Player:update(dt)
   self.buff_def_a = (self.warrior_def_a or 0)
   self.buff_aspd_m = (self.chronomancer_aspd_m or 1)*(self.vagrant_aspd_m or 1)*(self.outlaw_aspd_m or 1)*(self.fairy_aspd_m or 1)*(self.psyker_aspd_m or 1)*(self.chronomancy_aspd_m or 1)*(self.awakening_aspd_m or 1)*(self.berserking_aspd_m or 1)*(self.reinforce_aspd_m or 1)*(self.squire_aspd_m or 1)
   self.buff_dmg_m = (self.squire_dmg_m or 1)*(self.vagrant_dmg_m or 1)*(self.enchanter_dmg_m or 1)*(self.swordsman_dmg_m or 1)*(self.flagellant_dmg_m or 1)*(self.psyker_dmg_m or 1)*(self.ballista_dmg_m or 1)*(self.ballista_x_dmg_m or 1)*(self.awakening_dmg_m or 1)*(self.reinforce_dmg_m or 1)*(self.payback_dmg_m or 1)*(self.immolation_dmg_m or 1)
-  self.buff_def_m = (self.squire_def_m or 1)*(self.ouroboros_def_m or 1)*(self.unwavering_stance_def_m or 1)*(self.reinforce_def_m or 1)
+  self.buff_def_m = (self.squire_def_m or 1)*(self.ouroboros_def_m or 1)*(self.unwavering_stance_def_m or 1)*(self.reinforce_def_m or 1)*(self.defensive_stance_def_m or 1)*(self.last_stand_def_m or 1)
   self.buff_area_size_m = (self.nuker_area_size_m or 1)*(self.magnify_area_size_m or 1)*(self.unleash_area_size_m or 1)
   self.buff_area_dmg_m = (self.nuker_area_dmg_m or 1)*(self.amplify_area_dmg_m or 1)*(self.amplify_x_area_dmg_m or 1)*(self.unleash_area_dmg_m or 1)
   self.buff_mvspd_m = (self.wall_rider_mvspd_m or 1)*(self.centipede_mvspd_m or 1)*(self.squire_mvspd_m or 1)
@@ -1204,6 +1204,10 @@ function Player:draw()
       local x, y = self.x + 0.9*self.shape.w, self.y
       graphics.line(x + 3, y, x, y - 3, character_colors[self.character], 1)
       graphics.line(x + 3, y, x, y + 3, character_colors[self.character], 1)
+    end
+
+    if self.ouroboros_def_m and self.ouroboros_def_m > 1 then
+      graphics.rectangle(self.x, self.y, 1.25*self.shape.w, 1.25*self.shape.h, 3, 3, yellow_transparent)
     end
   end
   graphics.pop()

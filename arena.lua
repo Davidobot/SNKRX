@@ -452,7 +452,7 @@ function Arena:pause(only_pause)
         b.spring:pull(0.2, 200, 10)
         b.selected = true
         ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-        if sfx.volume == 0.5 then
+        if sfx.volume == 2*0.5 then
           sfx.volume = 2*0
           state.volume_muted = true
         elseif sfx.volume == 0 then
@@ -468,7 +468,7 @@ function Arena:pause(only_pause)
         b.spring:pull(0.2, 200, 10)
         b.selected = true
         ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-        if music.volume == 0.5 then
+        if music.volume == 2*0.5 then
           music.volume = 2*0
           state.music_muted = true
         elseif music.volume == 0 then
