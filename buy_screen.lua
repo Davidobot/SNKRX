@@ -250,15 +250,15 @@ function BuyScreen:draw()
     graphics.pop()
 
     if y < 30 then
-      self.party_text:set_text{{text = '[wavy_mid, redm5]sell', font = pixul_font, alignment = 'center'}}
+      self.party_text:set_text{{text = '[wavy_mid, redm5]- - - sell - - -', font = pixul_font, alignment = 'center'}}
     else
-      self.party_text:set_text{{text = '[wavy_mid, fg]sell', font = pixul_font, alignment = 'center'}}
+      self.party_text:set_text{{text = '[wavy_mid, fg]- - - sell - - -', font = pixul_font, alignment = 'center'}}
     end
   end
 
   if self.shop_text then self.shop_text:draw(64, 20) end
   if self.sets_text then self.sets_text:draw(328, 20) end
-  if self.party_text then self.party_text:draw(440, 20) end
+  if self.party_text then self.party_text:draw(self.party_text.selling and 410 or 440, 20) end
   if current_new_game_plus > 0 then self.ng_text:draw(265, gh - 40) end
 
   if self.in_tutorial then
@@ -597,11 +597,13 @@ function Button:init(args)
   self:init_game_object(args)
   self.shape = Rectangle(self.x, self.y, args.w or (pixul_font:get_text_width(self.button_text) + 8), pixul_font.h + 4)
   self.interact_with_mouse = true
+  self.hidden = false
   self.text = Text({{text = '[' .. self.fg_color .. ']' .. self.button_text, font = pixul_font, alignment = 'center'}}, global_text_tags)
 end
 
 
 function Button:update(dt)
+  if self.hidden then return end
   self:update_game_object(dt)
   if main.current.in_credits and not self.credits_button then return end
     
@@ -631,6 +633,7 @@ end
 
 
 function Button:draw()
+  if self.hidden then return end
   graphics.push(self.x, self.y, 0, self.spring.x, self.spring.y)
     if self.hold_button and self.press_time then
       graphics.set_line_width(5)
@@ -645,6 +648,7 @@ end
 
 
 function Button:on_mouse_enter()
+  if self.hidden then return end
   if main.current.in_credits and not self.credits_button then return end
   ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
   pop2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
@@ -656,6 +660,7 @@ end
 
 
 function Button:on_mouse_exit()
+  if self.hidden then return end
   if main.current.in_credits and not self.credits_button then return end
   self.text:set_text{{text = '[' .. self.fg_color .. ']' .. self.button_text, font = pixul_font, alignment = 'center'}}
   self.selected = false
@@ -1135,10 +1140,16 @@ function CharacterPart:update(dt)
     if self.parent:is(CharacterPart) then
       -- reserve unit
       self.parent.parent.unit_grabbed = self
-      self.parent.parent.party_text:set_text{{text = '[wavy_mid, fg]sell', font = pixul_font, alignment = 'center'}}
+      self.parent.parent.party_text:set_text{{text = '[wavy_mid, fg]- - - sell - - -', font = pixul_font, alignment = 'center'}}
+      self.parent.parent.party_text.selling = true
+      self.parent.parent.tutorial_button.hidden = true
+      self.parent.parent.restart_button.hidden = true
     else
       self.parent.unit_grabbed = self
-      self.parent.party_text:set_text{{text = '[wavy_mid, fg]sell', font = pixul_font, alignment = 'center'}}
+      self.parent.party_text:set_text{{text = '[wavy_mid, fg]- - - sell - - -', font = pixul_font, alignment = 'center'}}
+      self.parent.party_text.selling = true
+      self.parent.tutorial_button.hidden = true
+      self.parent.restart_button.hidden = true
     end
   end
 
@@ -1152,9 +1163,15 @@ function CharacterPart:update(dt)
       -- reserve unit
       self.parent.parent.unit_grabbed = false
       self.parent.parent.party_text:set_text{{text = '[wavy_mid, fg]party', font = pixul_font, alignment = 'center'}}
+      self.parent.parent.party_text.selling = false
+      self.parent.parent.tutorial_button.hidden = false
+      self.parent.parent.restart_button.hidden = false
     else
       self.parent.unit_grabbed = false
       self.parent.party_text:set_text{{text = '[wavy_mid, fg]party', font = pixul_font, alignment = 'center'}}
+      self.parent.party_text.selling = false
+      self.parent.tutorial_button.hidden = false
+      self.parent.restart_button.hidden = false
     end
 
     self.spring:pull(0.2, 200, 10)
