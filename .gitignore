@@ -1,3 +1,5 @@
 steam/
 builds/
 *.love
+
+.DS_STORE
