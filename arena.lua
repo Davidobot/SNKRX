@@ -373,11 +373,24 @@ function Arena:pause(only_pause)
         if state.ignore_safe_area then
           safe_area_x, safe_area_y, safe_area_w, safe_area_h = 0, 0, ww, wh
         else
-          safe_area_x, safe_area_y, safe_area_w, safe_area_h = love.window.getSafeArea()
+          -- TODO: handle notches on the RHS of the screen
+          safe_area_x, safe_area_y, real_safe_area_w, real_safe_area_h = love.window.getSafeArea()
           safe_area_w = ww - safe_area_x
           safe_area_h = wh - safe_area_y
         end
+    
+        real_safe_area_w = safe_area_w
+        real_safe_area_h = safe_area_h
+        real_safe_area_x = safe_area_x
+        if safe_area_w * (9 / 16) > safe_area_h then
+          safe_area_w = real_safe_area_h * (16 / 9)
+          safe_area_x = safe_area_x + math.floor((real_safe_area_w - safe_area_w) / 2)
+        else
+          safe_area_h = real_safe_area_w * (9 / 16)
+          safe_area_y = safe_area_y + math.floor((real_safe_area_h - safe_area_h) / 2)
+        end
         sx, sy = safe_area_w/gw, safe_area_h/gh
+        real_sx, real_sy = real_safe_area_w/gw, real_safe_area_h/gh
         system.save_state()
       end }
 

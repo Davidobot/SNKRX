@@ -68,15 +68,28 @@ function engine_run(config)
     if state.ignore_safe_area then
       safe_area_x, safe_area_y, safe_area_w, safe_area_h = 0, 0, window_width, window_height
     else
-      safe_area_x, safe_area_y, safe_area_w, safe_area_h = love.window.getSafeArea()
+      -- TODO: handle notches on the RHS of the screen
+      safe_area_x, safe_area_y, real_safe_area_w, real_safe_area_h = love.window.getSafeArea()
       safe_area_w = window_width - safe_area_x
       safe_area_h = window_height - safe_area_y
+    end
+
+    real_safe_area_w = safe_area_w
+    real_safe_area_h = safe_area_h
+    real_safe_area_x = safe_area_x
+    if safe_area_w * (9 / 16) > safe_area_h then
+      safe_area_w = real_safe_area_h * (16 / 9)
+      safe_area_x = safe_area_x + math.floor((real_safe_area_w - safe_area_w) / 2)
+    else
+      safe_area_h = real_safe_area_w * (9 / 16)
+      safe_area_y = safe_area_y + math.floor((real_safe_area_h - safe_area_h) / 2)
     end
 
     gw, gh = config.game_width or 480, config.game_height or 270
     -- sx, sy = window_width/(config.game_width or 480), window_height/(config.game_height or 270)
     sx, sy = safe_area_w/gw, safe_area_h/gh
-    real_sx, real_sy = window_width/gw, window_height/gh
+
+    real_sx, real_sy = real_safe_area_w/gw, real_safe_area_h/gh
     ww, wh = window_width, window_height
 
     state.sx, state.sy = sx, sy

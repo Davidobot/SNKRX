@@ -92,10 +92,14 @@ function shared_draw(draw_action)
   love.graphics.setColor(0, 0, 0, 1)
   love.graphics.rectangle("fill", 0, 0, ww, wh)
   graphics.set_color(bg[0])
-  love.graphics.rectangle("fill", safe_area_x, safe_area_y, safe_area_w, safe_area_h)
+  love.graphics.rectangle("fill", real_safe_area_x, 0, real_safe_area_w, real_safe_area_h)
   love.graphics.pop()
   
-  background_canvas:draw(safe_area_x, safe_area_y, 0, sx, sy)
+  if (main.current.name == "arena") then
+    background_canvas:draw(safe_area_x, safe_area_y, 0, sx, sy)
+  else
+    background_canvas:draw(real_safe_area_x, 0, 0, real_sx, real_sy)
+  end
   shadow_canvas:draw(safe_area_x + 1.5*sx, safe_area_y + 1.5*sy, 0, sx, sy)
   main_canvas:draw(safe_area_x, safe_area_y, 0, sx, sy)
 end
