@@ -455,7 +455,7 @@ function Arena:pause(only_pause)
           main:add(BuyScreen'buy_screen')
           locked_state = nil
           system.save_run()
-          main:go_to('buy_screen', 0, {}, passives)
+          main:go_to('buy_screen', 0, {}, passives, 1, 0)
         end, text = Text({{text = '[wavy, bg]restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
       end}
 
