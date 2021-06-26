@@ -7,7 +7,9 @@ require 'player'
 require 'enemies'
 require 'media'
 
---require("love.mobsvc")
+if love.system.getOS() == "Android" or love.system.getOS() == "iOS" then
+  require("love.mobsvc")
+end
 
 function init()
   shared_init()

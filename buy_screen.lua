@@ -817,43 +817,47 @@ end
 function LevelButton:update(dt)
   self:update_game_object(dt)
 
-  if self.selected and input.m1.released then
+  if self.selected and input.m1.pressed then
     if self.parent.shop_level >= 5 then return end
 
     if not self.execute_action then
-      self.execute_action = true
+      self.execute_action = love.timer.getTime()
       return
     end
 
-    if gold < 5 then
-      self.spring:pull(0.2, 200, 10)
-      self.selected = true
-      error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-      if not self.info_text_2 then
-        self.info_text_2 = InfoText{group = main.current.ui}
-        self.info_text_2:activate({
-          {text = '[fg]not enough gold', font = pixul_font, alignment = 'center'},
-        }, nil, nil, nil, nil, 16, 4, nil, 2)
-        self.info_text_2.x, self.info_text_2.y = gw/2, gh/2 + 30
+    if love.timer.getTime() - self.execute_action < 0.5 then
+      if gold < 5 then
+        self.spring:pull(0.2, 200, 10)
+        self.selected = true
+        error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        if not self.info_text_2 then
+          self.info_text_2 = InfoText{group = main.current.ui}
+          self.info_text_2:activate({
+            {text = '[fg]not enough gold', font = pixul_font, alignment = 'center'},
+          }, nil, nil, nil, nil, 16, 4, nil, 2)
+          self.info_text_2.x, self.info_text_2.y = gw/2, gh/2 + 30
+        end
+        self.t:after(2, function() self.info_text_2:deactivate(); self.info_text_2.dead = true; self.info_text_2 = nil end, 'info_text_2')
+      else
+        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        self.shop_xp = self.shop_xp + 1
+        if self.shop_xp >= self.max_xp then
+          self.shop_xp = 0
+          self.parent.shop_level = self.parent.shop_level + 1
+          self.max_xp = (self.parent.shop_level == 1 and 3) or (self.parent.shop_level == 2 and 4) or (self.parent.shop_level == 3 and 5) or (self.parent.shop_level == 4 and 6) or (self.parent.shop_level == 5 and 0)
+        end
+        self.parent.shop_xp = self.shop_xp
+        self:create_info_text()
+        self.selected = true
+        self.spring:pull(0.2, 200, 10)
+        gold = gold - 5
+        self.parent.shop_text:set_text{{text = '[wavy_mid, fg]shop [fg]- [fg, nudge_down]gold: [yellow, nudge_down]' .. gold, font = pixul_font, alignment = 'center'}}
+        self.text = Text({{text = '[bg10]' .. tostring(self.parent.shop_level), font = pixul_font, alignment = 'center'}}, global_text_tags)
+        system.save_run(self.parent.level, gold, self.parent.units, passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool_by_tiers, locked_state)
       end
-      self.t:after(2, function() self.info_text_2:deactivate(); self.info_text_2.dead = true; self.info_text_2 = nil end, 'info_text_2')
-    else
-      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-      self.shop_xp = self.shop_xp + 1
-      if self.shop_xp >= self.max_xp then
-        self.shop_xp = 0
-        self.parent.shop_level = self.parent.shop_level + 1
-        self.max_xp = (self.parent.shop_level == 1 and 3) or (self.parent.shop_level == 2 and 4) or (self.parent.shop_level == 3 and 5) or (self.parent.shop_level == 4 and 6) or (self.parent.shop_level == 5 and 0)
-      end
-      self.parent.shop_xp = self.shop_xp
-      self:create_info_text()
-      self.selected = true
-      self.spring:pull(0.2, 200, 10)
-      gold = gold - 5
-      self.parent.shop_text:set_text{{text = '[wavy_mid, fg]shop [fg]- [fg, nudge_down]gold: [yellow, nudge_down]' .. gold, font = pixul_font, alignment = 'center'}}
-      self.text = Text({{text = '[bg10]' .. tostring(self.parent.shop_level), font = pixul_font, alignment = 'center'}}, global_text_tags)
-      system.save_run(self.parent.level, gold, self.parent.units, passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool_by_tiers, locked_state)
     end
+
+    self.execute_action = love.timer.getTime()
   end
 end
 
@@ -1525,24 +1529,28 @@ end
 function ShopCard:update(dt)
   self:update_game_object(dt)
 
-  if self.selected and input.m1.released then
+  if self.selected and input.m1.pressed then
     if not self.execute_action then
-      self.execute_action = true
+      self.execute_action = love.timer.getTime()
       return
     end
 
-    if self.parent:buy(self.unit, self.i) then
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-      _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-      self:die()
-      self.parent.cards[self.i] = nil
-      system.save_run(self.parent.level == 1 and 0 or self.parent.level, gold, self.parent.units, passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool_by_tiers, locked_state)
-    else
-      error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-      self.spring:pull(0.2, 200, 10)
-      self.character_icon.spring:pull(0.2, 200, 10)
-      for _, ci in ipairs(self.class_icons) do ci.spring:pull(0.2, 200, 10) end
+    if love.timer.getTime() - self.execute_action < 0.5 then
+      if self.parent:buy(self.unit, self.i) then
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        self:die()
+        self.parent.cards[self.i] = nil
+        system.save_run(self.parent.level == 1 and 0 or self.parent.level, gold, self.parent.units, passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool_by_tiers, locked_state)
+      else
+        error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        self.spring:pull(0.2, 200, 10)
+        self.character_icon.spring:pull(0.2, 200, 10)
+        for _, ci in ipairs(self.class_icons) do ci.spring:pull(0.2, 200, 10) end
+      end
     end
+
+    self.execute_action = love.timer.getTime()
   end
 end
 
