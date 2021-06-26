@@ -7,7 +7,7 @@ require 'player'
 require 'enemies'
 require 'media'
 
-require("love.mobsvc")
+--require("love.mobsvc")
 
 function init()
   shared_init()

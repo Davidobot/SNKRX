@@ -33,7 +33,7 @@ function BuyScreen:on_exit()
   self.flashes = nil
   self.hfx = nil
   self.tutorial_button = nil
-  self.restart_button = nil
+  --self.restart_button = nil
   self.level_button = nil
 end
 
@@ -126,7 +126,7 @@ function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
     b.info_text = nil
   end}
 
-  self.restart_button = Button{group = self.ui, x = gw/2 + 156, y = 18, force_update = true, button_text = 'R', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+  --[[self.restart_button = Button{group = self.ui, x = gw/2 + 156, y = 18, force_update = true, button_text = 'R', fg_color = 'bg10', bg_color = 'bg', action = function(b)
     self.transitioning = true
     ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
@@ -158,7 +158,7 @@ function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
     b.info_text:deactivate()
     b.info_text.dead = true
     b.info_text = nil
-  end}
+  end}]]
 
   trigger:tween(1, main_song_instance, {volume = 2*0.2}, math.linear)
 
@@ -249,7 +249,7 @@ function BuyScreen:draw()
       end
     graphics.pop()
 
-    if y < 30 then
+    if y < 25 then
       self.party_text:set_text{{text = '[wavy_mid, redm5]- - - sell - - -', font = pixul_font, alignment = 'center'}}
     else
       self.party_text:set_text{{text = '[wavy_mid, fg]- - - sell - - -', font = pixul_font, alignment = 'center'}}
@@ -806,6 +806,7 @@ LevelButton:implement(GameObject)
 function LevelButton:init(args)
   self:init_game_object(args)
   self.interact_with_mouse = true
+  self.execute_action = false
   self.shape = Rectangle(self.x, self.y, 16, 16)
   self.text = Text({{text = '[bg10]' .. tostring(self.parent.shop_level), font = pixul_font, alignment = 'center'}}, global_text_tags)
   self.shop_xp = self.parent.shop_xp or 0
@@ -818,6 +819,12 @@ function LevelButton:update(dt)
 
   if self.selected and input.m1.released then
     if self.parent.shop_level >= 5 then return end
+
+    if not self.execute_action then
+      self.execute_action = true
+      return
+    end
+
     if gold < 5 then
       self.spring:pull(0.2, 200, 10)
       self.selected = true
@@ -847,7 +854,6 @@ function LevelButton:update(dt)
       self.text = Text({{text = '[bg10]' .. tostring(self.parent.shop_level), font = pixul_font, alignment = 'center'}}, global_text_tags)
       system.save_run(self.parent.level, gold, self.parent.units, passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool_by_tiers, locked_state)
     end
-    love.mouse.setPosition(0, 0)
   end
 end
 
@@ -919,6 +925,7 @@ end
 
 
 function LevelButton:on_mouse_exit()
+  self.execute_action = false
   self.text:set_text{{text = '[bg10]' .. tostring(self.parent.shop_level), font = pixul_font, alignment = 'center'}}
   self.selected = false
   if self.info_text then
@@ -1143,13 +1150,13 @@ function CharacterPart:update(dt)
       self.parent.parent.party_text:set_text{{text = '[wavy_mid, fg]- - - sell - - -', font = pixul_font, alignment = 'center'}}
       self.parent.parent.party_text.selling = true
       self.parent.parent.tutorial_button.hidden = true
-      self.parent.parent.restart_button.hidden = true
+      --self.parent.parent.restart_button.hidden = true
     else
       self.parent.unit_grabbed = self
       self.parent.party_text:set_text{{text = '[wavy_mid, fg]- - - sell - - -', font = pixul_font, alignment = 'center'}}
       self.parent.party_text.selling = true
       self.parent.tutorial_button.hidden = true
-      self.parent.restart_button.hidden = true
+      --self.parent.restart_button.hidden = true
     end
   end
 
@@ -1157,7 +1164,7 @@ function CharacterPart:update(dt)
     self.grabbed = false
 
     local _, y = camera:get_mouse_position()
-    local should_sell = y < 30
+    local should_sell = y < 25
 
     if self.parent:is(CharacterPart) then
       -- reserve unit
@@ -1165,13 +1172,13 @@ function CharacterPart:update(dt)
       self.parent.parent.party_text:set_text{{text = '[wavy_mid, fg]party', font = pixul_font, alignment = 'center'}}
       self.parent.parent.party_text.selling = false
       self.parent.parent.tutorial_button.hidden = false
-      self.parent.parent.restart_button.hidden = false
+      --self.parent.parent.restart_button.hidden = false
     else
       self.parent.unit_grabbed = false
       self.parent.party_text:set_text{{text = '[wavy_mid, fg]party', font = pixul_font, alignment = 'center'}}
       self.parent.party_text.selling = false
       self.parent.tutorial_button.hidden = false
-      self.parent.restart_button.hidden = false
+      --self.parent.restart_button.hidden = false
     end
 
     self.spring:pull(0.2, 200, 10)
@@ -1501,6 +1508,9 @@ function ShopCard:init(args)
   self.interact_with_mouse = true
   self.character_icon = CharacterIcon{group = main.current.effects, x = self.x, y = self.y - 26, character = self.unit, parent = self}
   self.class_icons = {}
+
+  self.execute_action = false
+
   for i, class in ipairs(character_classes[self.unit]) do
     local x = self.x
     if #character_classes[self.unit] == 2 then x = self.x - 10
@@ -1516,6 +1526,11 @@ function ShopCard:update(dt)
   self:update_game_object(dt)
 
   if self.selected and input.m1.released then
+    if not self.execute_action then
+      self.execute_action = true
+      return
+    end
+
     if self.parent:buy(self.unit, self.i) then
       ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
@@ -1577,6 +1592,7 @@ end
 
 
 function ShopCard:on_mouse_exit()
+  self.execute_action = false
   self.selected = false
   for _, class_icon in ipairs(self.class_icons) do class_icon.selected = false end
 end

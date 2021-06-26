@@ -394,7 +394,7 @@ function Arena:pause(only_pause)
         system.save_state()
       end }
 
-      self.resume_button = Button{group = self.ui, x = gw/2, y = gh - 200, force_update = true, button_text = 'resume game', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+      self.resume_button = Button{group = self.ui, x = gw/2, y = gh - 175, force_update = true, button_text = 'resume game', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
           slow_amount = 1
           self.paused = false
@@ -434,7 +434,7 @@ function Arena:pause(only_pause)
         end, 'pause')
       end}
 
-      self.restart_button = Button{group = self.ui, x = gw/2, y = gh - 175, force_update = true, button_text = 'restart run', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+      self.restart_button = Button{group = self.ui, x = gw/2, y = gh - 25, force_update = true, button_text = 'restart run', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         self.transitioning = true
         ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
@@ -541,10 +541,10 @@ function Arena:pause(only_pause)
         self.ng_t.text:set_text({{text = '[bg10]current: ' .. current_new_game_plus, font = pixul_font, alignment = 'center'}})
       end}
 
-      self.quit_button = Button{group = self.ui, x = gw/2, y = gh - 25, force_update = true, button_text = 'quit', fg_color = 'bg10', bg_color = 'bg', action = function()
+      --[[self.quit_button = Button{group = self.ui, x = gw/2, y = gh - 25, force_update = true, button_text = 'quit', fg_color = 'bg10', bg_color = 'bg', action = function()
         system.save_state()
         love.event.quit()
-      end}
+      end}]]
     end, 'pause')
   else
     trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
