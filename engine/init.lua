@@ -59,7 +59,8 @@ function engine_run(config)
     if config.msaa ~= 'max' then msaa = config.msaa end
     if config.anisotropy ~= 'max' then anisotropy = config.anisotropy end
 
-    love.window.setMode(window_width, window_height, {fullscreen = config.fullscreen, vsync = config.vsync, msaa = msaa or 0, usedpiscale = false})
+    local is_ios = love.system.getOS() == "iOS"
+    love.window.setMode(window_width, window_height, {fullscreen = config.fullscreen, vsync = config.vsync, msaa = is_ios and 2 or 0, highdpi = is_ios, usedpiscale = is_ios})
 
     if not state.ignore_safe_area then
       state.ignore_safe_area = false

@@ -168,23 +168,23 @@ function Arena:on_enter(from, level, units, passives, shop_level, shop_xp, lock)
       self.t:every(function() return self.start_time <= 0 and (self.boss and self.boss.dead) and #self.main:get_objects_by_classes(self.enemies) <= 0 and not self.spawning_enemies and not self.quitting end, function()
         self:quit()
         if self.level == 6 then
-          unlockAchievement("IMEAIQAg", "")
+          unlockAchievement("IMEAIQAg", "achievement_speed_booster")
           state.achievement_speed_booster = true
           system.save_state()
         elseif self.level == 12 then
-          unlockAchievement("IMEAIQAw", "")
+          unlockAchievement("IMEAIQAw", "achievement_exploder")
           state.achievement_exploder = true
           system.save_state()
         elseif self.level == 18 then
-          unlockAchievement("IMEAIQBA", "")
+          unlockAchievement("IMEAIQBA", "achievement_swarmer")
           state.achievement_swarmer = true
           system.save_state()
         elseif self.level == 24 then
-          unlockAchievement("IMEAIQBQ", "")
+          unlockAchievement("IMEAIQBQ", "achievement_forcer")
           state.achievement_forcer = true
           system.save_state()
         elseif self.level == 25 then
-          unlockAchievement("IMEAIQBg", "")
+          unlockAchievement("IMEAIQBg", "achievement_cluster")
           state.achievement_cluster = true
           system.save_state()
         end
@@ -517,103 +517,103 @@ function Arena:quit()
       end)
 
       if current_new_game_plus == 1 then
-        unlockAchievement("IMEAIQBw", "")
+        unlockAchievement("IMEAIQBw", "achievement_ng1")
         state.achievement_new_game_1 = true
         system.save_state()
       end
 
       if current_new_game_plus == 6 then
-        unlockAchievement("IMEAIQFQ", "")
+        unlockAchievement("IMEAIQFQ", "achievement_game_complete")
         state.achievement_new_game_5 = true
         system.save_state()
       end
 
       if self.ranger_level >= 2 then
-        unlockAchievement("IMEAIQCA", "")
+        unlockAchievement("IMEAIQCA", "achievement_rangers")
         state.achievement_rangers_win = true
         system.save_state()
       end
 
       if self.warrior_level >= 2 then
-        unlockAchievement("IMEAIQCg", "")
+        unlockAchievement("IMEAIQCg", "achievement_warriors")
         state.achievement_warriors_win = true
         system.save_state()
       end
 
       if self.mage_level >= 2 then
-        unlockAchievement("IMEAIQDA", "")
+        unlockAchievement("IMEAIQDA", "achievement_mages")
         state.achievement_mages_win = true
         system.save_state()
       end
 
       if self.rogue_level >= 2 then
-        unlockAchievement("IMEAIQCw", "")
+        unlockAchievement("IMEAIQCw", "achievement_rogues")
         state.achievement_rogues_win = true
         system.save_state()
       end
 
       if self.healer_level >= 2 then
-        unlockAchievement("IMEAIQEg", "")
+        unlockAchievement("IMEAIQEg", "achievement_healers")
         state.achievement_healers_win = true
         system.save_state()
       end
 
       if self.enchanter_level >= 2 then
-        unlockAchievement("IMEAIQDw", "")
+        unlockAchievement("IMEAIQDw", "achievement_enchanters")
         state.achievement_enchanters_win = true
         system.save_state()
       end
 
       if self.nuker_level >= 2 then
-        unlockAchievement("IMEAIQDg", "")
+        unlockAchievement("IMEAIQDg", "achievement_nukers")
         state.achievement_nukers_win = true
         system.save_state()
       end
 
       if self.conjurer_level >= 2 then
-        unlockAchievement("IMEAIQFA", "")
+        unlockAchievement("IMEAIQFA", "achievement_conjurers")
         state.achievement_conjurers_win = true
         system.save_state()
       end
 
       if self.psyker_level >= 1 then
-        unlockAchievement("IMEAIQDQ", "")
+        unlockAchievement("IMEAIQDQ", "achievement_psykers")
         state.achievement_psykers_win = true
         system.save_state()
       end
 
       if self.curser_level >= 2 then
-        unlockAchievement("IMEAIQGQ", "")
+        unlockAchievement("IMEAIQGQ", "achievement_cursers")
         state.achievement_cursers_win = true
         system.save_state()
       end
 
       if self.forcer_level >= 2 then
-        unlockAchievement("IMEAIQBQ", "")
+        unlockAchievement("IMEAIQBQ", "achievement_forcers")
         state.achievement_forcers_win = true
         system.save_state()
       end
 
       if self.swarmer_level >= 2 then
-        unlockAchievement("IMEAIQEQ", "")
+        unlockAchievement("IMEAIQEQ", "achievement_swarmers")
         state.achievement_swarmers_win = true
         system.save_state()
       end
 
       if self.voider_level >= 2 then
-        unlockAchievement("IMEAIQFg", "")
+        unlockAchievement("IMEAIQFg", "achievement_voiders")
         state.achievement_voiders_win = true
         system.save_state()
       end
 
       if self.sorcerer_level >= 3 then
-        unlockAchievement("IMEAIQEA", "")
+        unlockAchievement("IMEAIQEA", "achievement_sorcerers")
         state.achievement_sorcerers_win = true
         system.save_state()
       end
 
       if self.mercenary_level >= 2 then
-        unlockAchievement("IMEAIQEw", "")
+        unlockAchievement("IMEAIQEw", "achievement_mercenaries")
         state.achievement_mercenaries_win = true
         system.save_state()
       end
@@ -626,7 +626,7 @@ function Arena:quit()
         end
       end
       if all_units_level_2 then
-        unlockAchievement("IMEAIQGA", "")
+        unlockAchievement("IMEAIQGA", "achievement_level_2")
         state.achievement_level_2_win = true
         system.save_state()
       end
@@ -640,7 +640,7 @@ function Arena:quit()
         end
       end
       if all_units_level_3 then
-        unlockAchievement("IMEAIQCQ", "")
+        unlockAchievement("IMEAIQCQ", "achievement_level_3")
         state.achievement_level_3_win = true
         system.save_state()
       end
