@@ -5,11 +5,11 @@ function SpawnMarker:init(args)
   self.color = red[0]
   self.r = random:float(0, 2*math.pi)
   self.spring:pull(random:float(0.4, 0.6), 200, 10)
-  self.t:after(0.75, function() self.dead = true end)
+  self.t:after(1.125, function() self.dead = true end)
   self.m = 1
   self.n = 0
   pop3:play{pitch = 1, volume = 2*0.15}
-  self.t:every({0.13, 0.16}, function()
+  self.t:every({0.195, 0.24}, function()
     self.hidden = not self.hidden
     self.m = self.m*random:float(0.84, 0.87)
   end, nil, nil, 'blink')
@@ -232,13 +232,13 @@ function Unit:calculate_stats(first_run)
     if current_new_game_plus == 0 then
       if self.boss then
         local x = self.level
-        local y = {0, 0, 3, 0, 0, 6, 0, 0, 9, 0, 0, 12, 0, 0, 18, 0, 0, 40, 0, 0, 32, 0, 0, 64, 96}
+        local y = {0, 0, 3, 0, 0, 6, 0, 0, 9, 0, 0, 12, 0, 0, 18, 0, 0, 40, 0, 0, 32, 0, 0, 64, 90}
         self.base_hp = 100 + (current_new_game_plus*5) + (90 + current_new_game_plus*10)*y[x]
         self.base_dmg = (12 + current_new_game_plus*2) + (2 + current_new_game_plus)*y[x]
         self.base_mvspd = 35 + 1.5*y[x]
         if x == 25 then
           self.base_dmg = (12 + current_new_game_plus*2) + (1.25 + current_new_game_plus)*y[x]
-          self.base_mvspd = 35 + 1.2*y[x]
+          self.base_mvspd = 35 + 1.1*y[x]
         end
       else
         local x = self.level
@@ -250,19 +250,19 @@ function Unit:calculate_stats(first_run)
     else
       if self.boss then
         local x = self.level
-        local y = {0, 0, 3, 0, 0, 6, 0, 0, 9, 0, 0, 12, 0, 0, 18, 0, 0, 40, 0, 0, 32, 0, 0, 64, 96}
+        local y = {0, 0, 3, 0, 0, 6, 0, 0, 9, 0, 0, 12, 0, 0, 18, 0, 0, 40, 0, 0, 32, 0, 0, 64, 90}
         self.base_hp = 100 + (current_new_game_plus*5) + (90 + current_new_game_plus*10)*y[x]
         self.base_dmg = (12 + current_new_game_plus*2) + (2 + current_new_game_plus)*y[x]
         self.base_mvspd = 35 + 1.5*y[x]
         if x == 25 then
-          self.base_dmg = (12 + current_new_game_plus*2) + (2 + 0.5*current_new_game_plus)*y[x]
+          self.base_dmg = (12 + current_new_game_plus*2) + (1.75 + 0.5*current_new_game_plus)*y[x]
           self.base_mvspd = 35 + 1.2*y[x]
         end
       else
         local x = self.level
         local y = {0, 1, 3, 3, 4, 6, 5, 6, 9, 7, 8, 12, 10, 11, 15, 12, 13, 18, 16, 17, 21, 17, 20, 24, 25}
         self.base_hp = 22 + (current_new_game_plus*3) + (15 + current_new_game_plus*2.7)*y[x]
-        self.base_dmg = (4 + current_new_game_plus*1.15) + (2 + current_new_game_plus*1)*y[x]
+        self.base_dmg = (4 + current_new_game_plus*1.15) + (2 + current_new_game_plus*0.83)*y[x]
         self.base_mvspd = 70 + 3*y[x]
       end
     end
