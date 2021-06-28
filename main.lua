@@ -23,7 +23,6 @@ function init()
   input:bind('move_right', {'d', 'right', 'dpright', 'touch_right'})
   input:bind('move_up', {'w', 'up', 'dpup'})
   input:bind('move_down', {'s', 'down', 'dpdown'})
-  ]]--
   input:bind('enter', {'space', 'return', 'fleft', 'fdown', 'fright'})
 
   local s = {tags = {sfx}}
@@ -1538,7 +1537,7 @@ function init()
   if not state.current_new_game_plus then state.current_new_game_plus = current_new_game_plus end
   max_units = 7 + current_new_game_plus
 
-  main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 2*0.5}
+  main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume =0.5}
   main = Main()
 
   main:add(MainMenu'mainmenu')
@@ -1615,10 +1614,10 @@ function update(dt)
       main.current.sfx_button.selected = false
     else
       if sfx.volume == 0.5 then
-        sfx.volume = 2*0
+        sfx.volume =0
         state.volume_muted = true
       elseif sfx.volume == 0 then
-        sfx.volume = 2*0.5
+        sfx.volume =0.5
         state.volume_muted = false
       end
     end
@@ -1631,9 +1630,9 @@ function update(dt)
     else
       if music.volume == 0.5 then
         state.music_muted = true
-        music.volume = 2*0
+        music.volume =0
       elseif music.volume == 0 then
-        music.volume = 2*0.5
+        music.volume =0.5
         state.music_muted = false
       end
     end
@@ -1693,21 +1692,56 @@ function open_options(self)
     self.paused = true
 
     if self:is(Arena) then
-      self.paused_t1 = Text2{group = self.ui, x = gw/2, y = gh/2 - 108, sx = 0.6, sy = 0.6, lines = {{text = '[bg10]<-, a or m1       ->, d or m2', font = fat_font, alignment = 'center'}}}
+      self.paused_t1 = Text2{group = self.ui, x = gw/2, y = gh/2 - 108, sx = 0.6, sy = 0.6, lines = {{text = '[bg10]<-                ->', font = fat_font, alignment = 'center'}}}
       self.paused_t2 = Text2{group = self.ui, x = gw/2, y = gh/2 - 92, lines = {{text = '[bg10]turn left                                            turn right', font = pixul_font, alignment = 'center'}}}
+      
+      self.pause_button.dead = true; self.pause_button = nil
+      self.pause_button2.dead = true; self.pause_button2 = nil
     end
 
     if self:is(MainMenu) then
-      self.ng_t = Text2{group = self.ui, x = gw/2 + 63, y = gh - 50, lines = {{text = '[bg10]current: ' .. current_new_game_plus, font = pixul_font, alignment = 'center'}}}
+      self.ng_t = Text2{group = self.ui, x = gw/2 + 63, y = gh - 75, lines = {{text = '[bg10]current: ' .. current_new_game_plus, font = pixul_font, alignment = 'center'}}}
     end
 
-    self.resume_button = Button{group = self.ui, x = gw/2, y = gh - 225, force_update = true, button_text = self:is(MainMenu) and 'main menu (esc)' or 'resume game (esc)', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+    self.achievement_button = Button{group = self.ui, x = gw/2, y = gh - 250, force_update = true, button_text = 'achievements', fg_color = 'bg10', bg_color = 'bg', action = showAchievements }
+
+    self.safe_area_button = Button{group = self.ui, x = gw/2 - 150, y = gh - 250, force_update = true, button_text = 'toggle safe area', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+      state.ignore_safe_area = not state.ignore_safe_area
+      if state.ignore_safe_area then
+        safe_area_x, safe_area_y, safe_area_w, safe_area_h = 0, 0, ww, wh
+      else
+        -- TODO: handle notches on the RHS of the screen
+        safe_area_x, safe_area_y, real_safe_area_w, real_safe_area_h = love.window.getSafeArea()
+        safe_area_w = ww - safe_area_x
+        safe_area_h = wh - safe_area_y
+      end
+  
+      real_safe_area_w = safe_area_w
+      real_safe_area_h = safe_area_h
+      real_safe_area_x = safe_area_x
+      if safe_area_w * (9 / 16) > safe_area_h then
+        safe_area_w = real_safe_area_h * (16 / 9)
+        safe_area_x = safe_area_x + math.floor((real_safe_area_w - safe_area_w) / 2)
+      else
+        safe_area_h = real_safe_area_w * (9 / 16)
+        safe_area_y = safe_area_y + math.floor((real_safe_area_h - safe_area_h) / 2)
+      end
+      sx, sy = safe_area_w/gw, safe_area_h/gh
+      real_sx, real_sy = real_safe_area_w/gw, real_safe_area_h/gh
+      system.save_state()
+    end }
+
+    self.resume_button = Button{group = self.ui, x = gw/2, y = gh - 200, force_update = true, button_text = self:is(MainMenu) and 'main menu' or 'resume game', fg_color = 'bg10', bg_color = 'bg', action = function(b)
       trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
         slow_amount = 1
         self.paused = false
         if self.paused_t1 then self.paused_t1.dead = true; self.paused_t1 = nil end
         if self.paused_t2 then self.paused_t2.dead = true; self.paused_t2 = nil end
         if self.ng_t then self.ng_t.dead = true; self.ng_t = nil end
+
+        if self.achievement_button then self.achievement_button.dead = true; self.achievement_button = nil end
+        if self.safe_area_button then self.safe_area_button.dead = true; self.safe_area_button = nil end
+
         if self.resume_button then self.resume_button.dead = true; self.resume_button = nil end
         if self.restart_button then self.restart_button.dead = true; self.restart_button = nil end
         if self.mouse_button then self.mouse_button.dead = true; self.mouse_button = nil end
@@ -1728,138 +1762,118 @@ function open_options(self)
         if self.main_menu_button then self.main_menu_button.dead = true; self.main_menu_button = nil end
         system.save_state()
         if self:is(MainMenu) or self:is(BuyScreen) then input:set_mouse_visible(true)
-        elseif self:is(Arena) then input:set_mouse_visible(state.mouse_control or false) end
+        elseif self:is(Arena) then
+          input:set_mouse_visible(state.mouse_control or false)
+        
+          self.pause_button = Button{group = self.ui, x = gw - 20, y = gh - 20, force_update = true, button_text = 'pause', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+            if not self.paused and not self.transitioning and not self.in_credits then
+              self:pause()
+            end
+          end}
+          self.pause_button2 = Button{group = self.ui, x = 20, y = gh - 20, force_update = true, button_text = 'pause', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+            if not self.paused and not self.transitioning and not self.in_credits then
+              self:pause()
+            end
+          end}
+        end
       end, 'pause')
     end}
 
-    if not self:is(MainMenu) then
-      self.restart_button = Button{group = self.ui, x = gw/2, y = gh - 200, force_update = true, button_text = 'restart run (r)', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-        self.transitioning = true
-        ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-        TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = state.dark_transitions and bg[-2] or fg[0], transition_action = function()
-          slow_amount = 1
-          gold = 3
-          passives = {}
-          main_song_instance:stop()
-          run_passive_pool = {
-            'centipede', 'ouroboros_technique_r', 'ouroboros_technique_l', 'amplify', 'resonance', 'ballista', 'call_of_the_void', 'crucio', 'speed_3', 'damage_4', 'shoot_5', 'death_6', 'lasting_7',
-            'defensive_stance', 'offensive_stance', 'kinetic_bomb', 'porcupine_technique', 'last_stand', 'seeping', 'deceleration', 'annihilation', 'malediction', 'hextouch', 'whispers_of_doom',
-            'tremor', 'heavy_impact', 'fracture', 'meat_shield', 'hive', 'baneling_burst', 'blunt_arrow', 'explosive_arrow', 'divine_machine_arrow', 'chronomancy', 'awakening', 'divine_punishment',
-            'assassination', 'flying_daggers', 'ultimatum', 'magnify', 'echo_barrage', 'unleash', 'reinforce', 'payback', 'enchanted', 'freezing_field', 'burning_field', 'gravity_field', 'magnetism',
-            'insurance', 'dividends', 'berserking', 'unwavering_stance', 'unrelenting_stance', 'blessing', 'haste', 'divine_barrage', 'orbitism', 'psyker_orbs', 'psychosense', 'rearm', 'taunt', 'summon_instability',
-          }
-          max_units = 7 + current_new_game_plus
-          main:add(BuyScreen'buy_screen')
-          locked_state = nil
-          system.save_run()
-          main:go_to('buy_screen', 1, {}, passives, 1, 0)
-        end, text = Text({{text = '[wavy, ' .. tostring(state.dark_transitions and 'fg' or 'bg') .. ']restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
-      end}
-    end
+    self.restart_button = Button{group = self.ui, x = gw/2, y = gh - 25, force_update = true, button_text = 'restart run', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+      self.transitioning = true
+      ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = state.dark_transitions and bg[-2] or fg[0], transition_action = function()
+        slow_amount = 1
+        gold = 3
+        passives = {}
+        main_song_instance:stop()
+        run_passive_pool = {
+          'centipede', 'ouroboros_technique_r', 'ouroboros_technique_l', 'amplify', 'resonance', 'ballista', 'call_of_the_void', 'crucio', 'speed_3', 'damage_4', 'shoot_5', 'death_6', 'lasting_7',
+          'defensive_stance', 'offensive_stance', 'kinetic_bomb', 'porcupine_technique', 'last_stand', 'seeping', 'deceleration', 'annihilation', 'malediction', 'hextouch', 'whispers_of_doom',
+          'tremor', 'heavy_impact', 'fracture', 'meat_shield', 'hive', 'baneling_burst', 'blunt_arrow', 'explosive_arrow', 'divine_machine_arrow', 'chronomancy', 'awakening', 'divine_punishment',
+          'assassination', 'flying_daggers', 'ultimatum', 'magnify', 'echo_barrage', 'unleash', 'reinforce', 'payback', 'enchanted', 'freezing_field', 'burning_field', 'gravity_field', 'magnetism',
+          'insurance', 'dividends', 'berserking', 'unwavering_stance', 'unrelenting_stance', 'blessing', 'haste', 'divine_barrage', 'orbitism', 'psyker_orbs', 'psychosense', 'rearm', 'taunt', 'summon_instability',
+        }
+        max_units = 7 + current_new_game_plus
+        main:add(BuyScreen'buy_screen')
+        locked_state = nil
+        system.save_run()
+        main:go_to('buy_screen', 1, {}, passives, 1, 0)
+      end, text = Text({{text = '[wavy, ' .. tostring(state.dark_transitions and 'fg' or 'bg') .. ']restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
+    end}
 
-    self.mouse_button = Button{group = self.ui, x = gw/2 - 57, y = gh - 150, force_update = true, button_text = 'mouse control: ' .. tostring(state.mouse_control and 'yes' or 'no'), fg_color = 'bg10', bg_color = 'bg',
+    self.mouse_button = Button{group = self.ui, x = gw/2 - 57, y = gh - 150, force_update = true, button_text = 'finger control: ' .. tostring(state.mouse_control and 'yes' or 'no'), fg_color = 'bg10', bg_color = 'bg',
     action = function(b)
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       state.mouse_control = not state.mouse_control
-      b:set_text('mouse control: ' .. tostring(state.mouse_control and 'yes' or 'no'))
+      b:set_text('finger control: ' .. tostring(state.mouse_control and 'yes' or 'no'))
     end}
 
     self.dark_transition_button = Button{group = self.ui, x = gw/2 + 64, y = gh - 150, force_update = true, button_text = 'dark transitions: ' .. tostring(state.dark_transitions and 'yes' or 'no'),
     fg_color = 'bg10', bg_color = 'bg', action = function(b)
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       state.dark_transitions = not state.dark_transitions
       b:set_text('dark transitions: ' .. tostring(state.dark_transitions and 'yes' or 'no'))
     end}
 
-    self.sfx_button = Button{group = self.ui, x = gw/2 - 46, y = gh - 175, force_update = true, button_text = 'sfx volume: ' .. tostring((state.sfx_volume or 0.5)*10), fg_color = 'bg10', bg_color = 'bg',
+    self.sfx_button = Button{group = self.ui, x = gw/2 - 46, y = gh - 175, force_update = true, button_text = 'sounds: ' .. tostring(state.volume_muted and 'no' or 'yes'), fg_color = 'bg10', bg_color = 'bg',
     action = function(b)
-      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       b.spring:pull(0.2, 200, 10)
       b.selected = true
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-      sfx.volume = sfx.volume + 0.1
-      if sfx.volume > 1 then sfx.volume = 0 end
-      state.sfx_volume = sfx.volume
-      b:set_text('sfx volume: ' .. tostring((state.sfx_volume or 0.5)*10))
-    end}
-
-    self.music_button = Button{group = self.ui, x = gw/2 + 48, y = gh - 175, force_update = true, button_text = 'music volume: ' .. tostring((state.music_volume or 0.5)*10), fg_color = 'bg10', bg_color = 'bg',
-    action = function(b)
-      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-      b.spring:pull(0.2, 200, 10)
-      b.selected = true
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-      music.volume = music.volume + 0.1
-      if music.volume > 1 then music.volume = 0 end
-      state.music_volume = music.volume
-      b:set_text('music volume: ' .. tostring((state.music_volume or 0.5)*10))
-    end}
-
-    self.video_button_1 = Button{group = self.ui, x = gw/2 - 136, y = gh - 125, force_update = true, button_text = 'window size-', fg_color = 'bg10', bg_color = 'bg', action = function()
-      if sx > 1 and sy > 1 then
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-        sx, sy = sx - 0.5, sy - 0.5
-        love.window.setMode(480*sx, 270*sy)
-        state.sx, state.sy = sx, sy
-        state.fullscreen = false
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      if sfx.volume == 2*0.5 then
+        sfx.volume = 2*0
+        state.volume_muted = true
+      elseif sfx.volume == 0 then
+        sfx.volume = 2*0.5
+        state.volume_muted = false
       end
+      b:set_text('sounds: ' .. tostring(state.volume_muted and 'no' or 'yes'))
     end}
 
-    self.video_button_2 = Button{group = self.ui, x = gw/2 - 50, y = gh - 125, force_update = true, button_text = 'window size+', fg_color = 'bg10', bg_color = 'bg', action = function()
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-      sx, sy = sx + 0.5, sy + 0.5
-      love.window.setMode(480*sx, 270*sy)
-      state.sx, state.sy = sx, sy
-      state.fullscreen = false
+    self.music_button = Button{group = self.ui, x = gw/2 + 46, y = gh - 175, force_update = true, button_text = 'music: ' .. tostring(state.music_muted and 'no' or 'yes'), fg_color = 'bg10', bg_color = 'bg',
+    action = function(b)
+      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      b.spring:pull(0.2, 200, 10)
+      b.selected = true
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      if music.volume == 2*0.5 then
+        music.volume = 2*0
+        state.music_muted = true
+      elseif music.volume == 0 then
+        music.volume = 2*0.5
+        state.music_muted = false
+      end
+      b:set_text('music: ' .. tostring(state.music_muted and 'no' or 'yes'))
     end}
 
-    self.video_button_3 = Button{group = self.ui, x = gw/2 + 29, y = gh - 125, force_update = true, button_text = 'fullscreen', fg_color = 'bg10', bg_color = 'bg', action = function()
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-      local _, _, flags = love.window.getMode()
-      local window_width, window_height = love.window.getDesktopDimensions(flags.display)
-      sx, sy = window_width/480, window_height/270
-      state.sx, state.sy = sx, sy
-      ww, wh = window_width, window_height
-      love.window.setMode(window_width, window_height)
-    end}
-
-    self.video_button_4 = Button{group = self.ui, x = gw/2 + 129, y = gh - 125, force_update = true, button_text = 'reset video settings', fg_color = 'bg10', bg_color = 'bg', action = function()
-      local _, _, flags = love.window.getMode()
-      local window_width, window_height = love.window.getDesktopDimensions(flags.display)
-      sx, sy = window_width/480, window_height/270
-      ww, wh = window_width, window_height
-      state.sx, state.sy = sx, sy
-      state.fullscreen = false
-      ww, wh = window_width, window_height
-      love.window.setMode(window_width, window_height)
-    end}
-
-    self.screen_shake_button = Button{group = self.ui, x = gw/2 - 57, y = gh - 100, w = 110, force_update = true, button_text = '[bg10]screen shake: ' .. tostring(state.no_screen_shake and 'no' or 'yes'), 
+    self.screen_shake_button = Button{group = self.ui, x = gw/2 - 57, y = gh - 125, w = 110, force_update = true, button_text = '[bg10]screen shake: ' .. tostring(state.no_screen_shake and 'no' or 'yes'), 
     fg_color = 'bg10', bg_color = 'bg', action = function(b)
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       state.no_screen_shake = not state.no_screen_shake
       b:set_text('screen shake: ' .. tostring(state.no_screen_shake and 'no' or 'yes'))
     end}
 
-    self.cooldown_snake_button = Button{group = self.ui, x = gw/2 + 75, y = gh - 100, w = 145, force_update = true, button_text = '[bg10]cooldowns on snake: ' .. tostring(state.cooldown_snake and 'yes' or 'no'), 
+    self.cooldown_snake_button = Button{group = self.ui, x = gw/2 + 75, y = gh - 125, w = 145, force_update = true, button_text = '[bg10]cooldowns on snake: ' .. tostring(state.cooldown_snake and 'yes' or 'no'), 
     fg_color = 'bg10', bg_color = 'bg', action = function(b)
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       state.cooldown_snake = not state.cooldown_snake
       b:set_text('cooldowns on snake: ' .. tostring(state.cooldown_snake and 'yes' or 'no'))
     end}
 
-    self.arrow_snake_button = Button{group = self.ui, x = gw/2 + 65, y = gh - 75, w = 125, force_update = true, button_text = '[bg10]arrow on snake: ' .. tostring(state.arrow_snake and 'yes' or 'no'),
+    self.arrow_snake_button = Button{group = self.ui, x = gw/2 + 65, y = gh - 100, w = 125, force_update = true, button_text = '[bg10]arrow on snake: ' .. tostring(state.arrow_snake and 'yes' or 'no'),
     fg_color = 'bg10', bg_color = 'bg', action = function(b)
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       state.arrow_snake = not state.arrow_snake
       b:set_text('arrow on snake: ' .. tostring(state.arrow_snake and 'yes' or 'no'))
     end}
 
-    self.screen_movement_button = Button{group = self.ui, x = gw/2 - 69, y = gh - 75, w = 135, force_update = true, button_text = '[bg10]screen movement: ' .. tostring(state.no_screen_movement and 'no' or 'yes'), 
+    self.screen_movement_button = Button{group = self.ui, x = gw/2 - 69, y = gh - 100, w = 135, force_update = true, button_text = '[bg10]screen movement: ' .. tostring(state.no_screen_movement and 'no' or 'yes'), 
     fg_color = 'bg10', bg_color = 'bg', action = function(b)
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       state.no_screen_movement = not state.no_screen_movement
       if state.no_screen_movement then
         camera.x, camera.y = gw/2, gh/2
@@ -1869,8 +1883,8 @@ function open_options(self)
     end}
 
     if self:is(MainMenu) then
-      self.ng_plus_minus_button = Button{group = self.ui, x = gw/2 - 58, y = gh - 50, force_update = true, button_text = 'NG+ down', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      self.ng_plus_minus_button = Button{group = self.ui, x = gw/2 - 58, y = gh - 75, force_update = true, button_text = 'NG+ down', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         b.spring:pull(0.2, 200, 10)
         b.selected = true
         current_new_game_plus = math.clamp(current_new_game_plus - 1, 0, 5)
@@ -1878,8 +1892,8 @@ function open_options(self)
         self.ng_t.text:set_text({{text = '[bg10]current: ' .. current_new_game_plus, font = pixul_font, alignment = 'center'}})
       end}
 
-      self.ng_plus_plus_button = Button{group = self.ui, x = gw/2 + 5, y = gh - 50, force_update = true, button_text = 'NG+ up', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      self.ng_plus_plus_button = Button{group = self.ui, x = gw/2 + 5, y = gh - 75, force_update = true, button_text = 'NG+ up', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         b.spring:pull(0.2, 200, 10)
         b.selected = true
         current_new_game_plus = math.clamp(current_new_game_plus + 1, 0, new_game_plus)
@@ -1891,9 +1905,9 @@ function open_options(self)
     if not self:is(MainMenu) then
       self.main_menu_button = Button{group = self.ui, x = gw/2, y = gh - 50, force_update = true, button_text = 'main menu', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         self.transitioning = true
-        ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = state.dark_transitions and bg[-2] or fg[0], transition_action = function()
           main:add(MainMenu'main_menu')
           main:go_to('main_menu')
@@ -1901,11 +1915,11 @@ function open_options(self)
       end}
     end
 
-    self.quit_button = Button{group = self.ui, x = gw/2, y = gh - 25, force_update = true, button_text = 'quit', fg_color = 'bg10', bg_color = 'bg', action = function()
+    --[[self.quit_button = Button{group = self.ui, x = gw/2, y = gh - 25, force_update = true, button_text = 'quit', fg_color = 'bg10', bg_color = 'bg', action = function()
       system.save_state()
       steam.shutdown()
       love.event.quit()
-    end}
+    end}]]
   end, 'pause')
 end
 
@@ -1917,6 +1931,9 @@ function close_options(self)
     if self.paused_t1 then self.paused_t1.dead = true; self.paused_t1 = nil end
     if self.paused_t2 then self.paused_t2.dead = true; self.paused_t2 = nil end
     if self.ng_t then self.ng_t.dead = true; self.ng_t = nil end
+
+    if self.achievement_button then self.achievement_button.dead = true; self.achievement_button = nil end
+    if self.safe_area_button then self.safe_area_button.dead = true; self.safe_area_button = nil end
     if self.resume_button then self.resume_button.dead = true; self.resume_button = nil end
     if self.restart_button then self.restart_button.dead = true; self.restart_button = nil end
     if self.mouse_button then self.mouse_button.dead = true; self.mouse_button = nil end
@@ -1937,7 +1954,20 @@ function close_options(self)
     if self.main_menu_button then self.main_menu_button.dead = true; self.main_menu_button = nil end
     system.save_state()
     if self:is(MainMenu) or self:is(BuyScreen) then input:set_mouse_visible(true)
-    elseif self:is(Arena) then input:set_mouse_visible(state.mouse_control or false) end
+    elseif self:is(Arena) then
+      input:set_mouse_visible(state.mouse_control or false)
+
+      self.pause_button = Button{group = self.ui, x = gw - 20, y = gh - 20, force_update = true, button_text = 'pause', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+        if not self.paused then
+          self:pause()
+        end
+      end}
+      self.pause_button2 = Button{group = self.ui, x = 20, y = gh - 20, force_update = true, button_text = 'pause', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+        if not self.paused then
+          self:pause()
+        end
+      end}
+    end
   end, 'pause')
 end
 

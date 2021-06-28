@@ -1182,13 +1182,13 @@ function CharacterPart:update(dt)
     if self.parent:is(CharacterPart) then
       -- reserve unit
       self.parent.parent.unit_grabbed = false
-      self.parent.parent.party_text:set_text{{text = '[wavy_mid, fg]party', font = pixul_font, alignment = 'center'}}
+      self.parent.parent.party_text:set_text{{text = '[wavy_mid, fg]party ' .. tostring(#self.parent.parent.units) .. '/' .. tostring(max_units), font = pixul_font, alignment = 'center'}}
       self.parent.parent.party_text.selling = false
       self.parent.parent.tutorial_button.hidden = false
       --self.parent.parent.restart_button.hidden = false
     else
       self.parent.unit_grabbed = false
-      self.parent.party_text:set_text{{text = '[wavy_mid, fg]party', font = pixul_font, alignment = 'center'}}
+      self.parent.party_text:set_text{{text = '[wavy_mid, fg]party ' .. tostring(#self.parent.units) .. '/' .. tostring(max_units), font = pixul_font, alignment = 'center'}}
       self.parent.party_text.selling = false
       self.parent.tutorial_button.hidden = false
       --self.parent.restart_button.hidden = false
@@ -1244,13 +1244,14 @@ end
 
 
 function CharacterPart:sell()
-  _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     if self.reserve then
       self.parent:gain_gold(self:get_sale_price())
       table.remove(self.parent.units, self.i)
       self:die()
       self.parent:set_party_and_sets()
       self.parent:refresh_cards()
+      self.parent.party_text:set_text{{text = '[wavy_mid, fg]party ' .. tostring(#self.parent.units) .. '/' .. tostring(max_units), font = pixul_font, alignment = 'center'}}
       system.save_run(self.parent.level, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
     else
       self.parent.parent:gain_gold(self:get_sale_price())
@@ -1481,7 +1482,7 @@ function ItemCard:update(dt)
     if gold < 5 then
       self.spring:pull(0.2, 200, 10)
       self.selected = true
-      error1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       if not self.info_text_2 then
         self.info_text_2 = InfoText{group = main.current.ui}
         self.info_text_2:activate({
@@ -1491,16 +1492,16 @@ function ItemCard:update(dt)
       end
       self.t:after(2, function() self.info_text_2:deactivate(); self.info_text_2.dead = true; self.info_text_2 = nil end, 'info_text_2')
     else
-      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       self.xp = self.xp + 1
       if self.xp >= self.max_xp then
         self.xp = 0
         self.level = self.level + 1
         self.max_xp = (self.level == 0 and 0) or (self.level == 1 and 2) or (self.level == 2 and 3) or (self.level == 3 and 0)
-        if self.level == 2 then spawn_mark1:play{pitch = 1, volume = 0.6} end
+        if self.level == 2 then spawn_mark1:play{pitch = 1, volume = 2*0.6} end
         if self.level == 3 then
-          spawn_mark1:play{pitch = 1.2, volume = 0.6}
-          level_up1:play{pitch = 1, volume = 0.5}
+          spawn_mark1:play{pitch = 1.2, volume = 2*0.6}
+          level_up1:play{pitch = 1, volume = 2*0.5}
         end
       end
       self:create_info_text()
@@ -1660,6 +1661,7 @@ function ShopCard:update(dt)
         self:die()
         self.parent.cards[self.i] = nil
         self.parent:refresh_cards()
+        self.parent.party_text:set_text{{text = '[wavy_mid, fg]party ' .. tostring(#self.parent.units) .. '/' .. tostring(max_units), font = pixul_font, alignment = 'center'}}
         locked_state = {locked = self.parent.locked, cards = {self.parent.cards[1] and self.parent.cards[1].unit, self.parent.cards[2] and self.parent.cards[2].unit, self.parent.cards[3] and self.parent.cards[3].unit}} 
         system.save_run(self.parent.level, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
       else

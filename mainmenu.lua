@@ -9,10 +9,7 @@ end
 
 function MainMenu:on_enter(from)
   slow_amount = 1
-  trigger:tween(2, main_song_instance, {volume = 0.5, pitch = 1}, math.linear)
-
-  steam.friends.setRichPresence('steam_display', '#StatusFull')
-  steam.friends.setRichPresence('text', 'Main Menu')
+  trigger:tween(2, main_song_instance, {volume = 2*0.5, pitch = 1}, math.linear)
 
   self.floor = Group()
   self.main = Group():set_as_physics_world(32, 0, 0, {'player', 'enemy', 'projectile', 'enemy_projectile', 'force_field', 'ghost'})
@@ -83,9 +80,9 @@ function MainMenu:on_enter(from)
   self.title_text = Text({{text = '[wavy_mid, fg]SNKRX', font = fat_font, alignment = 'center'}}, global_text_tags)
 
   self.arena_run_button = Button{group = self.main_ui, x = 55, y = gh/2 - 10, force_update = true, button_text = 'arena run', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-    ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = state.dark_transitions and bg[-2] or fg[0], transition_action = function()
       self.transitioning = true
       slow_amount = 1
@@ -112,17 +109,16 @@ function MainMenu:on_enter(from)
       close_options(self)
     end
   end}
-  self.quit_button = Button{group = self.main_ui, x = 37, y = gh/2 + 34, force_update = true, button_text = 'quit', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+  --[[self.quit_button = Button{group = self.main_ui, x = 37, y = gh/2 + 34, force_update = true, button_text = 'quit', fg_color = 'bg10', bg_color = 'bg', action = function(b)
     system.save_state()
-    steam.shutdown()
     love.event.quit()
-  end}
+  end}]]
   self.t:every(2, function() self.soundtrack_button.spring:pull(0.025, 200, 10) end)
   self.soundtrack_button = Button{group = self.main_ui, x = gw - 72, y = gh - 17, force_update = true, button_text = 'buy the soundtrack!', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     b.spring:pull(0.2, 200, 10)
     b.selected = true
-    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     system.open_url('https://kubbimusic.com/album/ember')
   end}
 end
@@ -153,7 +149,7 @@ end
 
 function MainMenu:update(dt)
   if main_song_instance:isStopped() then
-    main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 0.5}
+    main_song_instance = _G[random:table{'song1', 'song2', 'song3', 'song4', 'song5'}]:play{volume = 2*0.5}
   end
 
   if input.escape.pressed then

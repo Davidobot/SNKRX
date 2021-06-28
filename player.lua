@@ -1058,11 +1058,11 @@ function Player:init(args)
   if self.leader and self.death_6 then
     main.current.t:after(0.1, function()
       self.t:every(3, function()
-        flagellant1:play{pitch = random:float(0.95, 1.05), volume = 0.4}
+        flagellant1:play{pitch = random:float(0.95, 1.05), volume = 2*0.4}
         local units = self:get_all_units()
         local unit = units[6]
         if unit then
-          hit2:play{pitch = random:float(0.95, 1.05), volume = 0.4}
+          hit2:play{pitch = random:float(0.95, 1.05), volume = 2*0.4}
           unit:hit(0.1*unit.max_hp)
         end
       end)
@@ -2685,7 +2685,7 @@ function ForceArea:init(args)
     end)
 
   elseif self.character == 'gravity_field' then
-    elementor1:play{pitch = random:float(0.9, 1.1), volume = 0.4}
+    elementor1:play{pitch = random:float(0.9, 1.1), volume = 2*0.4}
     self.t:tween(1, self, {dvr = 0}, math.linear)
 
     self.t:during(1, function()
@@ -2763,7 +2763,7 @@ function Tree:init(args)
 
       if self.parent.rearm then
         self.t:after(1, function()
-          heal1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+          heal1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
           local unit_1 = random:table_remove(units)
           local unit_2 = random:table_remove(units)
           if unit_1 then
@@ -2796,7 +2796,7 @@ function Tree:init(args)
 
       if self.parent.rearm then
         self.t:after(1, function()
-          heal1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+          heal1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
           local unit = random:table(units)
           unit:heal(0.2*unit.max_hp*(self.heal_effect_m or 1))
           HitCircle{group = main.current.effects, x = self.x, y = self.y, rs = 6, color = green[0], duration = 0.1}
@@ -2824,7 +2824,7 @@ function Tree:init(args)
         camera:shake(2, 0.5)
         local n = (self.parent.summon_instability == 1 and 1) or (self.parent.summon_instability == 2 and 1.5) or (self.parent.summon_instability == 3 and 2) or 1
         Area{group = main.current.effects, x = self.x, y = self.y, r = self.r, w = self.parent.area_size_m*48, color = self.color, dmg = n*self.parent.dmg*self.parent.area_dmg_m, parent = self.parent}
-        _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       end
     end)
   end)
@@ -3015,8 +3015,8 @@ function Turret:init(args)
           local t = {group = main.current.main, x = self.x + 1.6*self.shape.w*math.cos(self.r), y = self.y + 1.6*self.shape.w*math.sin(self.r), v = 200, r = self.r, color = self.color,
           dmg = self.parent.dmg*(self.parent.conjurer_buff_m or 1)*self.upgrade_dmg_m, character = self.parent.character, parent = self.parent}
           Projectile(table.merge(t, mods or {}))
-          turret1:play{pitch = random:float(0.95, 1.05), volume = 0.35}
-          turret2:play{pitch = random:float(0.95, 1.05), volume = 0.35}
+          turret1:play{pitch = random:float(0.95, 1.05), volume = 2*0.35}
+          turret2:play{pitch = random:float(0.95, 1.05), volume = 2*0.35}
         end, 3)
 
         if self.parent.taunt and random:bool((self.parent.taunt == 1 and 10) or (self.parent.taunt == 2 and 20) or (self.parent.taunt == 3 and 30)) then
@@ -3042,7 +3042,7 @@ function Turret:init(args)
       camera:shake(2, 0.5)
       local n = (self.parent.summon_instability == 1 and 1) or (self.parent.summon_instability == 2 and 1.5) or (self.parent.summon_instability == 3 and 2) or 1
       Area{group = main.current.effects, x = self.x, y = self.y, r = self.r, w = self.parent.area_size_m*48, color = self.color, dmg = n*self.parent.dmg*self.parent.area_dmg_m, parent = self.parent}
-      _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     end
   end)
   
@@ -3139,7 +3139,7 @@ function Pet:on_collision_enter(other, contact)
         camera:shake(2, 0.5)
         local n = (self.parent.summon_instability == 1 and 1) or (self.parent.summon_instability == 2 and 1.5) or (self.parent.summon_instability == 3 and 2) or 1
         Area{group = main.current.effects, x = self.x, y = self.y, r = self.r, w = self.parent.area_size_m*48, color = self.color, dmg = n*self.parent.dmg*self.parent.area_dmg_m, parent = self.parent}
-        _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       end
     end
   end
@@ -3237,7 +3237,7 @@ function Saboteur:on_collision_enter(other, contact)
         camera:shake(2, 0.5)
         local n = (self.parent.summon_instability == 1 and 1) or (self.parent.summon_instability == 2 and 1.5) or (self.parent.summon_instability == 3 and 2) or 1
         Area{group = main.current.effects, x = self.x, y = self.y, r = self.r, w = self.parent.area_size_m*48, color = self.color, dmg = n*self.parent.dmg*self.parent.area_dmg_m, parent = self.parent}
-        _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         self.dead = true
       end)
     else
@@ -3280,7 +3280,7 @@ function Illusion:init(args)
       self.t:after(0.25, function()
         local closest_enemy = self:get_closest_object_in_shape(self.attack_sensor, main.current.enemies)
         if closest_enemy then
-          wizard1:play{pitch = random:float(0.95, 1.05), volume = 0.05}
+          wizard1:play{pitch = random:float(0.95, 1.05), volume = 2*0.05}
           local r = self:angle_to_object(closest_enemy)
           HitCircle{group = main.current.effects, x = self.x + 0.8*self.shape.w*math.cos(r), y = self.y + 0.8*self.shape.w*math.sin(r), rs = 6}
           local t = {group = main.current.main, x = self.x + 1.6*self.shape.w*math.cos(r), y = self.y + 1.6*self.shape.w*math.sin(r), v = 250, r = r, color = self.parent.color, dmg = self.parent.dmg, character = 'illusionist',
@@ -3319,7 +3319,7 @@ function Illusion:init(args)
       camera:shake(2, 0.5)
       local n = (self.parent.summon_instability == 1 and 1) or (self.parent.summon_instability == 2 and 1.5) or (self.parent.summon_instability == 3 and 2) or 1
       Area{group = main.current.effects, x = self.x, y = self.y, r = self.r, w = self.parent.area_size_m*48, color = self.color, dmg = n*self.parent.dmg*self.parent.area_dmg_m, parent = self.parent}
-      _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     end
   end)
 end
@@ -3479,7 +3479,7 @@ function HealingOrb:init(args)
   self.hfx:add('hit', 1)
   self.cant_be_picked_up = true
   self.t:after(0.5, function() self.cant_be_picked_up = false end)
-  illusion1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  illusion1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
   self.magnet_sensor = Circle(self.x, self.y, 32)
 end
 
@@ -3524,7 +3524,7 @@ function HealingOrb:on_trigger_enter(other, contact)
     HitCircle{group = main.current.effects, x = self.x, y = self.y, rs = 4, color = fg[0], duration = 0.1}
     for i = 1, 2 do HitParticle{group = main.current.effects, x = self.x, y = self.y, color = green[0]} end
     orb1:play{pitch = random:float(0.95, 1.05), volume = 1}
-    heal1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    heal1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
 
     local units = other:get_all_units()
     local lowest_hp = 10000

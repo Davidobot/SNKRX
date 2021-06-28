@@ -388,7 +388,7 @@ function Seeker:on_collision_enter(other, contact)
     if main.current.player.tremor then
       if self.being_pushed then
         camera:shake(2, 0.5)
-        earth1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        earth1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         Area{group = main.current.effects, x = self.x, y = self.y, r = self.r, w = 0.75*self.push_force*(main.current.player.area_size_m or 1), color = yellow[0], dmg = self.push_force/2, parent = main.current.player}
       end
     end
@@ -396,7 +396,7 @@ function Seeker:on_collision_enter(other, contact)
     if main.current.player.fracture then
       if self.being_pushed then
         trigger:after(0.01, function()
-          earth2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+          earth2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
           for i = 1, 6 do
             Projectile{group = main.current.main, x = self.x, y = self.y, color = red[0], r = (i-1)*math.pi/3, v = 200, dmg = 30, parent = main.current.player, pierce = 1}
           end
@@ -687,12 +687,12 @@ function ExploderMine:init(args)
   self.t:tween(0.05, self, {rs = args.rs}, math.cubic_in_out, function()
     self.spring:pull(0.15)
     self.t:every(0.8 - current_new_game_plus*0.1, function()
-      mine1:play{pitch = 1 + self.t:get_every_iteration'mine_count'*0.1, volume = 0.5}
+      mine1:play{pitch = 1 + self.t:get_every_iteration'mine_count'*0.1, volume = 2*0.5}
       self.spring:pull(0.5, 200, 10)
       self.hfx:use('hit', 0.5, 200, 10, 0.2)
     end, 3, function()
-      shoot1:play{pitch = random:float(0.95, 1.05), volume = 0.4}
-      cannoneer1:play{pitch = random:float(0.95, 1.05), volume = 0.4}
+      shoot1:play{pitch = random:float(0.95, 1.05), volume = 2*0.4}
+      cannoneer1:play{pitch = random:float(0.95, 1.05), volume = 2*0.4}
       for i = 1, 4 do HitParticle{group = main.current.effects, x = self.x, y = self.y, r = random:float(0, 2*math.pi), color = self.color} end
       HitCircle{group = main.current.effects, x = self.x, y = self.y}
       local n = math.floor(8 + current_new_game_plus*1.5)
