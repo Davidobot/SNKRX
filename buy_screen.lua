@@ -1399,6 +1399,7 @@ function PassiveCard:init(args)
   self:init_game_object(args)
   self.shape = Rectangle(self.x, self.y, self.w, self.h)
   self.interact_with_mouse = true
+  self.execute_action = false
   self.passive_name =  Text({{text = '[fg, wavy_mid]' .. passive_names[self.passive], font = pixul_font, alignment = 'center'}}, global_text_tags)
   self.passive_description = passive_descriptions[self.passive]
   self.spring:pull(0.2, 200, 10)
@@ -1409,16 +1410,25 @@ function PassiveCard:update(dt)
   self:update_game_object(dt)
   self.passive_name:update(dt)
 
-  if self.selected and input.m1.released and self.arena.choosing_passives then
-    self.arena.choosing_passives = false
-    table.insert(self.arena.passives, {passive = self.passive, level = 1, xp = 0})
-    self.arena:restore_passives_to_pool(self.card_i)
-    trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
-      slow_amount = 1
-      self.arena:transition()
-    end)
-    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-    self:die()
+  if self.selected and input.m1.pressed and self.arena.choosing_passives then
+    if not self.execute_action then
+      self.execute_action = love.timer.getTime()
+      return
+    end
+
+    if love.timer.getTime() - self.execute_action < 0.5 then
+      self.arena.choosing_passives = false
+      table.insert(self.arena.passives, {passive = self.passive, level = 1, xp = 0})
+      self.arena:restore_passives_to_pool(self.card_i)
+      trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
+        slow_amount = 1
+        self.arena:transition()
+      end)
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      self:die()
+    end
+
+    self.execute_action = love.timer.getTime()
   end
 end
 
@@ -1444,6 +1454,7 @@ end
 
 
 function PassiveCard:on_mouse_exit()
+  self.execute_action = false
   self.selected = false
   self.info_text:deactivate()
   self.info_text.dead = true
@@ -1469,6 +1480,7 @@ function ItemCard:init(args)
   self:init_game_object(args)
   self.shape = Rectangle(self.x, self.y, self.w, self.h)
   self.interact_with_mouse = true
+  self.execute_action = false
   self.max_xp = (self.level == 0 and 0) or (self.level == 1 and 2) or (self.level == 2 and 3) or (self.level == 3 and 0)
   self.unlevellable = table.any(unlevellable_items, function(v) return v == self.passive end)
 end
@@ -1479,45 +1491,55 @@ function ItemCard:update(dt)
 
   if self.selected and input.m1.pressed and not self.unlevellable then
     if self.level >= 3 then return end
-    if gold < 5 then
-      self.spring:pull(0.2, 200, 10)
-      self.selected = true
-      error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-      if not self.info_text_2 then
-        self.info_text_2 = InfoText{group = main.current.ui}
-        self.info_text_2:activate({
-          {text = '[fg]not enough gold', font = pixul_font, alignment = 'center'},
-        }, nil, nil, nil, nil, 16, 4, nil, 2)
-        self.info_text_2.x, self.info_text_2.y = gw/2, gh/2 + 30
-      end
-      self.t:after(2, function() self.info_text_2:deactivate(); self.info_text_2.dead = true; self.info_text_2 = nil end, 'info_text_2')
-    else
-      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-      self.xp = self.xp + 1
-      if self.xp >= self.max_xp then
-        self.xp = 0
-        self.level = self.level + 1
-        self.max_xp = (self.level == 0 and 0) or (self.level == 1 and 2) or (self.level == 2 and 3) or (self.level == 3 and 0)
-        if self.level == 2 then spawn_mark1:play{pitch = 1, volume = 2*0.6} end
-        if self.level == 3 then
-          spawn_mark1:play{pitch = 1.2, volume = 2*0.6}
-          level_up1:play{pitch = 1, volume = 2*0.5}
-        end
-      end
-      self:create_info_text()
-      self.selected = true
-      self.spring:pull(0.2, 200, 10)
-      gold = gold - 5
-      for _, passive in ipairs(self.parent.passives) do
-        if passive.passive == self.passive then
-          passive.level = self.level
-          passive.xp = self.xp
-        end
-      end
-      self.parent.shop_text:set_text{{text = '[wavy_mid, fg]shop [fg]- [fg, nudge_down]gold: [yellow, nudge_down]' .. gold, font = pixul_font, alignment = 'center'}}
-      self.text = Text({{text = '[bg10]' .. tostring(self.parent.shop_level), font = pixul_font, alignment = 'center'}}, global_text_tags)
-      system.save_run(self.parent.level, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
+
+    if not self.execute_action then
+      self.execute_action = love.timer.getTime()
+      return
     end
+
+    if love.timer.getTime() - self.execute_action < 0.5 then
+      if gold < 5 then
+        self.spring:pull(0.2, 200, 10)
+        self.selected = true
+        error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        if not self.info_text_2 then
+          self.info_text_2 = InfoText{group = main.current.ui}
+          self.info_text_2:activate({
+            {text = '[fg]not enough gold', font = pixul_font, alignment = 'center'},
+          }, nil, nil, nil, nil, 16, 4, nil, 2)
+          self.info_text_2.x, self.info_text_2.y = gw/2, gh/2 + 30
+        end
+        self.t:after(2, function() self.info_text_2:deactivate(); self.info_text_2.dead = true; self.info_text_2 = nil end, 'info_text_2')
+      else
+        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        self.xp = self.xp + 1
+        if self.xp >= self.max_xp then
+          self.xp = 0
+          self.level = self.level + 1
+          self.max_xp = (self.level == 0 and 0) or (self.level == 1 and 2) or (self.level == 2 and 3) or (self.level == 3 and 0)
+          if self.level == 2 then spawn_mark1:play{pitch = 1, volume = 2*0.6} end
+          if self.level == 3 then
+            spawn_mark1:play{pitch = 1.2, volume = 2*0.6}
+            level_up1:play{pitch = 1, volume = 2*0.5}
+          end
+        end
+        self:create_info_text()
+        self.selected = true
+        self.spring:pull(0.2, 200, 10)
+        gold = gold - 5
+        for _, passive in ipairs(self.parent.passives) do
+          if passive.passive == self.passive then
+            passive.level = self.level
+            passive.xp = self.xp
+          end
+        end
+        self.parent.shop_text:set_text{{text = '[wavy_mid, fg]shop [fg]- [fg, nudge_down]gold: [yellow, nudge_down]' .. gold, font = pixul_font, alignment = 'center'}}
+        self.text = Text({{text = '[bg10]' .. tostring(self.parent.shop_level), font = pixul_font, alignment = 'center'}}, global_text_tags)
+        system.save_run(self.parent.level, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
+      end
+    end
+
+    self.execute_action = love.timer.getTime()
   end
 end
 
@@ -1578,6 +1600,7 @@ end
 
 
 function ItemCard:on_mouse_exit()
+  self.execute_action = false
   self.selected = false
   self.info_text:deactivate()
   self.info_text.dead = true
@@ -1658,6 +1681,8 @@ function ShopCard:update(dt)
       if self.parent:buy(self.unit, self.i) then
         ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        love.mouse.setPosition(0, 0)
+        self:on_mouse_exit()
         self:die()
         self.parent.cards[self.i] = nil
         self.parent:refresh_cards()

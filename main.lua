@@ -1685,6 +1685,14 @@ function love.focus(focus)
   end
 end
 
+local function showAchievements()
+  if love.mobsvc then
+    if love.mobsvc.isSignedIn() then
+      love.mobsvc.showAchievements()
+    end
+  end
+end
+
 function open_options(self)
   input:set_mouse_visible(true)
   trigger:tween(0.25, _G, {slow_amount = 0}, math.linear, function()

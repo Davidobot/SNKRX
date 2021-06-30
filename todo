@@ -1,8 +1,3 @@
 Major:
- * items not saving
  * freezing iOS when tapping out?
  * frequent wake-up (battery issue)
- * The way I cause it is having one unit left on the shop, the shop is locked and it is level 1 the shop. Whenever I buy that last unit, close the game and reopen it the united still shows up as if I didn't buy it, but it still upgrades the unit on the snake, therefore duplicating that unit. If you want I can try different conditions (2 units on the shop, different levels, unlocked shop, just buying one unit, etc.)
-
-Minor:
- * when saving and reloading, new units appear in shop w/o re-roll
