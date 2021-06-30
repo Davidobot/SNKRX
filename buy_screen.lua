@@ -33,7 +33,7 @@ function BuyScreen:on_exit()
   self.flashes = nil
   self.hfx = nil
   self.tutorial_button = nil
-  --self.restart_button = nil
+  self.restart_button = nil
   self.level_button = nil
 end
 
@@ -125,7 +125,7 @@ function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
     b.info_text = nil
   end}
 
-  --[[self.restart_button = Button{group = self.ui, x = gw/2 + 148, y = 18, force_update = true, button_text = 'R', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+  self.restart_button = Button{group = self.ui, double_click = true, x = 12, y = 18, force_update = true, button_text = 'R', fg_color = 'bg10', bg_color = 'bg', action = function(b)
     self.transitioning = true
     ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
@@ -153,12 +153,12 @@ function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
     b.info_text:activate({
       {text = '[fg]restart run', font = pixul_font, alignment = 'center'},
     }, nil, nil, nil, nil, 16, 4, nil, 2)
-    b.info_text.x, b.info_text.y = b.x, b.y + 20
+    b.info_text.x, b.info_text.y = b.x + 32, b.y + 20
   end, mouse_exit = function(b)
     b.info_text:deactivate()
     b.info_text.dead = true
     b.info_text = nil
-  end}]]
+  end}
 
   trigger:tween(1, main_song_instance, {volume = 2*0.2}, math.linear)
 
@@ -605,6 +605,7 @@ function Button:init(args)
   self:init_game_object(args)
   self.shape = Rectangle(self.x, self.y, args.w or (pixul_font:get_text_width(self.button_text) + 8), pixul_font.h + 4)
   self.interact_with_mouse = true
+  self.execute_action = false
   self.hidden = false
   self.text = Text({{text = '[' .. self.fg_color .. ']' .. self.button_text, font = pixul_font, alignment = 'center'}}, global_text_tags)
 end
@@ -632,9 +633,24 @@ function Button:update(dt)
       self.spring:pull(0.1, 200, 10)
     end
   else
-    if self.selected and input.m1.released then
-      self:action()
-      love.mouse.setPosition(0, 0)
+    if self.double_click then
+      if self.selected and input.m1.pressed then
+        if not self.execute_action then
+          self.execute_action = love.timer.getTime()
+          return
+        end
+
+        if love.timer.getTime() - self.execute_action < 0.5 then
+          self:action()
+        end
+
+        self.execute_action = love.timer.getTime()
+      end
+    else
+      if self.selected and input.m1.released then
+        self:action()
+        love.mouse.setPosition(0, 0)
+      end
     end
   end
 end
