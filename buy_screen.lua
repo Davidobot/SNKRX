@@ -123,7 +123,7 @@ function BuyScreen:on_enter(from, level, loop, units, passives, shop_level, shop
     b.info_text = nil
   end}
 
-  self.restart_button = Button{group = self.main, double_click = true, x = 12, y = 18, force_update = true, button_text = 'M', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+  self.restart_button = Button{group = self.main, double_click = true, x = 10, y = 18, force_update = true, button_text = 'M', fg_color = 'bg10', bg_color = 'bg', action = function(b)
     if not self.transitioning and not self.in_tutorial then
       b.info_text:deactivate()
       b.info_text.dead = true
@@ -229,7 +229,7 @@ end
 function BuyScreen:draw()
   self.main:draw()
   self.effects:draw()
-  if self.items_text then self.items_text:draw(32, 145) end
+  if self.items_text then self.items_text:draw(self.items_text.selling and 50 or 32, 145) end
   if self.level_text then self.level_text:draw(265, gh - 20) end
 
   if self.unit_grabbed then
@@ -1495,6 +1495,7 @@ function ItemCard:init(args)
   self.shape = Rectangle(self.x, self.y, self.w, self.h)
   self.interact_with_mouse = true
   self.execute_action = false
+  self.sell_threshold = 155
   self.max_xp = (self.level == 0 and 0) or (self.level == 1 and 2) or (self.level == 2 and 3) or (self.level == 3 and 0)
   self.unlevellable = table.any(unlevellable_items, function(v) return v == self.passive end)
 end
@@ -1504,6 +1505,30 @@ function ItemCard:update(dt)
   self:update_game_object(dt)
 
   if self.parent:is(Arena) then return end
+
+  if input.m1.pressed and self.colliding_with_mouse then
+    self.grabbed = true
+
+    self.parent.items_text.selling = true
+  end
+
+  if self.grabbed and input.m1.released then
+    self.grabbed = false
+    self.parent.items_text.selling = false
+
+    self.parent.items_text:set_text{{text = '[wavy_mid, fg]items', font = pixul_font, alignment = 'center'}}
+
+    local _, y = camera:get_mouse_position()
+    local should_sell = y < self.sell_threshold
+
+    if should_sell then
+      self:sell()
+    end
+  end
+
+  if self.selected and input.m2.pressed then
+    self:sell()
+  end
 
   if self.selected and input.m1.pressed and not self.unlevellable then
     if self.level >= 3 then return end
@@ -1557,27 +1582,42 @@ function ItemCard:update(dt)
 
     self.execute_action = love.timer.getTime()
   end
+end
 
-  if self.selected and input.m2.pressed then
-    _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-    self.parent:gain_gold((self.level == 1 and 10) or (self.level == 2 and 20) or (self.level == 3 and 30))
-    table.insert(run_passive_pool, self.passive)
-    table.remove(self.parent.passives, self.i)
-    input.m2.pressed = false
-    self.parent:set_items()
-    system.save_run(self.parent.level, self.parent.loop, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
-  end
+
+function ItemCard:sell()
+  _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  self.parent:gain_gold((self.level == 1 and 10) or (self.level == 2 and 20) or (self.level == 3 and 30))
+  table.insert(run_passive_pool, self.passive)
+  table.remove(self.parent.passives, self.i)
+  input.m2.pressed = false
+  self.parent:set_items()
+  system.save_run(self.parent.level, self.parent.loop, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
 end
 
 
 function ItemCard:draw()
-  graphics.push(self.x, self.y, 0, self.sx*self.spring.x, self.sy*self.spring.x)
-    if self.selected then
-      graphics.rectangle(self.x, self.y, self.w, self.h, 6, 6, bg[-1])
+  local syy = self.y
+  if self.grabbed then
+    self.selected = true
+    local _, my = camera:get_mouse_position()
+    syy = math.clamp(my, 145, self.y)
+
+    if my < self.sell_threshold then
+      self.parent.items_text:set_text{{text = '[wavy_mid, redm5]- - - sell - - -', font = pixul_font, alignment = 'center'}}
+    else
+      self.parent.items_text:set_text{{text = '[wavy_mid, fg]- - - sell - - -', font = pixul_font, alignment = 'center'}}
     end
-    _G[self.passive]:draw(self.x, self.y, 0, 0.8, 0.7, 0, 0, fg[0])
+  end
+
+  graphics.push(self.x, syy, 0, self.sx*self.spring.x, self.sy*self.spring.x)
+    if self.selected then
+      graphics.rectangle(self.x, syy, self.w, self.h, 6, 6, bg[-1])
+    end
+    _G[self.passive]:draw(self.x, syy, 0, 0.8, 0.7, 0, 0, fg[0])
     if not self.unlevellable and not self.parent:is(Arena) then
-      local x, y = self.x + self.w/2.5, self.y - self.h/2.5
+      local x, y = self.x + self.w/2.5, syy - self.h/2.5
+
       if self.level == 1 then
         graphics.rectangle(x - 2, y, 2, 2, nil, nil, self.xp >= 1 and fg[0] or bg[5])
         graphics.rectangle(x + 2, y, 2, 2, nil, nil, bg[5])
