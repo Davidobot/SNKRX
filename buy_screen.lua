@@ -1455,7 +1455,7 @@ function PassiveCard:update(dt)
         music_slow_amount = 1
         self.arena:transition()
       end)
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       self:die()
     end
 

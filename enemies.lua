@@ -459,8 +459,8 @@ function Seeker:hit(damage, projectile, dot, from_enemy)
     if random:bool((main.current.player.critical_strike == 1 and 5) or (main.current.player.critical_strike == 2 and 10) or (main.current.player.critical_strike == 3 and 15)) then
       crit = 2
       camera:shake(2.5, 0.25)
-      rogue_crit1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-      rogue_crit2:play{pitch = random:float(0.95, 1.05), volume = 0.15}
+      rogue_crit1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      rogue_crit2:play{pitch = random:float(0.95, 1.05), volume = 2*0.15}
       for i = 1, 2 do HitParticle{group = main.current.effects, x = self.x, y = self.y, color = self.color, v = random:float(100, 400)} end
       HitCircle{group = main.current.effects, x = self.x, y = self.y, rs = 12, color = fg[0], duration = 0.3}:scale_down():change_color(0.5, self.color)
     end
@@ -654,7 +654,7 @@ function Seeker:hit(damage, projectile, dot, from_enemy)
       trigger:after(0.01, function()
         if tostring(self.x) == tostring(0/0) or tostring(self.y) == tostring(0/0) then return end
         if not main.current.main.world then return end
-        _G[random:table{'scout1', 'scout2'}]:play{pitch = random:float(0.95, 1.05), volume = 0.35}
+        _G[random:table{'scout1', 'scout2'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.35}
         HitCircle{group = main.current.effects, x = self.x, y = self.y, rs = 6}
         local r = random:float(0, 2*math.pi)
         local t = {group = main.current.main, x = self.x + 8*math.cos(r), y = self.y + 8*math.sin(r), v = 250, r = r, color = red[0], dmg = self.max_hp,
@@ -677,7 +677,7 @@ function Seeker:hit(damage, projectile, dot, from_enemy)
       trigger:after(0.01, function()
         if not main.current.player then return end
         if random:bool((main.current.player.infesting_strike == 1 and 10) or (main.current.player.infesting_strike == 2 and 20) or (main.current.player.infesting_strike == 3 and 30)) then
-          critter1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+          critter1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
           for i = 1, 2 do
             Critter{group = main.current.main, x = self.x, y = self.y, color = orange[0], r = random:float(0, 2*math.pi), v = 5, dmg = main.current.player.dmg, parent = main.current.player}
           end
@@ -735,7 +735,7 @@ end
 
 
 function Seeker:curse(curse, duration, arg1, arg2, arg3)
-  buff1:play{pitch = random:float(0.65, 0.75), volume = 0.25}
+  buff1:play{pitch = random:float(0.65, 0.75), volume = 2*0.25}
   if curse == 'launcher' then
     self.t:after(duration, function()
       self.launcher_push = arg1
@@ -779,8 +779,8 @@ function Seeker:curse(curse, duration, arg1, arg2, arg3)
     if self.doom == ((main.current.player.whispers_of_doom == 1 and 4) or (main.current.player.whispers_of_doom == 2 and 3) or (main.current.player.whispers_of_doom == 3 and 2)) then
       self.doom = 0
       self:hit((main.current.player.whispers_of_doom == 1 and 100) or (main.current.player.whispers_of_doom == 2 and 150) or (main.current.player.whispers_of_doom == 3 and 200))
-      buff1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      buff1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     end
   end
 

@@ -222,7 +222,7 @@ function Player:init(args)
           self.sorcerer_count = 0
           self.t:after(0.25, function()
             SpawnEffect{group = main.current.effects, x = self.x, y = self.y, color = self.color, action = function(x, y)
-              artificer1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+              artificer1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
               local check_circle = Circle(self.x, self.y, 2)
               local objects = main.current.main:get_objects_in_shape(check_circle, {Seeker, EnemyCritter, Critter, Volcano, Saboteur, Pet, Turret, Sentry, Bomb})
               if #objects == 0 then Automaton{group = main.current.main, x = x, y = y, parent = self, level = self.level, conjurer_buff_m = self.conjurer_buff_m or 1} end
@@ -2368,7 +2368,7 @@ function Projectile:on_trigger_enter(other, contact)
         for j = 1, 3 do
           main.current.t:after((j-1)*0.1, function()
             if not self.parent then return end
-            _G[random:table{'spark1', 'spark2', 'spark3'}]:play{pitch = random:float(0.9, 1.1), volume = 0.3}
+            _G[random:table{'spark1', 'spark2', 'spark3'}]:play{pitch = random:float(0.9, 1.1), volume = 2*0.3}
             for i = 1, 3 do
               table.insert(self.infused_enemies_hit, src)
               local dst = src:get_random_object_in_shape(Circle(src.x, src.y, 64), main.current.enemies, self.infused_enemies_hit)
@@ -3098,7 +3098,7 @@ function Sentry:init(args)
       camera:shake(2, 0.5)
       local n = (self.parent.construct_instability == 1 and 1) or (self.parent.construct_instability == 2 and 1.5) or (self.parent.construct_instability == 3 and 2) or 1
       Area{group = main.current.effects, x = self.x, y = self.y, r = self.r, w = self.parent.area_size_m*48, color = self.color, dmg = n*self.parent.dmg*self.parent.area_dmg_m, parent = self.parent}
-      _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     end
   end)
 
@@ -3109,7 +3109,7 @@ function Sentry:init(args)
     for j = 1, n do
       self.t:after((j-1)*0.1, function()
         for i = 1, 4 do
-          archer1:play{pitch = random:float(0.95, 1.05), volume = 0.35}
+          archer1:play{pitch = random:float(0.95, 1.05), volume = 2*0.35}
           HitCircle{group = main.current.effects, x = self.x + 0.8*self.shape.w*math.cos(r), y = self.y + 0.8*self.shape.w*math.sin(r), rs = 6}
           local t = {group = main.current.main, x = self.x + 1.6*self.shape.w*math.cos(r), y = self.y + 1.6*self.shape.w*math.sin(r), v = 200, r = r, color = self.color,
           dmg = self.parent.dmg*(self.parent.conjurer_buff_m or 1), character = 'sentry', parent = self.parent, ricochet = self.parent.level == 3 and 2 or 0}
@@ -3134,7 +3134,7 @@ function Sentry:init(args)
         self.hfx:use('hit', 0.25, 200, 10)
         local r = self.r
         for i = 1, 4 do
-          archer1:play{pitch = random:float(0.95, 1.05), volume = 0.35}
+          archer1:play{pitch = random:float(0.95, 1.05), volume = 2*0.35}
           HitCircle{group = main.current.effects, x = self.x + 0.8*self.shape.w*math.cos(r), y = self.y + 0.8*self.shape.w*math.sin(r), rs = 6}
           local t = {group = main.current.main, x = self.x + 1.6*self.shape.w*math.cos(r), y = self.y + 1.6*self.shape.w*math.sin(r), v = 200, r = r, color = self.color,
           dmg = self.parent.dmg*(self.parent.conjurer_buff_m or 1), character = 'sentry', parent = self.parent, ricochet = self.parent.level == 3 and 2 or 0}
@@ -3384,7 +3384,7 @@ function Bomb:init(args)
   self:set_restitution(0.5)
   self.hfx:add('hit', 1)
   
-  mine1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  mine1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
   self.color = orange[0]
   self.dmg = 2*get_character_stat('bomber', self.level, 'dmg')
   self.t:after(8, function() self:explode() end)
@@ -3409,9 +3409,9 @@ function Bomb:explode()
     dmg = self.parent.area_dmg_m*self.dmg*(self.parent.conjurer_buff_m or 1)*(self.level == 3 and 2 or 1), character = self.character, parent = self.parent}
   Area(table.merge(t, mods or {}))
   if not self.parent.construct_instability and not self.parent.rearm then self.dead = true end
-  _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-  _G[random:table{'saboteur_hit1', 'saboteur_hit2'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-  explosion1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+  _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+  _G[random:table{'saboteur_hit1', 'saboteur_hit2'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+  explosion1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
 
   self.t:after(0.25, function()
     if self.parent.construct_instability then
@@ -3419,7 +3419,7 @@ function Bomb:explode()
       local n = (self.parent.construct_instability == 1 and 1) or (self.parent.construct_instability == 2 and 1.5) or (self.parent.construct_instability == 3 and 2) or 1
       Area{group = main.current.effects, x = self.x, y = self.y, r = self.r + random:float(-math.pi/16, math.pi/16), w = self.parent.area_size_m*48*(self.level == 3 and 2 or 1), color = self.color, 
         dmg = n*self.parent.dmg*self.parent.area_dmg_m*(self.level == 3 and 2 or 1), parent = self.parent}
-      _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       self.dead = true
     end
 
@@ -3428,7 +3428,7 @@ function Bomb:explode()
       local n = (self.parent.construct_instability == 1 and 1) or (self.parent.construct_instability == 2 and 1.5) or (self.parent.construct_instability == 3 and 2) or 1
       Area{group = main.current.effects, x = self.x, y = self.y, r = self.r + random:float(-math.pi/16, math.pi/16), w = self.parent.area_size_m*48*(self.level == 3 and 2 or 1), color = self.color,
         dmg = n*self.parent.dmg*self.parent.area_dmg_m*(self.level == 3 and 2 or 1), parent = self.parent}
-      _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      _G[random:table{'cannoneer1', 'cannoneer2'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       self.dead = true
     end
   end)

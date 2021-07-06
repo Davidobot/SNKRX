@@ -1977,9 +1977,9 @@ function open_options(self)
     if not self:is(MainMenu) then
       self.restart_button = Button{group = self.ui, x = gw/2, y = gh - 200, force_update = true, button_text = 'restart run (r)', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         self.transitioning = true
-        ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
-        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+        ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+        ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = state.dark_transitions and bg[-2] or fg[0], transition_action = function()
           slow_amount = 1
           music_slow_amount = 1
