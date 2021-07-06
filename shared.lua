@@ -29,6 +29,7 @@ function shared_init()
   graphics.set_background_color(bg[0])
   graphics.set_color(fg[0])
   slow_amount = 1
+  music_slow_amount = 1
 
   sfx = SoundTag()
   sfx.volume = state.sfx_volume or 2*0.5
@@ -115,14 +116,14 @@ function Star:init(args)
   self.sx, self.sy = 0.35, 0.35
   self.vr = 0
   self.dvr = random:float(0, math.pi/4)
-  self.v = random:float(0.5, 0.7)
+  self.v = random:float(30, 42)
 end
 
 
 function Star:update(dt)
   self:update_game_object(dt)
-  self.x = self.x + self.v*math.cos(-math.pi/4)
-  self.y = self.y + self.v*math.sin(-math.pi/4)
+  self.x = self.x + self.v*math.cos(-math.pi/4)*dt
+  self.y = self.y + self.v*math.sin(-math.pi/4)*dt
   self.vr = self.vr + self.dvr*dt
   if self.x > gw + 64 then self.dead = true end
 end
@@ -579,7 +580,7 @@ global_text_tags = {
 
   cbyc3 = TextTag{init = function(c, i, text)
     c.color = invisible
-    text.t:after((i-1)*0.05, function()
+    text.t:after((i-1)*0.025, function()
       c.color = bg[10]
     end)
   end, draw = function(c, i, text)

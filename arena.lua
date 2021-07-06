@@ -14,10 +14,11 @@ local function unlockAchievement(androidID, iosID)
   end
 end
 
-function Arena:on_enter(from, level, units, passives, shop_level, shop_xp, lock)
+function Arena:on_enter(from, level, loop, units, passives, shop_level, shop_xp, lock)
   self.hfx:add('condition1', 1)
   self.hfx:add('condition2', 1)
   self.level = level or 1
+  self.loop = loop or 0
   self.units = units
   self.passives = passives
   self.shop_level = shop_level or 1
@@ -118,7 +119,7 @@ function Arena:on_enter(from, level, units, passives, shop_level, shop_xp, lock)
     -- self.level_1000_text2 = Text2{group = self.ui, x = gw/2, y = gh/2 + 64, lines = {{text = '[fg, wavy_mid]SNKRX', font = pixul_font, alignment = 'center'}}}
     -- Wall{group = self.main, vertices = math.to_rectangle_vertices(gw/2 - 0.45*self.level_1000_text.w, gh/2 - 0.3*self.level_1000_text.h, gw/2 + 0.45*self.level_1000_text.w, gh/2 - 3), snkrx = true, color = bg[-1]}
   
-  elseif self.level == 6 or self.level == 12 or self.level == 18 or self.level == 24 or self.level == 25 then
+  elseif (self.level - (25*self.loop)) % 6 == 0 or self.level % 25 == 0 then
     self.boss_level = true
     self.start_time = 3
     self.t:after(1, function()
@@ -192,6 +193,11 @@ function Arena:on_enter(from, level, units, passives, shop_level, shop_xp, lock)
       6, 6, 7, 7, 8, 10,
       8, 8, 10, 12, 14, 16, 25,
     }
+    for i = 26, 5000 do
+      local n = i % 25
+      if n == 0 then n = 25 end
+      self.level_to_max_waves[i] = self.level_to_max_waves[n]
+    end
     self.level_to_distributed_enemies_chance = {
       0, 5, 10,
       10, 15, 15, 20,
@@ -199,6 +205,11 @@ function Arena:on_enter(from, level, units, passives, shop_level, shop_xp, lock)
       25, 25, 25, 25, 25, 30,
       20, 25, 30, 35, 40, 45, 50,
     }
+    for i = 26, 5000 do
+      local n = i % 25
+      if n == 0 then n = 25 end
+      self.level_to_distributed_enemies_chance[i] = self.level_to_distributed_enemies_chance[n]
+    end
     self.max_waves = self.level_to_max_waves[self.level]
     self.wave = 0
     self.start_time = 3
@@ -218,7 +229,7 @@ function Arena:on_enter(from, level, units, passives, shop_level, shop_xp, lock)
           self.hfx:pull('condition2', 0.0625)
           self.t:after(0.5, function()
             if random:bool(self.level_to_distributed_enemies_chance[self.level]) then
-              local n = math.ceil((8 + (self.wave-1)*2)/7)
+              local n = math.ceil((8 + (self.wave+math.min(self.loop*6, 60)-1)*2)/7)
               for i = 1, n do
                 self.t:after((i-1)*2, function()
                   self:spawn_distributed_enemies()
@@ -231,7 +242,7 @@ function Arena:on_enter(from, level, units, passives, shop_level, shop_xp, lock)
               local spawn_points = {left = {x = self.x1 + 32, y = gh/2}, middle = {x = gw/2, y = gh/2}, right = {x = self.x2 - 32, y = gh/2}}
               local p = spawn_points[spawn_type]
               SpawnMarker{group = self.effects, x = p.x, y = p.y}
-              self.t:after(1.125, function() self:spawn_n_enemies(p, nil, 8 + (self.wave-1)*2) end)
+              self.t:after(1.125, function() self:spawn_n_enemies(p, nil, 8 + (self.wave+math.min(self.loop*12, 200)-1)*2) end)
             end
           end)
         end, self.max_waves+1)
@@ -383,6 +394,7 @@ function Arena:update(dt)
       ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = state.dark_transitions and bg[-2] or fg[0], transition_action = function()
         slow_amount = 1
+        music_slow_amount = 1
         gold = 3
         passives = {}
         main_song_instance:stop()
@@ -391,13 +403,15 @@ function Arena:update(dt)
           'defensive_stance', 'offensive_stance', 'kinetic_bomb', 'porcupine_technique', 'last_stand', 'seeping', 'deceleration', 'annihilation', 'malediction', 'hextouch', 'whispers_of_doom',
           'tremor', 'heavy_impact', 'fracture', 'meat_shield', 'hive', 'baneling_burst', 'blunt_arrow', 'explosive_arrow', 'divine_machine_arrow', 'chronomancy', 'awakening', 'divine_punishment',
           'assassination', 'flying_daggers', 'ultimatum', 'magnify', 'echo_barrage', 'unleash', 'reinforce', 'payback', 'enchanted', 'freezing_field', 'burning_field', 'gravity_field', 'magnetism',
-          'insurance', 'dividends', 'berserking', 'unwavering_stance', 'unrelenting_stance', 'blessing', 'haste', 'divine_barrage', 'orbitism', 'psyker_orbs', 'psychosense', 'rearm', 'taunt', 'summon_instability',
+          'insurance', 'dividends', 'berserking', 'unwavering_stance', 'unrelenting_stance', 'blessing', 'haste', 'divine_barrage', 'orbitism', 'psyker_orbs', 'psychosink', 'rearm', 'taunt', 'construct_instability',
+          'intimidation', 'vulnerability', 'temporal_chains', 'ceremonial_dagger', 'homing_barrage', 'critical_strike', 'noxious_strike', 'infesting_strike', 'burning_strike', 'lucky_strike', 'healing_strike', 'stunning_strike',
+          'silencing_strike', 'culling_strike', 'lightning_strike', 'psycholeak', 'divine_blessing', 'hardening',
         }
-        max_units = 7 + current_new_game_plus
+        max_units = math.clamp(7 + current_new_game_plus + self.loop, 7, 12)
         main:add(BuyScreen'buy_screen')
         locked_state = nil
         system.save_run()
-        main:go_to('buy_screen', 1, {}, passives, 1, 0)
+        main:go_to('buy_screen', 1, 0, {}, passives, 1, 0)
       end, text = Text({{text = '[wavy, ' .. tostring(state.dark_transitions and 'fg' or 'bg') .. ']restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
     end
 
@@ -412,7 +426,7 @@ function Arena:update(dt)
   end
 
   self:update_game_object(dt*slow_amount)
-  main_song_instance.pitch = math.clamp(slow_amount*self.main_slow_amount, 0.05, 1)
+  main_song_instance.pitch = math.clamp(slow_amount*music_slow_amount, 0.05, 1)
 
   star_group:update(dt*slow_amount)
   self.floor:update(dt*slow_amount)
@@ -428,7 +442,8 @@ function Arena:quit()
   if self.died then return end
 
   self.quitting = true
-  if self.level == 25 then
+  if self.level % 25 == 0 then
+    self:gain_gold()
     if not self.win_text and not self.win_text2 then
       input:set_mouse_visible(true)
       self.won = true
@@ -440,19 +455,31 @@ function Arena:quit()
       end
       current_new_game_plus = current_new_game_plus + 1
       state.current_new_game_plus = current_new_game_plus
-      max_units = 7 + current_new_game_plus
+      max_units = math.clamp(7 + current_new_game_plus + self.loop, 7, 12)
 
       system.save_run()
       trigger:tween(1, _G, {slow_amount = 0}, math.linear, function() slow_amount = 0 end, 'slow_amount')
+      trigger:tween(1, _G, {music_slow_amount = 0}, math.linear, function() music_slow_amount = 0 end, 'music_slow_amount')
       trigger:tween(4, camera, {x = gw/2, y = gh/2, r = 0}, math.linear, function() camera.x, camera.y, camera.r = gw/2, gh/2, 0 end)
-      self.win_text = Text2{group = self.ui, x = gw/2 + 40, y = gh/2 - 66, force_update = true, lines = {{text = '[wavy_mid, cbyc2]congratulations!', font = fat_font, alignment = 'center'}}}
+      self.win_text = Text2{group = self.ui, x = gw/2 + 40, y = gh/2 - 69, force_update = true, lines = {{text = '[wavy_mid, cbyc2]congratulations!', font = fat_font, alignment = 'center'}}}
       trigger:after(2.5, function()
+        local open_url = function(b, url)
+          ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+          b.spring:pull(0.2, 200, 10)
+          b.selected = true
+          ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+          system.open_url(url)
+        end
+
         self.build_text = Text2{group = self.ui, x = 40, y = 20, force_update = true, lines = {{text = "[wavy_mid, fg]your build", font = pixul_font, alignment = 'center'}}}
         for i, unit in ipairs(self.units) do
           CharacterPart{group = self.ui, x = 20, y = 40 + (i-1)*19, character = unit.character, level = unit.level, force_update = true, cant_click = true, parent = self}
           Text2{group = self.ui, x = 20 + 14 + pixul_font:get_text_width(unit.character)/2, y = 40 + (i-1)*19, force_update = true, lines = {
             {text = '[' .. character_color_strings[unit.character] .. ']' .. unit.character, font = pixul_font, alignment = 'left'}
           }}
+        end
+        for i, passive in ipairs(self.passives) do
+          ItemCard{group = self.ui, x = 120 + (i-1)*30, y = 20, w = 30, h = 45, sx = 0.75, sy = 0.75, force_update = true, passive = passive.passive , level = passive.level, xp = passive.xp, parent = self}
         end
 
         if current_new_game_plus == 6 then
@@ -464,27 +491,30 @@ function Arena:quit()
           state.current_new_game_plus = current_new_game_plus
           max_units = 12
 
-          self.win_text2 = Text2{group = self.ui, x = gw/2 + 40, y = gh/2 + 30, force_update = true, lines = {
+          self.win_text2 = Text2{group = self.ui, x = gw/2 + 40, y = gh/2 + 20, force_update = true, lines = {
             {text = "[fg]now you've really beaten the game!", font = pixul_font, alignment = 'center', height_multiplier = 1.24},
             {text = "[fg]thanks a lot for playing it and completing it entirely!", font = pixul_font, alignment = 'center', height_multiplier = 1.24},
-            {text = "[fg]this game was inspired by:", font = pixul_font, alignment = 'center', height_multiplier = 4},
-            {text = "[fg]so check those games out, they're fun!", font = pixul_font, alignment = 'center', height_multiplier = 1.24},
-            {text = "[fg]and to get more games like this in the future:", font = pixul_font, alignment = 'center', height_multiplier = 4},
+            {text = "[fg]this game was inspired by:", font = pixul_font, alignment = 'center', height_multiplier = 3.5},
+            {text = "[fg]so check them out! and to get more games like this:", font = pixul_font, alignment = 'center', height_multiplier = 3.5},
             {text = "[wavy_mid, yellow]thanks for playing!", font = pixul_font, alignment = 'center'},
           }}
-          SteamFollowButton{group = self.ui, x = gw/2 + 40, y = gh/2 + 78, force_update = true}
+          SteamFollowButton{group = self.ui, x = gw/2 + 40, y = gh/2 + 58, force_update = true}
           Button{group = self.ui, x = gw - 40, y = gh - 44, force_update = true, button_text = 'credits', fg_color = 'bg10', bg_color = 'bg', action = function() self:create_credits() end}
-          Button{group = self.ui, x = gw - 32, y = gh - 20, force_update = true, button_text = 'quit', fg_color = 'bg10', bg_color = 'bg', action = function() love.event.quit() end}
-          local open_url = function(b, url)
-            ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-            b.spring:pull(0.2, 200, 10)
-            b.selected = true
-            ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-            system.open_url(url)
-          end
+          Button{group = self.ui, x = gw - 39, y = gh - 20, force_update = true, button_text = '  loop  ', fg_color = 'bg10', bg_color = 'bg', action = function() self:endless() end}
+          self.try_loop_text = Text2{group = self.ui, x = gw - 144, y = gh - 20, force_update = true, lines = {
+            {text = '[bg10]continue run (+difficulty):', font = pixul_font},
+          }}
           Button{group = self.ui, x = gw/2 - 50 + 40, y = gh/2 + 12, force_update = true, button_text = 'nimble quest', fg_color = 'bluem5', bg_color = 'blue', action = function(b) open_url(b, 'https://store.steampowered.com/app/259780/Nimble_Quest/') end}
           Button{group = self.ui, x = gw/2 + 50 + 40, y = gh/2 + 12, force_update = true, button_text = 'dota underlords', fg_color = 'bluem5', bg_color = 'blue', action = function(b) open_url(b, 'https://store.steampowered.com/app/1046930/Dota_Underlords/') end}
+
         else
+          self.win_text2 = Text2{group = self.ui, x = gw/2 + 40, y = gh/2 + 5, force_update = true, lines = {
+            {text = "[fg]you've beaten the game!", font = pixul_font, alignment = 'center', height_multiplier = 1.24},
+            {text = "[fg]if you liked it:", font = pixul_font, alignment = 'center', height_multiplier = 3.5},
+            {text = "[fg]and if you liked the music:", font = pixul_font, alignment = 'center', height_multiplier = 3.5},
+            {text = "[wavy_mid, yellow]thanks for playing!", font = pixul_font, alignment = 'center'},
+          }}
+          --[[
           self.win_text2 = Text2{group = self.ui, x = gw/2 + 40, y = gh/2 + 20, force_update = true, lines = {
             {text = "[fg]you've beaten the game!", font = pixul_font, alignment = 'center', height_multiplier = 1.24},
             {text = "[fg]i made this game in 3 months as a dev challenge", font = pixul_font, alignment = 'center', height_multiplier = 1.24},
@@ -493,16 +523,18 @@ function Arena:quit()
             {text = "[fg]i will release more games this year, so stay tuned!", font = pixul_font, alignment = 'center', height_multiplier = 1.4},
             {text = "[wavy_mid, yellow]thanks for playing!", font = pixul_font, alignment = 'center'},
           }}
-          SteamFollowButton{group = self.ui, x = gw/2 + 40, y = gh/2 + 34, force_update = true}
+          ]]--
+          SteamFollowButton{group = self.ui, x = gw/2 + 40, y = gh/2 - 10, force_update = true}
+          Button{group = self.ui, x = gw/2 + 40, y = gh/2 + 33, force_update = true, button_text = 'buy the soundtrack!', fg_color = 'greenm5', bg_color = 'green', action = function(b) open_url(b, 'https://kubbimusic.com/album/ember') end}
+          Button{group = self.ui, x = gw - 40, y = gh - 44, force_update = true, button_text = '  loop  ', fg_color = 'bg10', bg_color = 'bg', action = function() self:endless() end}
           RestartButton{group = self.ui, x = gw - 40, y = gh - 20, force_update = true}
-          trigger:after(8, function()
-            self.try_ng_text = Text2{group = self.ui, x = gw - 210, y = gh - 20, force_update = true, lines = {
-              {text = '[cbyc3]try a harder difficulty with +1 max snake size:', font = pixul_font},
-            }}
-          end)
-          self.credits_button = Button{group = self.ui, x = gw - 40, y = gh - 44, force_update = true, button_text = 'credits', fg_color = 'bg10', bg_color = 'bg', action = function()
-            self:create_credits()
-          end}
+          self.try_loop_text = Text2{group = self.ui, x = gw - 200, y = gh - 44, force_update = true, lines = {
+            {text = '[bg10]continue run (+difficulty, +1 max snake size):', font = pixul_font},
+          }}
+          self.try_ng_text = Text2{group = self.ui, x = gw - 187, y = gh - 20, force_update = true, lines = {
+            {text = '[bg10]new run (+difficulty, +1 max snake size):', font = pixul_font},
+          }}
+          self.credits_button = Button{group = self.ui, x = gw - 40, y = gh - 68, force_update = true, button_text = 'credits', fg_color = 'bg10', bg_color = 'bg', action = function() self:create_credits() end}
         end
       end)
 
@@ -566,7 +598,7 @@ function Arena:quit()
         system.save_state()
       end
 
-      if self.psyker_level >= 1 then
+      if self.psyker_level >= 2 then
         unlockAchievement("IMEAIQDQ", "achievement_psykers")
         state.achievement_psykers_win = true
         system.save_state()
@@ -639,11 +671,16 @@ function Arena:quit()
   else
     if not self.arena_clear_text then self.arena_clear_text = Text2{group = self.ui, x = gw/2, y = gh/2 - 48, lines = {{text = '[wavy_mid, cbyc]arena clear!', font = fat_font, alignment = 'center'}}} end
     self:gain_gold()
+    self.t:after(2, function()
+      self.slow_transitioning = true
+      self.t:tween(0.7, self, {main_slow_amount = 0}, math.linear, function() self.main_slow_amount = 0 end)
+    end)
     self.t:after(3, function()
-      if self.level % 3 == 0 then
+      if (self.level-(25*self.loop)) % 3 == 0 and #self.passives < 8 then
         input:set_mouse_visible(true)
         self.arena_clear_text.dead = true
         trigger:tween(1, _G, {slow_amount = 0}, math.linear, function() slow_amount = 0 end, 'slow_amount')
+        trigger:tween(1, _G, {music_slow_amount = 0}, math.linear, function() music_slow_amount = 0 end, 'music_slow_amount')
         trigger:tween(4, camera, {x = gw/2, y = gh/2, r = 0}, math.linear, function() camera.x, camera.y, camera.r = gw/2, gh/2, 0 end)
         self:set_passives()
         RerollButton{group = main.current.ui, x = gw - 40, y = gh - 40, parent = self, force_update = true}
@@ -655,6 +692,9 @@ function Arena:quit()
           Text2{group = self.ui, x = 20 + 14 + pixul_font:get_text_width(unit.character)/2, y = 40 + (i-1)*19, force_update = true, lines = {
             {text = '[' .. character_color_strings[unit.character] .. ']' .. unit.character, font = pixul_font, alignment = 'left'}
           }}
+        end
+        for i, passive in ipairs(self.passives) do
+          ItemCard{group = self.ui, x = 120 + (i-1)*30, y = gh - 30, w = 30, h = 45, sx = 0.75, sy = 0.75, force_update = true, passive = passive.passive , level = passive.level, xp = passive.xp, parent = self}
         end
       else
         self:transition()
@@ -670,34 +710,39 @@ function Arena:set_passives(from_reroll)
     if self.cards[1] then self.cards[1].dead = true end
     if self.cards[2] then self.cards[2].dead = true end
     if self.cards[3] then self.cards[3].dead = true end
+    if self.cards[4] then self.cards[4].dead = true end
     self.cards = {}
   end
 
-  local card_w, card_h = 100, 100
-  local w = 3*card_w + 2*20
+  local card_w, card_h = 70, 100
+  local w = 4*card_w + 3*20
   self.choosing_passives = true
   self.cards = {}
   local passive_1 = random:table_remove(run_passive_pool)
   local passive_2 = random:table_remove(run_passive_pool)
   local passive_3 = random:table_remove(run_passive_pool)
+  local passive_4 = random:table_remove(run_passive_pool)
   if passive_1 then
     table.insert(self.cards, PassiveCard{group = main.current.ui, x = gw/2 - w/2 + 0*(card_w + 20) + card_w/2 + 45, y = gh/2 - 20, w = card_w, h = card_h, card_i = 1, arena = self, passive = passive_1, force_update = true})
   end
   if passive_2 then
-    table.insert(self.cards, PassiveCard{group = main.current.ui, x = gw/2 - w/2 + 1*(card_w + 20) + card_w/2 + 45, y = gh/2 - 20, w = card_w, h = card_h, card_i = 2, arena = self, passive = passive_2, force_update = true})
+    table.insert(self.cards, PassiveCard{group = main.current.ui, x = gw/2 - w/2 + 1*(card_w + 20) + card_w/2 + 45, y = gh/2, w = card_w, h = card_h, card_i = 2, arena = self, passive = passive_2, force_update = true})
   end
   if passive_3 then
     table.insert(self.cards, PassiveCard{group = main.current.ui, x = gw/2 - w/2 + 2*(card_w + 20) + card_w/2 + 45, y = gh/2 - 20, w = card_w, h = card_h, card_i = 3, arena = self, passive = passive_3, force_update = true})
   end
+  if passive_4 then
+    table.insert(self.cards, PassiveCard{group = main.current.ui, x = gw/2 - w/2 + 3*(card_w + 20) + card_w/2 + 45, y = gh/2, w = card_w, h = card_h, card_i = 4, arena = self, passive = passive_4, force_update = true})
+  end
   self.passive_text = Text2{group = self.ui, x = gw/2 + 45, y = gh/2 - 75, lines = {{text = '[fg, wavy]choose one', font = fat_font, alignment = 'center'}}}
-  if not passive_1 and not passive_2 and not passive_3 then
+  if not passive_1 and not passive_2 and not passive_3 and not passive_4 then
     self:transition()
   end
 end
 
 
 function Arena:restore_passives_to_pool(j)
-  for i = 1, 3 do
+  for i = 1, 4 do
     if i ~= j then
       if self.cards[i] then
         table.insert(run_passive_pool, self.cards[i].passive)
@@ -771,10 +816,22 @@ function Arena:die()
     locked_state = nil
     system.save_run()
     self.t:tween(2, self, {main_slow_amount = 0}, math.linear, function() self.main_slow_amount = 0 end)
+    self.t:tween(2, _G, {music_slow_amount = 0}, math.linear, function() music_slow_amount = 0 end)
     self.died_text = Text2{group = self.ui, x = gw/2, y = gh/2 - 32, lines = {
       {text = '[wavy_mid, cbyc]you died...', font = fat_font, alignment = 'center', height_multiplier = 1.25},
     }}
+    trigger:tween(2, camera, {x = gw/2, y = gh/2, r = 0}, math.linear, function() camera.x, camera.y, camera.r = gw/2, gh/2, 0 end)
     self.t:after(2, function()
+      self.build_text = Text2{group = self.ui, x = 40, y = 20, force_update = true, lines = {{text = "[wavy_mid, fg]your build", font = pixul_font, alignment = 'center'}}}
+      for i, unit in ipairs(self.units) do
+        CharacterPart{group = self.ui, x = 20, y = 40 + (i-1)*19, character = unit.character, level = unit.level, force_update = true, cant_click = true, parent = self}
+        Text2{group = self.ui, x = 20 + 14 + pixul_font:get_text_width(unit.character)/2, y = 40 + (i-1)*19, force_update = true, lines = {
+          {text = '[' .. character_color_strings[unit.character] .. ']' .. unit.character, font = pixul_font, alignment = 'left'}
+        }}
+      end
+      for i, passive in ipairs(self.passives) do
+        ItemCard{group = self.ui, x = 120 + (i-1)*30, y = 30, w = 30, h = 45, sx = 0.75, sy = 0.75, force_update = true, passive = passive.passive , level = passive.level, xp = passive.xp, parent = self}
+      end
       self.death_info_text = Text2{group = self.ui, x = gw/2, y = gh/2, sx = 0.7, sy = 0.7, lines = {
         {text = '[wavy_mid, fg]level reached: [wavy_mid, yellow]' .. self.level, font = fat_font, alignment = 'center'},
       }}
@@ -785,6 +842,7 @@ function Arena:die()
         ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = state.dark_transitions and bg[-2] or fg[0], transition_action = function()
           slow_amount = 1
+          music_slow_amount = 1
           gold = 3
           passives = {}
           main_song_instance:stop()
@@ -793,17 +851,26 @@ function Arena:die()
             'defensive_stance', 'offensive_stance', 'kinetic_bomb', 'porcupine_technique', 'last_stand', 'seeping', 'deceleration', 'annihilation', 'malediction', 'hextouch', 'whispers_of_doom',
             'tremor', 'heavy_impact', 'fracture', 'meat_shield', 'hive', 'baneling_burst', 'blunt_arrow', 'explosive_arrow', 'divine_machine_arrow', 'chronomancy', 'awakening', 'divine_punishment',
             'assassination', 'flying_daggers', 'ultimatum', 'magnify', 'echo_barrage', 'unleash', 'reinforce', 'payback', 'enchanted', 'freezing_field', 'burning_field', 'gravity_field', 'magnetism',
-            'insurance', 'dividends', 'berserking', 'unwavering_stance', 'unrelenting_stance', 'blessing', 'haste', 'divine_barrage', 'orbitism', 'psyker_orbs', 'psychosense', 'rearm', 'taunt', 'summon_instability',
+            'insurance', 'dividends', 'berserking', 'unwavering_stance', 'unrelenting_stance', 'blessing', 'haste', 'divine_barrage', 'orbitism', 'psyker_orbs', 'psychosink', 'rearm', 'taunt', 'construct_instability',
+            'intimidation', 'vulnerability', 'temporal_chains', 'ceremonial_dagger', 'homing_barrage', 'critical_strike', 'noxious_strike', 'infesting_strike', 'burning_strike', 'lucky_strike', 'healing_strike', 'stunning_strike',
+            'silencing_strike', 'culling_strike', 'lightning_strike', 'psycholeak', 'divine_blessing', 'hardening',
           }
-          max_units = 7 + current_new_game_plus
+          max_units = math.clamp(7 + current_new_game_plus + self.loop, 7, 12)
           main:add(BuyScreen'buy_screen')
           system.save_run()
-          main:go_to('buy_screen', 1, {}, passives, 1, 0)
+          main:go_to('buy_screen', 1, 0, {}, passives, 1, 0)
         end, text = Text({{text = '[wavy, ' .. tostring(state.dark_transitions and 'fg' or 'bg') .. ']restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
       end}
     end)
     return true
   end
+end
+
+
+function Arena:endless()
+  current_new_game_plus = current_new_game_plus - 1
+  self.loop = self.loop + 1
+  self:transition()
 end
 
 
@@ -856,6 +923,8 @@ function Arena:create_credits()
     open_url(b, 'https://freesound.org/people/benzix2/sounds/467951/') end}
   Button{group = self.credits, x = 204, y = 160, button_text = 'lord', fg_color = 'yellowm5', bg_color = 'yellow', credits_button = true, action = function(b)
     open_url(b, 'https://store.steampowered.com/developer/T_TGames') end}
+  Button{group = self.credits, x = 254, y = 160, button_text = 'InspectorJ', fg_color = 'yellowm5', bg_color = 'yellow', credits_button = true, action = function(b)
+    open_url(b, 'https://freesound.org/people/InspectorJ/sounds/458586/') end}
   Text2{group = self.credits, x = 70, y = 190, lines = {{text = '[red]playtesters: ', font = pixul_font}}}
   Button{group = self.credits, x = 130, y = 190, button_text = 'Jofer', fg_color = 'redm5', bg_color = 'red', credits_button = true, action = function(b) 
     open_url(b, 'https://twitter.com/JofersGames') end}
@@ -879,7 +948,13 @@ end
 
 
 function Arena:gain_gold()
-  local merchant = self.player:get_unit'merchant'
+  local merchant
+  for _, unit in ipairs(self.starting_units) do
+    if unit.character == 'merchant' then
+      merchant = true
+      break
+    end
+  end
   self.gold_gained = random:int(level_to_gold_gained[self.level][1], level_to_gold_gained[self.level][2])
   self.interest = math.min(math.floor(gold/5), 5) + math.min((merchant and math.floor(gold/10) or 0), 10)
   gold = gold + self.gold_gained + self.gold_picked_up + self.interest
@@ -903,11 +978,13 @@ function Arena:transition()
         self.shop_xp = 0
         self.shop_level = self.shop_level + 1
       end
+      if self.shop_level > 5 then self.shop_level = 5 end
     end
     slow_amount = 1
+    music_slow_amount = 1
     main:add(BuyScreen'buy_screen')
-    system.save_run(self.level+1, gold, self.units, self.passives, self.shop_level, self.shop_xp, run_passive_pool, locked_state)
-    main:go_to('buy_screen', self.level+1, self.units, self.passives, self.shop_level, self.shop_xp)
+    system.save_run(self.level+1, self.loop, gold, self.units, self.passives, self.shop_level, self.shop_xp, run_passive_pool, locked_state)
+    main:go_to('buy_screen', self.level+1, self.loop, self.units, self.passives, self.shop_level, self.shop_xp)
     t.t:after(0.1, function()
       t.text:set_text({
         {text = '[nudge_down, ' .. tostring(state.dark_transitions and 'fg' or 'bg') .. ']gold gained: ' .. tostring(self.gold_gained or 0) .. ' + ' .. tostring(self.gold_picked_up or 0), font = pixul_font, 
@@ -1050,7 +1127,7 @@ function Arena:spawn_n_enemies(p, j, n, pass)
       spawn1:play{pitch = random:float(0.8, 1.2), volume = 2*0.15}
       if not pass then
         check_circle:move_to(x, y)
-        local objects = self.main:get_objects_in_shape(check_circle, {Seeker, EnemyCritter, Critter, Player, Illusion, Volcano, Saboteur, Pet, Turret})
+        local objects = self.main:get_objects_in_shape(check_circle, {Seeker, EnemyCritter, Critter, Player, Sentry, Automaton, Bomb, Volcano, Saboteur, Pet, Turret})
         if #objects > 0 then self.enemy_spawns_prevented = self.enemy_spawns_prevented + 1; return end
       end
 

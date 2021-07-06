@@ -38,8 +38,9 @@ function BuyScreen:on_exit()
 end
 
 
-function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
+function BuyScreen:on_enter(from, level, loop, units, passives, shop_level, shop_xp)
   self.level = level
+  self.loop = loop
   self.units = units
   self.passives = passives
   self.shop_level = shop_level
@@ -47,9 +48,6 @@ function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
   camera.x, camera.y = gw/2, gh/2
 
   input:set_mouse_visible(true)
-
-  if self.level == 1 then
-  end
 
   self.main = Group()
   self.effects = Group()
@@ -69,8 +67,8 @@ function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
   self.items_text = Text({{text = '[wavy_mid, fg]items', font = pixul_font, alignment = 'center'}}, global_text_tags)
   self.ng_text = Text({{text = '[fg]NG+' .. current_new_game_plus, font = pixul_font, alignment = 'center'}}, global_text_tags)
   local get_elite_str = function(lvl)
-    if lvl == 6 or lvl == 12 or lvl == 18 or lvl == 24 or lvl == 25 then return ' (elite)'
-    elseif lvl % 3 == 0 then return ' (hard)'
+    if (lvl-(25*self.loop)) % 6 == 0 or lvl % 25 == 0 then return ' (elite)'
+    elseif (lvl-(25*self.loop)) % 3 == 0 then return ' (hard)'
     else return '' end
   end
   self.level_text = Text({{text = '[fg]Lv.' .. tostring(self.level) .. get_elite_str(self.level), font = pixul_font, alignment = 'center'}}, global_text_tags)
@@ -133,6 +131,7 @@ function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
     locked_state = nil
     TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = state.dark_transitions and bg[-2] or fg[0], transition_action = function()
       slow_amount = 1
+      music_slow_amount = 1
       gold = 3
       passives = {}
       main_song_instance:stop()
@@ -141,12 +140,14 @@ function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
         'defensive_stance', 'offensive_stance', 'kinetic_bomb', 'porcupine_technique', 'last_stand', 'seeping', 'deceleration', 'annihilation', 'malediction', 'hextouch', 'whispers_of_doom',
         'tremor', 'heavy_impact', 'fracture', 'meat_shield', 'hive', 'baneling_burst', 'blunt_arrow', 'explosive_arrow', 'divine_machine_arrow', 'chronomancy', 'awakening', 'divine_punishment',
         'assassination', 'flying_daggers', 'ultimatum', 'magnify', 'echo_barrage', 'unleash', 'reinforce', 'payback', 'enchanted', 'freezing_field', 'burning_field', 'gravity_field', 'magnetism',
-        'insurance', 'dividends', 'berserking', 'unwavering_stance', 'unrelenting_stance', 'blessing', 'haste', 'divine_barrage', 'orbitism', 'psyker_orbs', 'psychosense', 'rearm', 'taunt', 'summon_instability',
+        'insurance', 'dividends', 'berserking', 'unwavering_stance', 'unrelenting_stance', 'blessing', 'haste', 'divine_barrage', 'orbitism', 'psyker_orbs', 'psychosink', 'rearm', 'taunt', 'construct_instability',
+        'intimidation', 'vulnerability', 'temporal_chains', 'ceremonial_dagger', 'homing_barrage', 'critical_strike', 'noxious_strike', 'infesting_strike', 'burning_strike', 'lucky_strike', 'healing_strike', 'stunning_strike',
+        'silencing_strike', 'culling_strike', 'lightning_strike', 'psycholeak', 'divine_blessing', 'hardening', 
       }
-      max_units = 7 + current_new_game_plus
+      max_units = math.clamp(7 + current_new_game_plus + self.loop, 7, 12)
       main:add(BuyScreen'buy_screen')
       system.save_run()
-      main:go_to('buy_screen', 1, {}, passives, 1, 0)
+      main:go_to('buy_screen', 1, 0, {}, passives, 1, 0)
     end, text = Text({{text = '[wavy, ' .. tostring(state.dark_transitions and 'fg' or 'bg') .. ']restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
   end, mouse_enter = function(b)
     b.info_text = InfoText{group = main.current.ui, force_update = true}
@@ -160,9 +161,7 @@ function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
     b.info_text = nil
   end}
 
-  trigger:tween(1, main_song_instance, {volume = 2*0.2}, math.linear)
-
-  self.paused = false
+  trigger:tween(1, main_song_instance, {volume = 2*0.2, pitch = 1}, math.linear)
 
   --[[
   if self.level == 1 then
@@ -177,7 +176,7 @@ function BuyScreen:on_enter(from, level, units, passives, shop_level, shop_xp)
   ]]--
 
   locked_state = {locked = self.locked, cards = {self.cards[1] and self.cards[1].unit, self.cards[2] and self.cards[2].unit, self.cards[3] and self.cards[3].unit}} 
-  system.save_run(self.level, gold, self.units, self.passives, self.shop_level, self.shop_xp, run_passive_pool, locked_state)
+  system.save_run(self.level, self.loop, gold, self.units, self.passives, self.shop_level, self.shop_xp, run_passive_pool, locked_state)
 end
 
 function BuyScreen:pause()
@@ -411,7 +410,7 @@ function BuyScreen:set_items()
   local y = 182
   for k, passive in ipairs(self.passives) do
     local i, j = math.index_to_coordinates(k, 4)
-    table.insert(self.items, ItemCard{group = self.main, x = 45 + (i-1)*60, y = y + (j-1)*50, w = 40, h = 50, passive = passive.passive , level = passive.level, xp = passive.xp, parent = self})
+    table.insert(self.items, ItemCard{group = self.main, x = 45 + (i-1)*60, y = y + (j-1)*50, w = 40, h = 50, passive = passive.passive , level = passive.level, xp = passive.xp, parent = self, i = k})
   end
 end
 
@@ -553,6 +552,7 @@ function RestartButton:update(dt)
     ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = state.dark_transitions and bg[-2] or fg[0], transition_action = function()
       slow_amount = 1
+      music_slow_amount = 1
       gold = 3
       passives = {}
       main_song_instance:stop()
@@ -561,12 +561,14 @@ function RestartButton:update(dt)
         'defensive_stance', 'offensive_stance', 'kinetic_bomb', 'porcupine_technique', 'last_stand', 'seeping', 'deceleration', 'annihilation', 'malediction', 'hextouch', 'whispers_of_doom',
         'tremor', 'heavy_impact', 'fracture', 'meat_shield', 'hive', 'baneling_burst', 'blunt_arrow', 'explosive_arrow', 'divine_machine_arrow', 'chronomancy', 'awakening', 'divine_punishment',
         'assassination', 'flying_daggers', 'ultimatum', 'magnify', 'echo_barrage', 'unleash', 'reinforce', 'payback', 'enchanted', 'freezing_field', 'burning_field', 'gravity_field', 'magnetism',
-        'insurance', 'dividends', 'berserking', 'unwavering_stance', 'unrelenting_stance', 'blessing', 'haste', 'divine_barrage', 'orbitism', 'psyker_orbs', 'psychosense', 'rearm', 'taunt', 'summon_instability',
+        'insurance', 'dividends', 'berserking', 'unwavering_stance', 'unrelenting_stance', 'blessing', 'haste', 'divine_barrage', 'orbitism', 'psyker_orbs', 'psychosink', 'rearm', 'taunt', 'construct_instability',
+        'intimidation', 'vulnerability', 'temporal_chains', 'ceremonial_dagger', 'homing_barrage', 'critical_strike', 'noxious_strike', 'infesting_strike', 'burning_strike', 'lucky_strike', 'healing_strike', 'stunning_strike',
+        'silencing_strike', 'culling_strike', 'lightning_strike', 'psycholeak', 'divine_blessing', 'hardening', 
       }
       system.save_state()
       main:add(BuyScreen'buy_screen')
       system.save_run()
-      main:go_to('buy_screen', 1, {}, passives, 1, 0)
+      main:go_to('buy_screen', 1, 0, {}, passives, 1, 0)
     end, text = Text({{text = '[wavy, ' .. tostring(state.dark_transitions and 'fg' or 'bg') .. ']restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
   end
 end
@@ -651,6 +653,12 @@ function Button:update(dt)
         self:action()
         love.mouse.setPosition(0, 0)
       end
+
+      if self.selected and input.m2.pressed then
+        if self.action_2 then
+          self:action_2()
+        end
+      end
     end
   end
 end
@@ -734,11 +742,11 @@ function GoButton:update(dt)
       ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       ui_transition1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       self.transitioning = true
-      system.save_run(self.parent.level, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
+      system.save_run(self.parent.level, self.parent.loop, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
       TransitionEffect{group = main.transitions, x = self.x, y = self.y, color = state.dark_transitions and bg[-2] or character_colors[random:table(self.parent.units).character], transition_action = function()
         main:add(Arena'arena')
-        main:go_to('arena', self.parent.level, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, self.parent.locked)
-      end, text = Text({{text = '[wavy, ' .. tostring(state.dark_transitions and 'fg' or 'bg') .. ']level ' .. tostring(self.parent.level) .. '/25', font = pixul_font, alignment = 'center'}}, global_text_tags)}
+        main:go_to('arena', self.parent.level, self.parent.loop, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, self.parent.locked)
+      end, text = Text({{text = '[wavy, ' .. tostring(state.dark_transitions and 'fg' or 'bg') .. ']level ' .. tostring(self.parent.level) .. '/' .. tostring(25*(self.parent.loop+1)), font = pixul_font, alignment = 'center'}}, global_text_tags)}
     end
   end
 end
@@ -788,7 +796,7 @@ function LockButton:update(dt)
     if not self.parent.locked then locked_state = nil end
     if self.parent.locked then
       locked_state = {locked = true, cards = {self.parent.cards[1] and self.parent.cards[1].unit, self.parent.cards[2] and self.parent.cards[2].unit, self.parent.cards[3] and self.parent.cards[3].unit}}
-      system.save_run(self.parent.level, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
+      system.save_run(self.parent.level, self.parent.loop, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
     end
     ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     self.selected = true
@@ -878,7 +886,7 @@ function LevelButton:update(dt)
         gold = gold - 5
         self.parent.shop_text:set_text{{text = '[wavy_mid, fg]shop [fg]- [fg, nudge_down]gold: [yellow, nudge_down]' .. gold, font = pixul_font, alignment = 'center'}}
         self.text = Text({{text = '[bg10]' .. tostring(self.parent.shop_level), font = pixul_font, alignment = 'center'}}, global_text_tags)
-        system.save_run(self.parent.level, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
+        system.save_run(self.parent.level, self.parent.loop, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
       end
     end
 
@@ -977,7 +985,13 @@ function RerollButton:init(args)
     self.text = Text({{text = '[bg10]reroll: [yellow]2', font = pixul_font, alignment = 'center'}}, global_text_tags)
   elseif self.parent:is(Arena) then
     self.shape = Rectangle(self.x, self.y, 60, 16)
-    local merchant = self.parent.player:get_unit'merchant'
+    local merchant
+    for _, unit in ipairs(self.parent.starting_units) do
+      if unit.character == 'merchant' then
+        merchant = unit
+        break
+      end
+    end
     if self.parent.level == 3 or (merchant and merchant.level == 3) then
       self.free_reroll = true
       self.text = Text({{text = '[bg10]reroll: [yellow]0', font = pixul_font, alignment = 'center'}}, global_text_tags)
@@ -1012,7 +1026,7 @@ function RerollButton:update(dt)
         self.spring:pull(0.2, 200, 10)
         gold = gold - 2
         self.parent.shop_text:set_text{{text = '[wavy_mid, fg]shop [fg]- [fg, nudge_down]gold: [yellow, nudge_down]' .. gold, font = pixul_font, alignment = 'center'}}
-        system.save_run(self.parent.level, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
+        system.save_run(self.parent.level, self.parent.loop, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
       end
     elseif self.parent:is(Arena) then
       if gold < 5 and not self.free_reroll then
@@ -1267,15 +1281,15 @@ function CharacterPart:sell()
       self:die()
       self.parent:set_party_and_sets()
       self.parent:refresh_cards()
-      self.parent.party_text:set_text{{text = '[wavy_mid, fg]party ' .. tostring(#self.parent.units) .. '/' .. tostring(max_units), font = pixul_font, alignment = 'center'}}
-      system.save_run(self.parent.level, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
+      self.parent.party_text:set_text({{text = '[wavy_mid, fg]party ' .. tostring(#self.parent.units) .. '/' .. tostring(max_units), font = pixul_font, alignment = 'center'}})
+      system.save_run(self.parent.level, self.parent.loop, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
     else
       self.parent.parent:gain_gold(self:get_sale_price())
       self.parent.parent.units[self.i].reserve[self.level] = self.parent.parent.units[self.i].reserve[self.level] - 1
       self:die()
       self.parent.parent:set_party_and_sets()
       self.parent.parent:refresh_cards()
-      system.save_run(self.parent.parent.level, gold, self.parent.parent.units, self.parent.parent.passives, self.parent.parent.shop_level, self.parent.parent.shop_xp, run_passive_pool, locked_state)
+      system.save_run(self.parent.parent.level, self.parent.parent.loop, gold, self.parent.parent.units, self.parent.parent.passives, self.parent.parent.shop_level, self.parent.parent.shop_xp, run_passive_pool, locked_state)
     end
 end
 
@@ -1436,11 +1450,12 @@ function PassiveCard:update(dt)
       self.arena.choosing_passives = false
       table.insert(self.arena.passives, {passive = self.passive, level = 1, xp = 0})
       self.arena:restore_passives_to_pool(self.card_i)
-      trigger:tween(0.25, _G, {slow_amount = 1}, math.linear, function()
+      trigger:tween(0.25, _G, {slow_amount = 1, music_slow_amount = 1}, math.linear, function()
         slow_amount = 1
+        music_slow_amount = 1
         self.arena:transition()
       end)
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
       self:die()
     end
 
@@ -1505,6 +1520,8 @@ end
 function ItemCard:update(dt)
   self:update_game_object(dt)
 
+  if self.parent:is(Arena) then return end
+
   if self.selected and input.m1.pressed and not self.unlevellable then
     if self.level >= 3 then return end
 
@@ -1551,22 +1568,32 @@ function ItemCard:update(dt)
         end
         self.parent.shop_text:set_text{{text = '[wavy_mid, fg]shop [fg]- [fg, nudge_down]gold: [yellow, nudge_down]' .. gold, font = pixul_font, alignment = 'center'}}
         self.text = Text({{text = '[bg10]' .. tostring(self.parent.shop_level), font = pixul_font, alignment = 'center'}}, global_text_tags)
-        system.save_run(self.parent.level, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
+        system.save_run(self.parent.level, self.parent.loop, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
       end
     end
 
     self.execute_action = love.timer.getTime()
   end
+
+  if self.selected and input.m2.pressed then
+    _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    self.parent:gain_gold((self.level == 1 and 10) or (self.level == 2 and 20) or (self.level == 3 and 30))
+    table.insert(run_passive_pool, self.passive)
+    table.remove(self.parent.passives, self.i)
+    input.m2.pressed = false
+    self.parent:set_items()
+    system.save_run(self.parent.level, self.parent.loop, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
+  end
 end
 
 
 function ItemCard:draw()
-  graphics.push(self.x, self.y, 0, self.spring.x, self.spring.x)
+  graphics.push(self.x, self.y, 0, self.sx*self.spring.x, self.sy*self.spring.x)
     if self.selected then
       graphics.rectangle(self.x, self.y, self.w, self.h, 6, 6, bg[-1])
     end
     _G[self.passive]:draw(self.x, self.y, 0, 0.8, 0.7, 0, 0, fg[0])
-    if not self.unlevellable then
+    if not self.unlevellable and not self.parent:is(Arena) then
       local x, y = self.x + self.w/2.5, self.y - self.h/2.5
       if self.level == 1 then
         graphics.rectangle(x - 2, y, 2, 2, nil, nil, self.xp >= 1 and fg[0] or bg[5])
@@ -1598,8 +1625,8 @@ function ItemCard:create_info_text()
   else
     self.info_text = InfoText{group = main.current.ui, force_update = true}
     self.info_text:activate({
-      {text = '[fg]' .. passive_names[self.passive] .. ', [yellow]Lv.' .. self.level .. '[fg], XP: [yellow]' .. self.xp .. '/' .. self.max_xp .. '[fg], +1 XP cost: [yellow]5', font = pixul_font, alignment = 'center',
-        height_multiplier = 1.25},
+      {text = '[fg]' .. passive_names[self.passive] .. ', [yellow]Lv.' .. self.level .. '[fg], XP: [yellow]' .. self.xp .. '/' .. self.max_xp .. '[fg], +1 XP cost: [yellow]5[fg], sells for: [yellow]' .. 
+        tostring((self.level == 1 and 10) or (self.level == 2 and 20) or (self.level == 3 and 30)), font = pixul_font, alignment = 'center', height_multiplier = 1.25},
       {text = passive_descriptions_level[self.passive](self.level), font = pixul_font, alignment = 'center', height_multiplier = 1.25},
     }, nil, nil, nil, nil, 16, 4, nil, 2)
     self.info_text.x, self.info_text.y = gw/2, gh/2 + 10
@@ -1702,9 +1729,9 @@ function ShopCard:update(dt)
         self:die()
         self.parent.cards[self.i] = nil
         self.parent:refresh_cards()
-        self.parent.party_text:set_text{{text = '[wavy_mid, fg]party ' .. tostring(#self.parent.units) .. '/' .. tostring(max_units), font = pixul_font, alignment = 'center'}}
+        self.parent.party_text:set_text({{text = '[wavy_mid, fg]party ' .. tostring(#self.parent.units) .. '/' .. tostring(max_units), font = pixul_font, alignment = 'center'}})
         locked_state = {locked = self.parent.locked, cards = {self.parent.cards[1] and self.parent.cards[1].unit, self.parent.cards[2] and self.parent.cards[2].unit, self.parent.cards[3] and self.parent.cards[3].unit}} 
-        system.save_run(self.parent.level, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
+        system.save_run(self.parent.level, self.parent.loop, gold, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, run_passive_pool, locked_state)
       else
         error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         self.spring:pull(0.2, 200, 10)
@@ -2097,7 +2124,7 @@ function ClassIcon:on_mouse_enter()
   local i, j, k, owned = class_set_numbers[self.class](self.units)
   self.info_text = InfoText{group = main.current.ui}
   self.info_text:activate({
-    {text = '[' .. class_color_strings[self.class] .. ']' .. self.class:capitalize() .. '[fg] - owned: [yellow]' .. owned, font = pixul_font, alignment = 'center', height_multiplier = 1.25},
+    {text = '[' .. class_color_strings[self.class] .. ']' .. (self.class == 'conjurer' and 'Builder' or self.class:capitalize()) .. '[fg] - owned: [yellow]' .. owned, font = pixul_font, alignment = 'center', height_multiplier = 1.25},
     {text = class_descriptions[self.class]((k and (owned >= k and 3)) or (owned >= j and 2) or (owned >= i and 1) or 0), font = pixul_font, alignment = 'center'},
   }, nil, nil, nil, nil, 16, 4, nil, 2)
   self.info_text.x, self.info_text.y = gw/2, gh/2 + 10

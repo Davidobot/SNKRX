@@ -60,7 +60,7 @@ function MainMenu:on_enter(from)
   end)
 
   self.units = {
-    {character = 'vagrant', level = 1},
+    {character = 'psykino', level = 1},
     {character = 'magician', level = 1},
     {character = 'bane', level = 1},
     {character = 'scout', level = 1},
@@ -92,14 +92,17 @@ function MainMenu:on_enter(from)
         'defensive_stance', 'offensive_stance', 'kinetic_bomb', 'porcupine_technique', 'last_stand', 'seeping', 'deceleration', 'annihilation', 'malediction', 'hextouch', 'whispers_of_doom',
         'tremor', 'heavy_impact', 'fracture', 'meat_shield', 'hive', 'baneling_burst', 'blunt_arrow', 'explosive_arrow', 'divine_machine_arrow', 'chronomancy', 'awakening', 'divine_punishment',
         'assassination', 'flying_daggers', 'ultimatum', 'magnify', 'echo_barrage', 'unleash', 'reinforce', 'payback', 'enchanted', 'freezing_field', 'burning_field', 'gravity_field', 'magnetism',
-        'insurance', 'dividends', 'berserking', 'unwavering_stance', 'unrelenting_stance'
+        'insurance', 'dividends', 'berserking', 'unwavering_stance', 'unrelenting_stance', 'blessing', 'haste', 'divine_barrage', 'orbitism', 'psyker_orbs', 'psychosink', 'rearm', 'taunt', 'construct_instability',
+        'intimidation', 'vulnerability', 'temporal_chains', 'ceremonial_dagger', 'homing_barrage', 'critical_strike', 'noxious_strike', 'infesting_strike', 'burning_strike', 'lucky_strike', 'healing_strike', 'stunning_strike',
+        'silencing_strike', 'culling_strike', 'lightning_strike', 'psycholeak', 'divine_blessing', 'hardening',
       }
       gold = run.gold or 3
       passives = run.passives or {}
       locked_state = run.locked_state
+      current_new_game_plus = run.current_new_game_plus or current_new_game_plus or 0
       system.save_state()
       main:add(BuyScreen'buy_screen')
-      main:go_to('buy_screen', run.level or 1, run.units or {}, passives, run.shop_level or 1, run.shop_xp or 0)
+      main:go_to('buy_screen', run.level or 1, run.loop or 0, run.units or {}, passives, run.shop_level or 1, run.shop_xp or 0)
     end, text = Text({{text = '[wavy, ' .. tostring(state.dark_transitions and 'fg' or 'bg') .. ']starting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
   end}
   self.options_button = Button{group = self.main_ui, x = 47, y = gh/2 + 12, force_update = true, button_text = 'options', fg_color = 'bg10', bg_color = 'bg', action = function(b)
@@ -114,12 +117,19 @@ function MainMenu:on_enter(from)
     love.event.quit()
   end}]]
   self.t:every(2, function() self.soundtrack_button.spring:pull(0.025, 200, 10) end)
-  self.soundtrack_button = Button{group = self.main_ui, x = gw - 72, y = gh - 17, force_update = true, button_text = 'buy the soundtrack!', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+  self.soundtrack_button = Button{group = self.main_ui, x = gw - 72, y = gh - 40, force_update = true, button_text = 'buy the soundtrack!', fg_color = 'bg10', bg_color = 'bg', action = function(b)
     ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     b.spring:pull(0.2, 200, 10)
     b.selected = true
     ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
     system.open_url('https://kubbimusic.com/album/ember')
+  end}
+  self.discord_button = Button{group = self.main_ui, x = gw - 92, y = gh - 17, force_update = true, button_text = 'join the community discord!', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    b.spring:pull(0.2, 200, 10)
+    b.selected = true
+    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+    system.open_url('https://discord.gg/Yjk2Q5gDqA')
   end}
 end
 
