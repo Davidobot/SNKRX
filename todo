@@ -1,7 +1,5 @@
-Major:
+Minor:
  * freezing iOS when tapping out?
  * frequent wake-up (battery issue)
- * Error engine/init.lua:65: attempt to index global 'state' (a nil value) Traceback engine/init.lua:65: in function [C]: in function 'xpcall' [C]: in function 'xpcall'
-   on saving and exiting?
  * make pause button on-press rather than release. 
  * re-roll button unresponsive
