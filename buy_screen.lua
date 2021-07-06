@@ -123,42 +123,25 @@ function BuyScreen:on_enter(from, level, loop, units, passives, shop_level, shop
     b.info_text = nil
   end}
 
-  self.restart_button = Button{group = self.ui, double_click = true, x = 12, y = 18, force_update = true, button_text = 'R', fg_color = 'bg10', bg_color = 'bg', action = function(b)
-    self.transitioning = true
-    ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-    ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-    ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-    locked_state = nil
-    TransitionEffect{group = main.transitions, x = gw/2, y = gh/2, color = state.dark_transitions and bg[-2] or fg[0], transition_action = function()
-      slow_amount = 1
-      music_slow_amount = 1
-      gold = 3
-      passives = {}
-      main_song_instance:stop()
-      run_passive_pool = {
-        'centipede', 'ouroboros_technique_r', 'ouroboros_technique_l', 'amplify', 'resonance', 'ballista', 'call_of_the_void', 'crucio', 'speed_3', 'damage_4', 'shoot_5', 'death_6', 'lasting_7',
-        'defensive_stance', 'offensive_stance', 'kinetic_bomb', 'porcupine_technique', 'last_stand', 'seeping', 'deceleration', 'annihilation', 'malediction', 'hextouch', 'whispers_of_doom',
-        'tremor', 'heavy_impact', 'fracture', 'meat_shield', 'hive', 'baneling_burst', 'blunt_arrow', 'explosive_arrow', 'divine_machine_arrow', 'chronomancy', 'awakening', 'divine_punishment',
-        'assassination', 'flying_daggers', 'ultimatum', 'magnify', 'echo_barrage', 'unleash', 'reinforce', 'payback', 'enchanted', 'freezing_field', 'burning_field', 'gravity_field', 'magnetism',
-        'insurance', 'dividends', 'berserking', 'unwavering_stance', 'unrelenting_stance', 'blessing', 'haste', 'divine_barrage', 'orbitism', 'psyker_orbs', 'psychosink', 'rearm', 'taunt', 'construct_instability',
-        'intimidation', 'vulnerability', 'temporal_chains', 'ceremonial_dagger', 'homing_barrage', 'critical_strike', 'noxious_strike', 'infesting_strike', 'burning_strike', 'lucky_strike', 'healing_strike', 'stunning_strike',
-        'silencing_strike', 'culling_strike', 'lightning_strike', 'psycholeak', 'divine_blessing', 'hardening', 
-      }
-      max_units = math.clamp(7 + current_new_game_plus + self.loop, 7, 12)
-      main:add(BuyScreen'buy_screen')
-      system.save_run()
-      main:go_to('buy_screen', 1, 0, {}, passives, 1, 0)
-    end, text = Text({{text = '[wavy, ' .. tostring(state.dark_transitions and 'fg' or 'bg') .. ']restarting...', font = pixul_font, alignment = 'center'}}, global_text_tags)}
+  self.restart_button = Button{group = self.main, double_click = true, x = 12, y = 18, force_update = true, button_text = 'M', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+    if not self.transitioning and not self.in_tutorial then
+      b.info_text:deactivate()
+      b.info_text.dead = true
+      b.info_text = nil
+      open_options(self)
+    end
   end, mouse_enter = function(b)
     b.info_text = InfoText{group = main.current.ui, force_update = true}
     b.info_text:activate({
-      {text = '[fg]restart run', font = pixul_font, alignment = 'center'},
+      {text = '[fg]open menu', font = pixul_font, alignment = 'center'},
     }, nil, nil, nil, nil, 16, 4, nil, 2)
-    b.info_text.x, b.info_text.y = b.x + 32, b.y + 20
+    b.info_text.x, b.info_text.y = b.x + 30, b.y + 20
   end, mouse_exit = function(b)
-    b.info_text:deactivate()
-    b.info_text.dead = true
-    b.info_text = nil
+    if b.info_text then
+      b.info_text:deactivate()
+      b.info_text.dead = true
+      b.info_text = nil
+    end
   end}
 
   trigger:tween(1, main_song_instance, {volume = 2*0.2, pitch = 1}, math.linear)

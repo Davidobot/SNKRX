@@ -62,6 +62,11 @@ function engine_run(config)
     local is_ios = love.system.getOS() == "iOS"
     love.window.setMode(window_width, window_height, {fullscreen = config.fullscreen, vsync = config.vsync, msaa = 0, highdpi = is_ios, usedpiscale = is_ios})
 
+    if not state then
+      state = {}
+      system.save_state()
+    end
+
     if not state.ignore_safe_area then
       state.ignore_safe_area = false
     end

@@ -1975,7 +1975,7 @@ function open_options(self)
     end}
 
     if not self:is(MainMenu) then
-      self.restart_button = Button{group = self.ui, x = gw/2, y = gh - 200, force_update = true, button_text = 'restart run (r)', fg_color = 'bg10', bg_color = 'bg', action = function(b)
+      self.restart_button = Button{group = self.ui, x = gw/2, y = gh - 25, force_update = true, button_text = 'restart run', fg_color = 'bg10', bg_color = 'bg', action = function(b)
         self.transitioning = true
         ui_transition2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}

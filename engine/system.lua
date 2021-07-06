@@ -117,7 +117,7 @@ function system.load_file(filename)
 end
 
 
-function system.save_state(gold, units, passives)
+function system.save_state()
   love.filesystem.createDirectory("")
   local str = "return " .. table.tostring(state or {})
   love.filesystem.write("state.txt", str)
