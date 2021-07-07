@@ -434,7 +434,6 @@ end
 
 function SteamFollowButton:on_mouse_enter()
   if main.current.in_credits then return end
-  love.mouse.setCursor(love.mouse.getSystemCursor'hand')
   ui_hover1:play{pitch = random:float(1.3, 1.5), volume = 2*0.5}
   pop2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
   self.selected = true
@@ -445,7 +444,6 @@ end
 
 function SteamFollowButton:on_mouse_exit()
   if main.current.in_credits then return end
-  love.mouse.setCursor()
   self.text:set_text{{text = '[greenm5]follow me on steam!', font = pixul_font, alignment = 'center'}}
   self.selected = false
 end
