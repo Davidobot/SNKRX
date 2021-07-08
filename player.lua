@@ -3742,8 +3742,8 @@ HealingOrb:implement(GameObject)
 HealingOrb:implement(Physics)
 function HealingOrb:init(args)
   self:init_game_object(args)
-  self:init_game_object(args)
   if tostring(self.x) == tostring(0/0) or tostring(self.y) == tostring(0/0) then self.dead = true; return end
+  if #self.group:get_objects_by_class(HealingOrb) > 30 then self.dead = true; return end
   self:set_as_rectangle(4, 4, 'dynamic', 'ghost')
   self:set_restitution(0.5)
   local r = random:float(0, 2*math.pi)
