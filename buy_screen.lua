@@ -125,9 +125,11 @@ function BuyScreen:on_enter(from, level, loop, units, passives, shop_level, shop
 
   self.restart_button = Button{group = self.main, double_click = true, x = 10, y = 18, force_update = true, button_text = 'M', fg_color = 'bg10', bg_color = 'bg', action = function(b)
     if not self.transitioning and not self.in_tutorial then
-      b.info_text:deactivate()
-      b.info_text.dead = true
-      b.info_text = nil
+      if b.info_text then
+        b.info_text:deactivate()
+        b.info_text.dead = true
+        b.info_text = nil
+      end
       open_options(self)
     end
   end, mouse_enter = function(b)
