@@ -1,3 +1,7 @@
+Major:
+ * Joystick control option
+ * Bigger play area (move health to the side of the arena)
+
 Minor:
  * freezing iOS when tapping out?
  * frequent wake-up (battery issue)
