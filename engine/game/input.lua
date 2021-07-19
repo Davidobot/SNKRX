@@ -18,6 +18,10 @@ function Input:init(joystick_index)
   self.previous_gamepad_state = {}
   self.touch_state = {}
   self.previous_touch_state = {}
+  self.finger_joystick = {
+    id = nil,
+    pos = nil
+  }
   self.actions = {}
   self.textinput_buffer = ''
 end
@@ -76,7 +80,7 @@ end
 
 
 function Input:set_mouse_visible(v)
-  love.mouse.setVisible(v)
+  --love.mouse.setVisible(v)
 end
 
 

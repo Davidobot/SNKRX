@@ -43,6 +43,32 @@ if not path:find("init") then
   require(path .. ".game.hitfx")
 end
 
+function resize_w_safe_area()
+  if state.ignore_safe_area then
+    safe_area_x, safe_area_y, safe_area_w, safe_area_h = 0, 0, ww, wh
+  else
+    safe_area_x, safe_area_y, real_safe_area_w, real_safe_area_h = love.window.getSafeArea()
+    safe_area_w = real_safe_area_w
+    safe_area_h = real_safe_area_h
+    --safe_area_w = ww - safe_area_x
+    --safe_area_h = wh - safe_area_y
+  end
+
+  real_safe_area_w = safe_area_w
+  real_safe_area_h = safe_area_h
+  real_safe_area_x = safe_area_x
+  if safe_area_w * (9 / 16) > safe_area_h then
+    safe_area_w = real_safe_area_h * (16 / 9)
+    safe_area_x = safe_area_x + math.floor((real_safe_area_w - safe_area_w) / 2)
+  else
+    safe_area_h = real_safe_area_w * (9 / 16)
+    safe_area_y = safe_area_y + math.floor((real_safe_area_h - safe_area_h) / 2)
+  end
+  sx, sy = safe_area_w/gw, safe_area_h/gh
+  real_sx, real_sy = real_safe_area_w/gw, real_safe_area_h/gh
+  system.save_state()
+end
+
 function engine_run(config)
   if not web then
     love.filesystem.setIdentity(config.game_name)
@@ -67,6 +93,10 @@ function engine_run(config)
       system.save_state()
     end
 
+    if state.mouse_control == true then
+      state.mouse_control = 'point' -- backwards compat
+    end
+
     if not state.ignore_safe_area then
       state.ignore_safe_area = false
     end
@@ -74,10 +104,16 @@ function engine_run(config)
     if state.ignore_safe_area then
       safe_area_x, safe_area_y, safe_area_w, safe_area_h = 0, 0, window_width, window_height
     else
-      -- TODO: handle notches on the RHS of the screen
       safe_area_x, safe_area_y, real_safe_area_w, real_safe_area_h = love.window.getSafeArea()
-      safe_area_w = window_width - safe_area_x
-      safe_area_h = window_height - safe_area_y
+
+      -- a bit hacky but starts weird otherwise
+      if window_height > real_safe_area_h then
+        safe_area_w = window_width - safe_area_x
+        safe_area_h = window_height - safe_area_y
+      else
+        safe_area_w = real_safe_area_w
+        safe_area_h = real_safe_area_h
+      end
     end
 
     real_safe_area_w = safe_area_w
@@ -160,10 +196,14 @@ function engine_run(config)
         elseif name == "gamepadpressed" then input.gamepad_state[input.index_to_gamepad_button[b]] = true; input.last_key_pressed = input.index_to_gamepad_button[b]
         elseif name == "gamepadreleased" then input.gamepad_state[input.index_to_gamepad_button[b]] = false
         elseif name == "gamepadaxis" then input.gamepad_axis[input.index_to_gamepad_axis[b]] = c
-        elseif name == "touchpressed" then input.touch_state[a] = b - safe_area_x < safe_area_w / 2 and "touch_left" or "touch_right"
-        elseif name == "touchreleased" then input.touch_state[a] = nil
+        elseif name == "touchpressed" then
+          input.touch_state[a] = b - safe_area_x < safe_area_w / 2 and "touch_left" or "touch_right"
+          if not input.finger_joystick.id then input.finger_joystick.id = a; input.finger_joystick.pos = {x = b, y = c} end
+        elseif name == "touchreleased" then
+          input.touch_state[a] = nil
+          if input.finger_joystick.id == a then input.finger_joystick.id = nil; input.finger_joystick.pos = nil end
         elseif name == "textinput" then input:textinput(a)
-        elseif name == "focus" then love.handlers[name](a,b,c,d,e,f) end
+        elseif name == "focus" or name == "resize" then love.handlers[name](a,b,c,d,e,f) end
       end
     end
 

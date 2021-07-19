@@ -1872,6 +1872,10 @@ function love.focus(focus)
   end
 end
 
+function love.resize(w, h)
+  resize_w_safe_area()
+end
+
 local function showAchievements()
   if love.mobsvc then
     if love.mobsvc.isSignedIn() then
@@ -1902,28 +1906,7 @@ function open_options(self)
 
     self.safe_area_button = Button{group = self.ui, x = gw/2 - 150, y = gh - 250, force_update = true, button_text = 'toggle safe area', fg_color = 'bg10', bg_color = 'bg', action = function(b)
       state.ignore_safe_area = not state.ignore_safe_area
-      if state.ignore_safe_area then
-        safe_area_x, safe_area_y, safe_area_w, safe_area_h = 0, 0, ww, wh
-      else
-        -- TODO: handle notches on the RHS of the screen
-        safe_area_x, safe_area_y, real_safe_area_w, real_safe_area_h = love.window.getSafeArea()
-        safe_area_w = ww - safe_area_x
-        safe_area_h = wh - safe_area_y
-      end
-  
-      real_safe_area_w = safe_area_w
-      real_safe_area_h = safe_area_h
-      real_safe_area_x = safe_area_x
-      if safe_area_w * (9 / 16) > safe_area_h then
-        safe_area_w = real_safe_area_h * (16 / 9)
-        safe_area_x = safe_area_x + math.floor((real_safe_area_w - safe_area_w) / 2)
-      else
-        safe_area_h = real_safe_area_w * (9 / 16)
-        safe_area_y = safe_area_y + math.floor((real_safe_area_h - safe_area_h) / 2)
-      end
-      sx, sy = safe_area_w/gw, safe_area_h/gh
-      real_sx, real_sy = real_safe_area_w/gw, real_safe_area_h/gh
-      system.save_state()
+      resize_w_safe_area()
     end }
 
     self.resume_button = Button{group = self.ui, x = gw/2, y = gh - 200, force_update = true, button_text = self:is(MainMenu) and 'main menu' or 'resume game', fg_color = 'bg10', bg_color = 'bg', action = function(b)
@@ -2004,11 +1987,17 @@ function open_options(self)
       end}
     end
 
-    self.mouse_button = Button{group = self.ui, x = gw/2 - 57, y = gh - 150, force_update = true, button_text = 'finger control: ' .. tostring(state.mouse_control and 'yes' or 'no'), fg_color = 'bg10', bg_color = 'bg',
+    self.mouse_button = Button{group = self.ui, x = gw/2 - 57, y = gh - 150, w = (pixul_font:get_text_width('controls: joystick') + 8), force_update = true, button_text = 'controls: ' .. tostring(state.mouse_control and (state.mouse_control == 'point' and 'point' or 'joystick') or 'L/R'), fg_color = 'bg10', bg_color = 'bg',
     action = function(b)
       ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
-      state.mouse_control = not state.mouse_control
-      b:set_text('finger control: ' .. tostring(state.mouse_control and 'yes' or 'no'))
+      if not state.mouse_control then
+        state.mouse_control = 'point'
+      elseif state.mouse_control == 'point' then
+        state.mouse_control = 'joystick'
+      elseif state.mouse_control == 'joystick' then
+        state.mouse_control = false
+      end
+      b:set_text('controls: ' .. tostring(state.mouse_control and (state.mouse_control == 'point' and 'point' or 'joystick') or 'L/R'))
     end}
 
     self.dark_transition_button = Button{group = self.ui, x = gw/2 + 64, y = gh - 150, force_update = true, button_text = 'dark transitions: ' .. tostring(state.dark_transitions and 'yes' or 'no'),

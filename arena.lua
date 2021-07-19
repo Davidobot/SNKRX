@@ -611,7 +611,7 @@ function Arena:quit()
       end
 
       if self.forcer_level >= 2 then
-        unlockAchievement("IMEAIQBQ", "achievement_forcers")
+        unlockAchievement("IMEAIQFw", "achievement_forcers")
         state.achievement_forcers_win = true
         system.save_state()
       end

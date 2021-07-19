@@ -1339,11 +1339,22 @@ function Player:update(dt)
       if input.move_left.released then self.move_left_pressed = nil end
       if input.move_right.released then self.move_right_pressed = nil end
 
-      if state.mouse_control then
+      if state.mouse_control == 'point' then
         self.mouse_control_v = Vector(math.cos(self.r), math.sin(self.r)):perpendicular():dot(Vector(math.cos(self:angle_to_mouse()), math.sin(self:angle_to_mouse())))
+        
         self.r = self.r + math.sign(self.mouse_control_v)*1.66*math.pi*dt
         table.insert(self.mouse_control_v_buffer, 1, self.mouse_control_v)
         if #self.mouse_control_v_buffer > 64 then self.mouse_control_v_buffer[65] = nil end
+      elseif state.mouse_control == 'joystick' then
+        if input.finger_joystick.id then
+          local x, y = love.touch.getPosition(input.finger_joystick.id)
+          local ang = math.atan2(y - input.finger_joystick.pos.y, x - input.finger_joystick.pos.x)
+          self.mouse_control_v = Vector(math.cos(self.r), math.sin(self.r)):perpendicular():dot(Vector(math.cos(ang), math.sin(ang)))
+
+          self.r = self.r + math.sign(self.mouse_control_v)*1.66*math.pi*dt
+          table.insert(self.mouse_control_v_buffer, 1, self.mouse_control_v)
+          if #self.mouse_control_v_buffer > 64 then self.mouse_control_v_buffer[65] = nil end
+        end
       else
         if input.move_left.down then self.r = self.r - 1.66*math.pi*dt end
         if input.move_right.down then self.r = self.r + 1.66*math.pi*dt end

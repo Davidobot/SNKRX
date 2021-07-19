@@ -103,6 +103,22 @@ function shared_draw(draw_action)
   end
   shadow_canvas:draw(safe_area_x + 1.5*sx, safe_area_y + 1.5*sy, 0, sx, sy)
   main_canvas:draw(safe_area_x, safe_area_y, 0, sx, sy)
+
+  if main.current:is(Arena) then
+    if not (main.current.choosing_passives or main.current.won or main.current.paused or main.current.died or main.current.in_credits or main.current.shop_text) then
+      if state.mouse_control == 'joystick' and input.finger_joystick.id then
+        local x, y = love.touch.getPosition(input.finger_joystick.id)
+        local ang = math.atan2(y - input.finger_joystick.pos.y, x - input.finger_joystick.pos.x)
+        local dist = math.sqrt((x - input.finger_joystick.pos.x) * (x - input.finger_joystick.pos.x) + (y - input.finger_joystick.pos.y) * (y - input.finger_joystick.pos.y))
+
+        local r, g, b, a = love.graphics.getColor()
+        love.graphics.setColor(1, 1, 1, 0.25)
+        love.graphics.circle("line", input.finger_joystick.pos.x, input.finger_joystick.pos.y, wh*0.15)
+        love.graphics.circle("fill", input.finger_joystick.pos.x + math.cos(ang) * math.min(wh*0.15, dist), input.finger_joystick.pos.y + math.sin(ang) * math.min(wh*0.15, dist), wh*0.05)
+        love.graphics.setColor(r, g, b, a)
+      end
+    end
+  end
 end
 
 

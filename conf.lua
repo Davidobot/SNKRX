@@ -7,6 +7,7 @@ function love.conf(t)
 
   -- Mobile
   t.window.usedpiscale = false
+  t.window.resizable = true
   t.externalstorage = true
   t.audio.mixwithsystem = true
 end

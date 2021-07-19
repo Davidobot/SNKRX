@@ -296,7 +296,7 @@ end
 
 
 function graphics.set_mouse_visible(value)
-  love.mouse.setVisible(value)
+  --love.mouse.setVisible(value)
 end
 
 
