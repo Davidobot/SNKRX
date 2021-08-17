@@ -46,6 +46,7 @@ function BuyScreen:on_enter(from, level, loop, units, passives, shop_level, shop
   self.shop_level = shop_level
   self.shop_xp = shop_xp
   camera.x, camera.y = gw/2, gh/2
+  max_units = math.clamp(7 + current_new_game_plus + self.loop, 7, 12)
 
   input:set_mouse_visible(true)
 
@@ -147,18 +148,6 @@ function BuyScreen:on_enter(from, level, loop, units, passives, shop_level, shop
   end}
 
   trigger:tween(1, main_song_instance, {volume = 2*0.2, pitch = 1}, math.linear)
-
-  --[[
-  if self.level == 1 then
-    self.screen_text = Text2{group = self.ui, x = gw/2, y = gh/2, lines = {
-      {text = '[bg3]press K if screen is too large', font = pixul_font, alignment = 'center'},
-      {text = '[bg3]press L if screen is too small', font = pixul_font, alignment = 'center'},
-    }}
-    self.t:after(8, function()
-      self.t:tween(0.2, self.screen_text, {sy = 0}, math.linear, function() self.screen_text.sy = 0 end)
-    end)
-  end
-  ]]--
 
   locked_state = {locked = self.locked, cards = {self.cards[1] and self.cards[1].unit, self.cards[2] and self.cards[2].unit, self.cards[3] and self.cards[3].unit}} 
   system.save_run(self.level, self.loop, gold, self.units, self.passives, self.shop_level, self.shop_xp, run_passive_pool, locked_state)
@@ -737,6 +726,8 @@ function GoButton:update(dt)
         main:go_to('arena', self.parent.level, self.parent.loop, self.parent.units, self.parent.passives, self.parent.shop_level, self.parent.shop_xp, self.parent.locked)
       end, text = Text({{text = '[wavy, ' .. tostring(state.dark_transitions and 'fg' or 'bg') .. ']level ' .. tostring(self.parent.level) .. '/' .. tostring(25*(self.parent.loop+1)), font = pixul_font, alignment = 'center'}}, global_text_tags)}
     end
+
+    if input.enter.pressed then self.selected = false end
   end
 end
 
@@ -1784,6 +1775,7 @@ function ShopCard:update(dt)
         ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         _G[random:table{'coins1', 'coins2', 'coins3'}]:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
         love.mouse.setPosition(0, 0)
+        self.character_icon:die()
         self:on_mouse_exit()
         self:die()
         self.parent.cards[self.i] = nil

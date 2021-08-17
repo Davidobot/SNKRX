@@ -116,8 +116,6 @@ function Arena:on_enter(from, level, loop, units, passives, shop_level, shop_xp,
 
   if self.level == 1000 then
     self.level_1000_text = Text2{group = self.ui, x = gw/2, y = gh/2, lines = {{text = '[fg, wavy_mid]SNKRX', font = fat_font, alignment = 'center'}}}
-    -- self.level_1000_text2 = Text2{group = self.ui, x = gw/2, y = gh/2 + 64, lines = {{text = '[fg, wavy_mid]SNKRX', font = pixul_font, alignment = 'center'}}}
-    -- Wall{group = self.main, vertices = math.to_rectangle_vertices(gw/2 - 0.45*self.level_1000_text.w, gh/2 - 0.3*self.level_1000_text.h, gw/2 + 0.45*self.level_1000_text.w, gh/2 - 3), snkrx = true, color = bg[-1]}
   
   elseif (self.level - (25*self.loop)) % 6 == 0 or self.level % 25 == 0 then
     self.boss_level = true
@@ -260,16 +258,8 @@ function Arena:on_enter(from, level, loop, units, passives, shop_level, shop_xp,
   if self.level == 1 then
     local t1 = Text2{group = self.floor, x = gw/2, y = gh/2 + 2, sx = 0.6, sy = 0.6, lines = {{text = '[light_bg]<-              ->', font = fat_font, alignment = 'center'}}}
     local t2 = Text2{group = self.floor, x = gw/2, y = gh/2 + 18, lines = {{text = '[light_bg]turn left                                      turn right', font = pixul_font, alignment = 'center'}}}
-    --[[
-    local t4 = Text2{group = self.floor, x = gw/2, y = gh/2 + 68, sx = 0.6, sy = 0.6, lines = {{text = '[light_bg]n - mute sfx', font = fat_font, alignment = 'center'}}}
-    local t5 = Text2{group = self.floor, x = gw/2, y = gh/2 + 90, sx = 0.6, sy = 0.6, lines = {{text = '[light_bg]m - mute music', font = fat_font, alignment = 'center'}}}
-    ]]--
     t1.t:after(8, function() t1.t:tween(0.2, t1, {sy = 0}, math.linear, function() t1.sy = 0 end) end)
     t2.t:after(8, function() t2.t:tween(0.2, t2, {sy = 0}, math.linear, function() t2.sy = 0 end) end)
-    --[[
-    t4.t:after(8, function() t4.t:tween(0.2, t4, {sy = 0}, math.linear, function() t4.sy = 0 end) end)
-    t5.t:after(8, function() t4.t:tween(0.2, t5, {sy = 0}, math.linear, function() t5.sy = 0 end) end)
-    ]]--
   end
 
   -- Calculate class levels
@@ -940,7 +930,7 @@ function Arena:create_credits()
     open_url(b, 'https://freesound.org/people/benzix2/sounds/467951/') end}
   Button{group = self.credits, x = 204, y = 160, button_text = 'lord', fg_color = 'yellowm5', bg_color = 'yellow', credits_button = true, action = function(b)
     open_url(b, 'https://store.steampowered.com/developer/T_TGames') end}
-  Button{group = self.credits, x = 254, y = 160, button_text = 'InspectorJ', fg_color = 'yellowm5', bg_color = 'yellow', credits_button = true, action = function(b)
+  Button{group = self.credits, x = 262, y = 160, button_text = 'InspectorJ', fg_color = 'yellowm5', bg_color = 'yellow', credits_button = true, action = function(b)
     open_url(b, 'https://freesound.org/people/InspectorJ/sounds/458586/') end}
   Text2{group = self.credits, x = 70, y = 190, lines = {{text = '[red]playtesters: ', font = pixul_font}}}
   Button{group = self.credits, x = 130, y = 190, button_text = 'Jofer', fg_color = 'redm5', bg_color = 'red', credits_button = true, action = function(b) 
@@ -959,8 +949,8 @@ function Arena:create_credits()
     open_url(b, 'https://twitter.com/Ge0forceBE') end}
   Button{group = self.credits, x = 193, y = 210, button_text = 'Vlad', fg_color = 'redm5', bg_color = 'red', credits_button = true, action = function(b) 
     open_url(b, 'https://twitter.com/thecryru') end}
-  Button{group = self.credits, x = 223, y = 210, button_text = 'F', fg_color = 'redm5', bg_color = 'red', credits_button = true, action = function(b) 
-    open_url(b, 'https://twitter.com/notyps') end}
+  Button{group = self.credits, x = 258, y = 210, button_text = 'Yongmin Park', fg_color = 'redm5', bg_color = 'red', credits_button = true, action = function(b) 
+    open_url(b, 'https://twitter.com/yongminparks') end}
 end
 
 
