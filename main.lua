@@ -2004,7 +2004,7 @@ function open_options(self)
 
     self.run_timer_button = Button{group = self.ui, x = gw/2 + 121, y = gh - 150, force_update = true, button_text = 'run timer: ' .. tostring(state.run_timer and 'yes' or 'no'), fg_color = 'bg10', bg_color = 'bg',
     action = function(b)
-      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       state.run_timer = not state.run_timer
       b:set_text('run timer: ' .. tostring(state.run_timer and 'yes' or 'no'))
     end}

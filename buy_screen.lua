@@ -878,7 +878,7 @@ function LevelButton:update(dt)
     if gold < 10 then
       self.spring:pull(0.2, 200, 10)
       self.selected = true
-      error1:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      error1:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       if not self.info_text_2 then
         self.info_text_2 = InfoText{group = main.current.ui}
         self.info_text_2:activate({
@@ -888,7 +888,7 @@ function LevelButton:update(dt)
       end
       self.t:after(2, function() self.info_text_2:deactivate(); self.info_text_2.dead = true; self.info_text_2 = nil end, 'info_text_2')
     else
-      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 0.5}
+      ui_switch2:play{pitch = random:float(0.95, 1.05), volume = 2*0.5}
       self.shop_xp = 0
       self.parent.shop_level = self.parent.shop_level - 1
       self.max_xp = (self.parent.shop_level == 1 and 3) or (self.parent.shop_level == 2 and 4) or (self.parent.shop_level == 3 and 5) or (self.parent.shop_level == 4 and 6) or (self.parent.shop_level == 5 and 0)
