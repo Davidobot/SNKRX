@@ -12,6 +12,12 @@ if love.system.getOS() == "Android" or love.system.getOS() == "iOS" then
   require("love.mobsvc")
 end
 
+if love.system.getOS() == "Android" then
+  jit.on()
+  jit.opt.start(3)
+  jit.flush()
+end
+
 function init()
   shared_init()
 
@@ -1848,6 +1854,9 @@ function draw()
   shared_draw(function()
     main:draw()
   end)
+
+  local status, v = jit.status()
+  love.graphics.print(tostring(status).." "..tostring(v), 200, 100)
 end
 
 function love.focus(focus)
