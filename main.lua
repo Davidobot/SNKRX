@@ -1854,9 +1854,6 @@ function draw()
   shared_draw(function()
     main:draw()
   end)
-
-  local status, v = jit.status()
-  love.graphics.print(tostring(status).." "..tostring(v), 200, 100)
 end
 
 function love.focus(focus)
